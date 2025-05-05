@@ -9,7 +9,6 @@ import { usePageTitle } from '@/app/hooks/usePageTitle';
 export default function AuthCallback() {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
-  const [isLoading, setIsLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("Initializing authentication...");
   
   // Use our custom hook to set the page title
@@ -93,7 +92,7 @@ export default function AuthCallback() {
     run();
     console.log('AuthCallback: run() called.');
 
-  }, [router]); 
+  }, [router, supabase.auth]); 
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">

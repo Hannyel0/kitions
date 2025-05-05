@@ -52,13 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
-  // Helper function to refresh session state
-  const refreshSession = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    setSession(session);
-    setUser(session?.user ?? null);
-  };
-
   useEffect(() => {
     const getSession = async () => {
       // Get session and user in a single call, avoiding redundant API requests
@@ -66,6 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+    };
+
+    // Helper function to refresh session state
+    const refreshSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      setUser(session?.user ?? null);
     };
 
     getSession();

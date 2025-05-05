@@ -60,8 +60,9 @@ export default function useUserProfile(): UserProfile {
           profilePictureUrl: data.profile_picture_url || null,
         });
         setError(null);
-      } catch (err: any) {
-        console.error('Error fetching user profile:', err?.message || err);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('Error fetching user profile:', errorMessage);
         setError('Failed to load user profile');
       } finally {
         setLoading(false);

@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
-import { useRouter } from 'next/navigation';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Login() {
@@ -18,7 +17,6 @@ export default function Login() {
   usePageTitle('Log In');
 
   const { signIn } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +24,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { error, data } = await signIn(email, password);
+      const { error } = await signIn(email, password);
 
       if (error) {
         setError(error.message);
@@ -35,7 +33,6 @@ export default function Login() {
       }
 
       console.log('Login page: signIn successful (prod/fallback)');
-
 
     } catch (err) {
       console.error('Login page handleSubmit error:', err);

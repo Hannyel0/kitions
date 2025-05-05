@@ -2,6 +2,13 @@ import { createBrowserClient, createServerClient, type CookieOptions } from '@su
 import { type NextRequest, NextResponse } from 'next/server' // Needed for Route Handler client
 import { sharedCookieOptions } from './cookies'
 
+// Define a type for cookie store that has the methods we need
+interface CookieStore {
+  get(name: string): { value: string } | undefined;
+  set(options: { name: string; value: string; [key: string]: unknown }): void;
+  delete(options: { name: string; [key: string]: unknown }): void;
+}
+
 // For client-side usage
 export const createSupabaseBrowserClient = () => {
   return createBrowserClient(
@@ -35,7 +42,7 @@ export const createSupabaseBrowserClient = () => {
  * const cookieStore = cookies()
  * const supabase = createSupabaseServerClient(cookieStore)
  */
-export const createSupabaseServerComponentClient = (cookieStore: any) => {
+export const createSupabaseServerComponentClient = (cookieStore: CookieStore) => {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

@@ -10,7 +10,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, userType }: DashboardLayoutProps) {
-  const [userName, setUserName] = useState('Hannyel Jimenez'); // This would typically come from auth context
+  const [userName] = useState('Hannyel Jimenez'); // This would typically come from auth context
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);

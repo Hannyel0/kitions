@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { URLs } from '@/app/config/urls';
 import { usePageTitle } from '@/app/hooks/usePageTitle';
@@ -34,12 +33,12 @@ export default function AuthErrorPage() {
             <h1 className="text-2xl font-bold text-red-600 mb-2">Authentication Error</h1>
             <div className="border border-red-200 bg-red-50 rounded-md p-4 mb-6">
               <p className="text-gray-800 mb-4">
-                We couldn't verify your user account properly. This could be due to:
+                We couldn&apos;t verify your user account properly. This could be due to:
               </p>
               <ul className="text-left text-gray-700 list-disc pl-5 mb-4">
                 <li>Missing or invalid user role</li>
                 <li>Authentication session expired</li>
-                <li>Account hasn't been fully set up</li>
+                <li>Account hasn&apos;t been fully set up</li>
               </ul>
             </div>
             

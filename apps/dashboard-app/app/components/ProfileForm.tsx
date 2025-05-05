@@ -38,8 +38,9 @@ export default function ProfileForm() {
           setPhone(data.phone || '');
           setProfilePicture(data.profile_picture_url || null);
         }
-      } catch (error: any) {
-        console.error('Error loading user profile:', error?.message || error);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Error loading user profile:', errorMessage);
         setMessage({ text: 'Failed to load profile data', type: 'error' });
       }
     }
@@ -75,7 +76,7 @@ export default function ProfileForm() {
       }
       
       let profilePictureUrl = profilePicture;
-      let uploadDebugInfo: any = {};
+      const uploadDebugInfo: Record<string, unknown> = {};
       
       // Upload new profile picture if selected
       if (uploadedImage) {
@@ -111,11 +112,12 @@ export default function ProfileForm() {
           uploadDebugInfo.publicUrlResponse = data;
             
           profilePictureUrl = data.publicUrl;
-        } catch (uploadErr: any) {
-          console.error("Image upload error:", uploadErr);
-          uploadDebugInfo.uploadException = uploadErr?.message || uploadErr;
+        } catch (uploadErr) {
+          const errorMessage = uploadErr instanceof Error ? uploadErr.message : 'Unknown error';
+          console.error("Image upload error:", errorMessage);
+          uploadDebugInfo.uploadException = errorMessage;
           setDebugInfo(JSON.stringify(uploadDebugInfo, null, 2));
-          throw new Error(`Image upload failed: ${uploadErr?.message || 'Unknown error'}`);
+          throw new Error(`Image upload failed: ${errorMessage}`);
         }
       }
       
@@ -160,9 +162,10 @@ export default function ProfileForm() {
       }
       
       setMessage({ text: 'Profile updated successfully!', type: 'success' });
-    } catch (error: any) {
-      console.error('Error updating profile:', error?.message || error);
-      setMessage({ text: `Failed to update profile: ${error?.message || JSON.stringify(error)}`, type: 'error' });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error updating profile:', errorMessage);
+      setMessage({ text: `Failed to update profile: ${errorMessage}`, type: 'error' });
     } finally {
       setIsLoading(false);
     }

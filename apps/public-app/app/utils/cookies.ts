@@ -1,5 +1,3 @@
-import { CookieOptions as SupabaseCookieOptions } from '@supabase/ssr';
-
 // Define a type that matches the structure Supabase expects for cookieOptions
 export type CookieConfig = {
   name: string;

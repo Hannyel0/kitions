@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faCheck, 
@@ -11,9 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faFacebookF,
-  faTwitter,
   faInstagram,
-  faLinkedinIn,
   faXTwitter
 } from '@fortawesome/free-brands-svg-icons';
 
@@ -134,7 +131,7 @@ export default function WebsiteCreationServicePage() {
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold text-[#8982cf] mb-3">Basic</h3>
                 <p className="text-gray-600 text-sm mb-6">
-                  Ideal for those who've already got their website up and running and are seeking assistance to enhance and update it further.
+                  Ideal for those who&apos;ve already got their website up and running and are seeking assistance to enhance and update it further.
                 </p>
                 <div className="text-4xl font-bold text-gray-800">
                   $35
@@ -224,10 +221,10 @@ export default function WebsiteCreationServicePage() {
               <div className="text-center mb-6">
                 <h3 className="text-xl font-bold text-[#8982cf] mb-3">Custom</h3>
                 <p className="text-gray-600 text-sm mb-6">
-                  If these plans don't fit, let's create one that suits. Customize your subscription for a perfect fit, bigger or smaller!
+                  If these plans don&apos;t fit, let&apos;s create one that suits. Customize your subscription for a perfect fit, bigger or smaller!
                 </p>
                 <div className="text-4xl font-bold text-gray-800 mb-1">
-                  Let's Talk!
+                  Let&apos;s Talk!
                 </div>
               </div>
               

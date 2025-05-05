@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faHome, faSearch, faTimes, faChevronDown, 
   faBox, faCheck, faBell, faUser, faSignOutAlt, 
-  faClipboardList, faStore, faCog, faQuestionCircle 
+  faClipboardList, faCog, faQuestionCircle 
 } from '@fortawesome/free-solid-svg-icons';
 
 // Animation variants for dropdown menus

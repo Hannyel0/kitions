@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -9,7 +9,6 @@ interface SidebarProps {
 }
 
 export default function DashboardSidebar({ userType }: SidebarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   
   const isActive = (path: string) => {
