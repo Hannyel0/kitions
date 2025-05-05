@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Add background color to any potential gap elements */
+html, body {
+  background-color: #fff;
+}
+
+/* Darker placeholder styles for better visibility */
+::placeholder {
+  color: rgba(55, 65, 81, 0.7) !important; /* Darker gray placeholder text */
+}
+
+::-webkit-input-placeholder {
+  color: rgba(55, 65, 81, 0.7) !important;
+}
+
+:-ms-input-placeholder {
+  color: rgba(55, 65, 81, 0.7) !important;
+}
+
+::-ms-input-placeholder {
+  color: rgba(55, 65, 81, 0.7) !important;
+}
