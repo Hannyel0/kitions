@@ -1,5 +1,6 @@
 import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server' // Needed for Route Handler client
+import { sharedCookieOptions } from './cookies'
 
 // Define a function to create a Supabase client for client components
 export const createSupabaseBrowserClient = () => {
@@ -11,7 +12,8 @@ export const createSupabaseBrowserClient = () => {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true
-      }
+      },
+      cookieOptions: sharedCookieOptions
     }
   )
 }
@@ -24,6 +26,56 @@ export const createSupabaseBrowserClient = () => {
 // const cookieStore = cookies()
 // const supabase = createServerClient( ... , { cookies: { ... cookieStore methods ... } })
 
+/**
+ * Helper function for creating a Supabase client in Server Components
+ * Usage:
+ * 
+ * import { cookies } from 'next/headers'
+ * import { createSupabaseServerComponentClient } from '@/app/utils/supabase'
+ * 
+ * const cookieStore = cookies()
+ * const supabase = createSupabaseServerComponentClient(cookieStore)
+ */
+export const createSupabaseServerComponentClient = (cookieStore: any) => {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          // Apply shared cookie options in production
+          if (process.env.NODE_ENV !== 'development') {
+            options = { 
+              ...options, 
+              domain: sharedCookieOptions.domain,
+              path: sharedCookieOptions.path,
+              sameSite: sharedCookieOptions.sameSite,
+              secure: sharedCookieOptions.secure 
+            };
+          }
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          // Apply shared cookie options in production
+          if (process.env.NODE_ENV !== 'development') {
+            options = { 
+              ...options, 
+              domain: sharedCookieOptions.domain,
+              path: sharedCookieOptions.path,
+              sameSite: sharedCookieOptions.sameSite,
+              secure: sharedCookieOptions.secure 
+            };
+          }
+          cookieStore.delete({ name, ...options });
+        },
+      },
+    }
+  );
+};
+
 // Define a function to create a Supabase client for Route Handlers
 export const createSupabaseRouteHandlerClient = (req: NextRequest, res: NextResponse) => {
     return createServerClient(
@@ -35,9 +87,29 @@ export const createSupabaseRouteHandlerClient = (req: NextRequest, res: NextResp
                     return req.cookies.get(name)?.value;
                 },
                 set(name: string, value: string, options: CookieOptions) {
+                    // Apply shared cookie options in production
+                    if (process.env.NODE_ENV !== 'development') {
+                        options = { 
+                            ...options, 
+                            domain: sharedCookieOptions.domain,
+                            path: sharedCookieOptions.path,
+                            sameSite: sharedCookieOptions.sameSite,
+                            secure: sharedCookieOptions.secure 
+                        };
+                    }
                     res.cookies.set({ name, value, ...options });
                 },
                 remove(name: string, options: CookieOptions) {
+                    // Apply shared cookie options in production
+                    if (process.env.NODE_ENV !== 'development') {
+                        options = { 
+                            ...options, 
+                            domain: sharedCookieOptions.domain,
+                            path: sharedCookieOptions.path,
+                            sameSite: sharedCookieOptions.sameSite,
+                            secure: sharedCookieOptions.secure 
+                        };
+                    }
                     res.cookies.delete({ name, ...options });
                 },
             },

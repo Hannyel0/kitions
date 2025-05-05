@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,9 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Use the dynamic title hook for client-side title updates
+  usePageTitle('Log In');
 
   const { signIn } = useAuth();
   const router = useRouter();

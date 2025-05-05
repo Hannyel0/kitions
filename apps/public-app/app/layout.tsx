@@ -5,6 +5,9 @@ import { AuthProvider } from "./providers/auth-provider";
 import Script from "next/script";
 import Navbar from '@/app/components/Navbar';
 import Footer from '@/app/components/Footer';
+import { validateEnv } from './lib/env-validator';
+import { defaultMetadata } from './lib/metadata';
+import { Metadata } from "next";
 
 const roboto = Roboto({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -12,6 +15,31 @@ const roboto = Roboto({
   subsets: ["latin"],
   display: "swap",
 });
+
+// Validate environment variables
+if (typeof window !== 'undefined') {
+  // Only run in the browser
+  const { valid, messages } = validateEnv();
+  
+  // Log validation results
+  messages.forEach(message => {
+    if (message.includes('Missing required')) {
+      console.error(message);
+    } else {
+      console.warn(message);
+    }
+  });
+  
+  // Throw error if validation failed (only in development)
+  if (!valid && process.env.NODE_ENV === 'development') {
+    throw new Error('Missing required environment variables. Check the console for details.');
+  }
+}
+
+/**
+ * Export metadata for the root layout
+ */
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,

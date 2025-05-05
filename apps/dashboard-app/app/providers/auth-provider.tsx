@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { createSupabaseBrowserClient } from '../utils/supabase';
 import { useRouter } from 'next/navigation';
+import { URLs } from '../config/urls';
 
 type SignUpResponse = {
   error: Error | AuthError | null;
@@ -51,36 +52,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
 
+  // Helper function to refresh session state
+  const refreshSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setSession(session);
+    setUser(session?.user ?? null);
+  };
+
   useEffect(() => {
-    const getSessionAndUser = async () => {
-      // Get the authenticated user data using getUser() which is more secure
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      // Still get the session for token management, but don't rely on it for user data
+    const getSession = async () => {
+      // Get session and user in a single call, avoiding redundant API requests
       const { data: { session } } = await supabase.auth.getSession();
-      
       setSession(session);
-      setUser(user);
+      setUser(session?.user ?? null);
       setLoading(false);
     };
 
-    getSessionAndUser();
+    getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
-      // Update authenticated user data when session changes
-      if (session?.user) {
-        supabase.auth.getUser().then(({ data: { user } }) => {
-          setUser(user);
-        });
-      } else {
-        setUser(null);
-      }
+      setUser(session?.user ?? null);
       setLoading(false);
     });
 
+    // Set up periodic session refresh to handle expiry gracefully
+    const interval = setInterval(() => {
+      refreshSession();
+    }, 1000 * 60 * 10); // Refresh every 10 minutes
+
     return () => {
       subscription.unsubscribe();
+      clearInterval(interval);
     };
   }, [supabase.auth]);
 
@@ -202,13 +206,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    // Redirect to the public login page, not relative /login
-    const publicLoginUrl = process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000/login'
-      : '/login'; // In production, assume it's on the same domain
     
-    // Use window.location for cross-origin redirect after sign out
-    window.location.href = publicLoginUrl; 
+    // Use the centralized URL configuration
+    window.location.href = URLs.getPublicUrl(URLs.public.login);
   };
 
   const value = {

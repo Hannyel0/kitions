@@ -84,7 +84,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           first_name: userData.firstName,
           last_name: userData.lastName,
           role: userData.role,
-        }
+        },
+        emailRedirectTo: process.env.NODE_ENV === 'development' 
+          ? 'http://localhost:3001/auth/callback'
+          : 'https://dashboard.kitions.com/auth/callback'
       }
     });
 
@@ -156,16 +159,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        const currentSession = data.session; 
-        if (currentSession && process.env.NODE_ENV === 'development') {
-          const accessToken = currentSession.access_token;
-          const refreshToken = currentSession.refresh_token;
-          if (accessToken && refreshToken) { 
-            console.log("SignUp: Redirecting with CORRECT access_token & refresh_token to dashboard.");
-            window.location.href = `http://localhost:3001/auth/callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
-            return { data, error: null };
-          } else {
-            console.warn("SignUp: Session received but missing access or refresh token.");
+        // For development only - manual token handling
+        if (process.env.NODE_ENV === 'development') {
+          const currentSession = data.session; 
+          if (currentSession) {
+            const accessToken = currentSession.access_token;
+            const refreshToken = currentSession.refresh_token;
+            if (accessToken && refreshToken) { 
+              console.log("SignUp: Redirecting with CORRECT access_token & refresh_token to dashboard.");
+              window.location.href = `http://localhost:3001/auth/callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
+              return { data, error: null };
+            } else {
+              console.warn("SignUp: Session received but missing access or refresh token.");
+            }
           }
         }
 
@@ -182,37 +188,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string): Promise<SignInResponse> => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    // Use redirectTo option for both dev and production
+    const { data, error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password
+    });
     
     if (error) {
       setLoading(false);
       return { data, error };
     }
     
-    if (data?.session) {
-      if (process.env.NODE_ENV === 'development') {
-        const accessToken = data.session.access_token;
-        const refreshToken = data.session.refresh_token;
-        
-        if (accessToken && refreshToken) {
-          console.log("SignIn: Redirecting with CORRECT access_token & refresh_token to dashboard.");
-          window.location.href = `http://localhost:3001/auth/callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
-          return { data, error: null };
-        } else {
-          console.error("SignIn Dev Error: Missing access or refresh token in session.");
-        }
-      } 
+    // For development only - manual token handling
+    if (data?.session && process.env.NODE_ENV === 'development') {
+      const accessToken = data.session.access_token;
+      const refreshToken = data.session.refresh_token;
       
-      console.log("SignIn: Handling non-dev login or fallback.");
-      setSession(data.session);
-      setUser(data.session.user);
-      router.push('/'); 
-      router.refresh();
-      setLoading(false);
-      
-    } else {
-      setLoading(false);
+      if (accessToken && refreshToken) {
+        console.log("SignIn: Redirecting with CORRECT access_token & refresh_token to dashboard.");
+        window.location.href = `http://localhost:3001/auth/callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
+        return { data, error: null };
+      } else {
+        console.error("SignIn Dev Error: Missing access or refresh token in session.");
+      }
+    } 
+    
+    // Production code - session will be handled by Supabase's cookie mechanism
+    if (process.env.NODE_ENV === 'production') {
+      const baseURL = 'https://dashboard.kitions.com';
+      console.log("SignIn: Production environment, redirecting to dashboard.");
+      window.location.href = `${baseURL}/auth/callback`;
+      return { data, error: null };
     }
+    
+    // Fallback for non-dev environments or if the redirects don't happen
+    console.log("SignIn: Handling non-dev login or fallback.");
+    setSession(data.session);
+    setUser(data.session.user);
+    router.push('/'); 
+    router.refresh();
+    setLoading(false);
     
     return { data, error };
   };

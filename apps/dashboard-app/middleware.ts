@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { sharedCookieOptions } from './app/utils/cookies'
 
 // import type { Database } from '@/lib/database.types' // Import your database types if you have them
 
@@ -20,6 +21,16 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
+          // Apply shared cookie options in production
+          if (process.env.NODE_ENV !== 'development') {
+            options = { 
+              ...options, 
+              domain: sharedCookieOptions.domain,
+              path: sharedCookieOptions.path,
+              sameSite: sharedCookieOptions.sameSite,
+              secure: sharedCookieOptions.secure 
+            }
+          }
           req.cookies.set({ name, value, ...options })
           res = NextResponse.next({
             request: {
@@ -29,6 +40,16 @@ export async function middleware(req: NextRequest) {
           res.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
+          // Apply shared cookie options in production
+          if (process.env.NODE_ENV !== 'development') {
+            options = { 
+              ...options, 
+              domain: sharedCookieOptions.domain,
+              path: sharedCookieOptions.path,
+              sameSite: sharedCookieOptions.sameSite,
+              secure: sharedCookieOptions.secure 
+            }
+          }
           req.cookies.delete(name)
           res = NextResponse.next({
             request: {
@@ -47,10 +68,10 @@ export async function middleware(req: NextRequest) {
 
   const isAuthCallback = req.nextUrl.pathname === '/auth/callback';
 
-  // Redirect to public app login in development
+  // Redirect to public app login
   const loginUrl = process.env.NODE_ENV === 'development'
     ? 'http://localhost:3000/login'
-    : '/login'; // In production, assume it's on the same domain
+    : 'https://www.kitions.com/login'; 
 
   // If no session and the path is not the auth callback, redirect to public login
   if (!session && !isAuthCallback) {
