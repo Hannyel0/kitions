@@ -75,6 +75,16 @@ export default function ProfileForm() {
         throw new Error('User not authenticated');
       }
       
+      // Get the current authenticated user to verify user.id matches auth.uid()
+      const { data: authUser } = await supabase.auth.getUser();
+      console.log('ProfileForm - auth.uid():', authUser?.user?.id);
+      console.log('ProfileForm - user.id being used:', user.id);
+      
+      // Verify these match to ensure RLS policies work
+      if (authUser?.user?.id !== user.id) {
+        console.warn('WARNING: user.id does not match auth.uid() - this may cause RLS policy failures');
+      }
+      
       let profilePictureUrl = profilePicture;
       const uploadDebugInfo: Record<string, unknown> = {};
       
@@ -138,6 +148,7 @@ export default function ProfileForm() {
       
       // Update user profile in the database
       console.log("Updating user profile with:", { 
+        id: user.id,
         first_name: firstName,
         last_name: lastName,
         phone: phone,
@@ -147,6 +158,7 @@ export default function ProfileForm() {
       const { data: profileData, error: profileUpdateError } = await supabase
         .from('users')
         .update({ 
+          id: user.id,
           first_name: firstName,
           last_name: lastName,
           phone: phone,

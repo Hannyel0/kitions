@@ -31,11 +31,7 @@ export default function Login() {
         setLoading(false);
         return;
       }
-
-      console.log('Login page: signIn successful (prod/fallback)');
-
     } catch (err) {
-      console.error('Login page handleSubmit error:', err);
       const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
       setError(message);
     } finally {

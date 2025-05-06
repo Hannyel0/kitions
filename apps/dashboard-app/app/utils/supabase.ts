@@ -1,6 +1,7 @@
 import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server' // Needed for Route Handler client
 import { sharedCookieOptions } from './cookies'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 // Define a type for cookie store that has the methods we need
 interface CookieStore {
@@ -9,20 +10,31 @@ interface CookieStore {
   delete(options: { name: string; [key: string]: unknown }): void;
 }
 
+// Maintain a single browser client instance - any is used here since we don't know the exact schema type
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let browserClient: SupabaseClient<any, any> | null = null;
+
 // Define a function to create a Supabase client for client components
 export const createSupabaseBrowserClient = () => {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      },
-      cookieOptions: sharedCookieOptions
-    }
-  )
+  if (!browserClient) {
+    console.log('🔧 Creating new Supabase browser client instance');
+    browserClient = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        },
+        cookieOptions: sharedCookieOptions
+      }
+    );
+  } else {
+    console.log('✅ Reusing existing Supabase browser client instance');
+  }
+
+  return browserClient;
 }
 
 // REMOVED createSupabaseServerClient due to complexity with async cookies

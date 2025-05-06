@@ -89,10 +89,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase.auth]);
 
   const signUp = async (email: string, password: string, userData: UserData): Promise<SignUpResponse> => {
+    console.log('⭐ DASHBOARD SIGNUP START ⭐ - Creating account for:', email);
     setLoading(true);
     
+    // Cache the client instance to ensure we use the same one throughout
+    const authClient = supabase;
+    console.log('🔶 Using Supabase client instance:', authClient ? 'Valid' : 'Invalid');
+    
     // First, sign up the user with Supabase Auth
-    const { data, error } = await supabase.auth.signUp({ 
+    const { data, error } = await authClient.auth.signUp({ 
       email, 
       password,
       options: {
@@ -104,19 +109,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    console.log('🔶 SignUp response received:', 
+      data ? 'Success' : 'Failed',
+      error ? `Error: ${error.message}` : 'No errors'
+    );
+
     if (error) {
+      console.error('❌ SIGNUP ERROR:', error.message);
       setLoading(false);
       return { error, data: null };
     }
 
-    // If sign up successful, add user data to our custom tables
-    if (data.user) {
-      try {
-        // 1. Create entry in users table
-        const { error: usersError } = await supabase
+    if (!data.user) {
+      console.error('❌ SIGNUP ERROR: No user returned from signup');
+      setLoading(false);
+      return { error: new Error('No user returned from signup'), data: null };
+    }
+    
+    console.log('✅ Auth signup successful, user created with ID:', data.user.id);
+    console.log('✅ User email:', data.user.email);
+    console.log('✅ Session present:', data.session ? 'Yes' : 'No');
+    
+    try {
+      // Add delay before setting session to allow cookies to be processed
+      console.log('⏱️ Adding small delay before updating session state...');
+      await new Promise(res => setTimeout(res, 100));
+      
+      // If we have a session, set it explicitly
+      if (data.session) {
+        console.log('🍪 Setting session with authClient...');
+        setSession(data.session);
+        setUser(data.session.user);
+      }
+      
+      // Verify session with retries to ensure cookies are properly set
+      const maxRetries = 5;
+      let retryCount = 0;
+      let sessionConfirmed = false;
+      
+      while (retryCount < maxRetries && !sessionConfirmed) {
+        try {
+          console.log(`🔄 Verifying session - attempt ${retryCount + 1}/${maxRetries}`);
+          await new Promise(res => setTimeout(res, 200)); // Wait between retries
+          
+          const { data: sessionData } = await authClient.auth.getSession();
+          
+          if (sessionData?.session) {
+            console.log('✅ Session verified successfully!');
+            console.log('🍪 Session cookie should now be set');
+            sessionConfirmed = true;
+            setSession(sessionData.session);
+            setUser(sessionData.session.user);
+          } else {
+            console.log('⚠️ Session not found, retrying...');
+            retryCount++;
+          }
+        } catch (sessionError) {
+          console.error('❌ Error verifying session:', sessionError);
+          retryCount++;
+        }
+      }
+      
+      // Store original user ID for database operations
+      const originalUserId = data.user.id;
+      console.log('📝 Original user ID for DB operations:', originalUserId);
+      
+      // DATABASE OPERATIONS - INSERT USER RECORDS
+      console.log('📝 BEGINNING DATABASE OPERATIONS -----');
+      
+      // Perform database operations only if we have a user ID
+      if (originalUserId) {
+        // Insert user record
+        console.log('📝 Inserting user with ID:', originalUserId);
+        const { data: userData1, error: usersError } = await authClient
           .from('users')
           .insert({
-            id: data.user.id,
+            id: originalUserId,
             email: email,
             first_name: userData.firstName,
             last_name: userData.lastName,
@@ -126,73 +194,119 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             profile_picture_url: ''
-          });
+          })
+          .select();
 
         if (usersError) {
+          console.error('❌ Users insert error:', usersError.message);
+          console.error('❌ Error details:', usersError);
           throw new Error(usersError.message);
         }
+        console.log('✅ User record inserted successfully:', userData1 ? 'Data returned' : 'No data returned');
 
         // 2. Create entry in user_verification_statuses table
-        const { error: verificationError } = await supabase
+        console.log('📝 Inserting verification status with user ID:', originalUserId);
+        const { data: verificationData, error: verificationError } = await authClient
           .from('user_verification_statuses')
           .insert({
-            user_id: data.user.id,
+            user_id: originalUserId,
             status: 'pending',
             updated_at: new Date().toISOString()
-          });
+          })
+          .select();
 
         if (verificationError) {
+          console.error('❌ Verification status insert error:', verificationError.message);
+          console.error('❌ Error details:', verificationError);
           throw new Error(verificationError.message);
         }
+        console.log('✅ Verification status inserted successfully:', verificationData ? 'Data returned' : 'No data returned');
 
         // 3. Create role-specific entry
         if (userData.role === 'retailer') {
-          const { error: retailerError } = await supabase
+          console.log('📝 Inserting retailer with user ID:', originalUserId);
+          const { data: retailerData, error: retailerError } = await authClient
             .from('retailers')
             .insert({
-              user_id: data.user.id,
+              user_id: originalUserId,
               store_address: userData.storeAddress || '',
               store_type: userData.storeType || '',
               inventory_needs: userData.inventoryNeeds || '',
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
-            });
+            })
+            .select();
 
           if (retailerError) {
+            console.error('❌ Retailer insert error:', retailerError.message);
+            console.error('❌ Error details:', retailerError);
             throw new Error(retailerError.message);
           }
+          console.log('✅ Retailer record inserted successfully:', retailerData ? 'Data returned' : 'No data returned');
         } else {
           // Distributor
-          const { error: distributorError } = await supabase
+          console.log('📝 Inserting distributor with user ID:', originalUserId);
+          const { data: distributorData, error: distributorError } = await authClient
             .from('distributors')
             .insert({
-              user_id: data.user.id,
+              user_id: originalUserId,
               min_order_amount: userData.minOrderAmount || 0,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
-            });
+            })
+            .select();
 
           if (distributorError) {
+            console.error('❌ Distributor insert error:', distributorError.message);
+            console.error('❌ Error details:', distributorError);
             throw new Error(distributorError.message);
           }
+          console.log('✅ Distributor record inserted successfully:', distributorData ? 'Data returned' : 'No data returned');
         }
-      } catch (err: unknown) {
-        setLoading(false);
-        const errorMessage = err instanceof Error ? err.message : 'Error creating user profile';
-        return { error: new Error(errorMessage), data: null };
+        
+        console.log('✅ ALL DATABASE OPERATIONS COMPLETED SUCCESSFULLY -----');
       }
+    } catch (err: unknown) {
+      console.error('❌ SIGNUP PROCESS ERROR:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Error creating user profile';
+      console.error('❌ Error message:', errorMessage);
+      setLoading(false);
+      return { error: new Error(errorMessage), data: null };
     }
 
+    console.log('⭐ SIGNUP COMPLETED SUCCESSFULLY ⭐');
     setLoading(false);
     return { data, error: null };
   };
 
   const signIn = async (email: string, password: string): Promise<SignInResponse> => {
+    console.log('🔐 DASHBOARD SIGNIN START - Authenticating user:', email);
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    
+    // Cache the client instance to ensure we use the same one throughout
+    const authClient = supabase;
+    console.log('🔶 Using Supabase client instance:', authClient ? 'Valid' : 'Invalid');
+    
+    const { data, error } = await authClient.auth.signInWithPassword({ email, password });
+    
+    console.log('🔶 SignIn response received:', 
+      data ? 'Success' : 'Failed',
+      error ? `Error: ${error.message}` : 'No errors'
+    );
+    
+    if (error) {
+      console.error('❌ SIGNIN ERROR:', error.message);
+      setLoading(false);
+      return { data, error };
+    }
+    
+    console.log('✅ Auth signin successful, session:', data.session ? 'Present' : 'Missing');
     
     if (data?.session) {
+      // After small delay, explicitly set the session to ensure it's registered
+      console.log('⏱️ Adding small delay before updating session state...');
+      await new Promise(res => setTimeout(res, 50));
+      
       // Refresh the session
       setSession(data.session);
       setUser(data.session.user);
@@ -201,11 +315,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       router.refresh();
     }
     
+    setLoading(false);
     return { data, error };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    console.log('🚪 DASHBOARD SIGNOUT - Logging out user');
+    // Cache the client instance to ensure we use the same one throughout
+    const authClient = supabase;
+    
+    await authClient.auth.signOut();
     
     // Use the centralized URL configuration
     window.location.href = URLs.getPublicUrl(URLs.public.login);
