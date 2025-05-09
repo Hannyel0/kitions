@@ -9,7 +9,7 @@ import { faCheck, faArrowRight, faSpinner, faTimes, faEnvelope } from '@fortawes
 // Price IDs are what we actually need for the checkout
 const STRIPE_PRICE_MAP = {
   // Basic plan
-  "prod_SH5ro5vBkoEkqR": "price_1RMXfLGhNGM7Ot8Z1dPT97Zz", // Basic plan price ID
+  "prod_SGsFjKed2Kz5zQ": "price_1RMKV3GhNGM7Ot8ZsYakl5X3", // Basic plan price ID
   // Pro plan
   "prod_SH2aIyBsYi0nHe": "price_1RMUV1GhNGM7Ot8Z7EMMeGUV", // Pro plan price ID
   // Enterprise plan
@@ -160,7 +160,7 @@ export default function PricingPreview() {
       description: "For small businesses that want to be online.",
       price: "$35",
       isPopular: false,
-      productId: "prod_SH5ro5vBkoEkqR", // Product ID from Stripe
+      productId: "prod_SGsFjKed2Kz5zQ", // Product ID from Stripe
       features: [
         "1-page website",
         "Responsive design",
