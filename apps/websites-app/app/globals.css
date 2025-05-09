@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+  --primary-color: #8982cf;
+  --primary-hover: #7269c0;
+  --primary-light: #f2f0ff;
+  --primary-dark: #635db1;
+  --accent-color: #dbc1d0;
+  --accent-light: #f7eef3;
+  --accent-dark: #b69daa;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --navbar-height: 64px; /* Default navbar height */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Add background color to any potential gap elements */
+html, body {
+  background-color: #fff;
+}
+
+/* Darker placeholder styles for better visibility */
+::placeholder {
+  color: rgba(55, 65, 81, 0.7) !important; /* Darker gray placeholder text */
+}
+
+::-webkit-input-placeholder {
+  color: rgba(55, 65, 81, 0.7) !important;
+}
+
+:-ms-input-placeholder {
+  color: rgba(55, 65, 81, 0.7) !important;
+}
+
+::-ms-input-placeholder {
+  color: rgba(55, 65, 81, 0.7) !important;
+}
+
+/* Custom styling for buttons */
+.btn-primary {
+  @apply bg-[#8982cf] text-white py-2 px-5 rounded-md hover:bg-[#7269c0] transition-colors duration-300;
+}
+
+.btn-secondary {
+  @apply border border-[#8982cf] text-[#8982cf] py-2 px-5 rounded-md hover:bg-[#f2f0ff] transition-colors duration-300;
+}
+
+.btn-accent {
+  @apply bg-[#dbc1d0] text-white py-2 px-5 rounded-md hover:bg-[#b69daa] transition-colors duration-300;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-b from-gray-900 via-gray-800 to-[#8982cf]/50 bg-clip-text text-transparent;
+}
+
+/* Nice card hover effect */
+.hover-card {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Error shake animation for form validation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.6s ease-in-out;
+}

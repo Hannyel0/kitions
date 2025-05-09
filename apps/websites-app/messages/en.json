@@ -1,0 +1,45 @@
+{
+  "common": {
+    "nav": {
+      "home": "Home",
+      "services": "Services",
+      "pricing": "Pricing",
+      "contact": "Contact",
+      "templates": "Templates"
+    },
+    "cta": {
+      "getStarted": "Get Started",
+      "learnMore": "Learn More",
+      "contactUs": "Contact Us"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Professional Website Creation",
+      "subtitle": "Build your online presence with our expert web development services"
+    },
+    "features": {
+      "title": "Why Choose Us",
+      "subtitle": "Everything you need to succeed online"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Simple steps to your new website"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send Message"
+    }
+  },
+  "services": {
+    "maintenance": {
+      "title": "Website Maintenance",
+      "description": "Keep your site up-to-date and secure"
+    }
+  }
+} 

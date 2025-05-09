@@ -10,7 +10,7 @@ import {
   faHome, faChevronDown, faSignOutAlt, 
   faShoppingCart, faStore, faBox, faBlog, 
   faUserCircle, faSignIn, faBars, faTimes,
-  faGlobe
+  faGlobe, faLaptopCode
 } from '@fortawesome/free-solid-svg-icons';
 
 // Animation variants for dropdown menus
@@ -56,6 +56,22 @@ export default function Navbar() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, loading, signOut } = useAuth();
 
+  // Helper function to get the Websites app URL based on environment
+  const getWebsitesAppUrl = () => {
+    if (process.env.NODE_ENV === 'development') {
+      return 'http://localhost:3002';
+    }
+    return 'https://websites.kitions.com';
+  };
+
+  // Helper function to get the Website Creation Service URL based on environment
+  const getWebsiteCreationServiceUrl = () => {
+    if (process.env.NODE_ENV === 'development') {
+      return 'http://localhost:3002/';
+    }
+    return 'https://websites.kitions.com/';
+  };
+
   // Fetch user details when user is authenticated
   useEffect(() => {
     async function fetchUserDetails() {
@@ -94,28 +110,6 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // Calculate dropdown positions based on button positions
-  const [resourcesDropdownPos, setResourcesDropdownPos] = useState({ top: 0, left: 0 });
-  const [userDropdownPos, setUserDropdownPos] = useState({ top: 0, right: 0 });
-
-  useEffect(() => {
-    if (isResourcesOpen && resourcesDropdownRef.current) {
-      const rect = resourcesDropdownRef.current.getBoundingClientRect();
-      setResourcesDropdownPos({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX
-      });
-    }
-    
-    if (isUserMenuOpen && userMenuRef.current) {
-      const rect = userMenuRef.current.getBoundingClientRect();
-      setUserDropdownPos({
-        top: rect.bottom + window.scrollY,
-        right: window.innerWidth - rect.right
-      });
-    }
-  }, [isResourcesOpen, isUserMenuOpen]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -187,8 +181,10 @@ export default function Navbar() {
                 <motion.div 
                   className="fixed z-999 w-[450px] bg-white rounded-lg shadow-lg overflow-hidden p-4"
                   style={{
-                    top: resourcesDropdownPos.top + 5,
-                    left: resourcesDropdownPos.left
+                    top: resourcesDropdownRef.current ? 
+                      resourcesDropdownRef.current.getBoundingClientRect().bottom + 10 : 0,
+                    left: resourcesDropdownRef.current ? 
+                      resourcesDropdownRef.current.getBoundingClientRect().left : 0
                   }}
                   initial="hidden"
                   animate="visible"
@@ -200,6 +196,7 @@ export default function Navbar() {
                     <Link 
                       href="/blog" 
                       className="flex items-start p-4 rounded-lg hover:bg-gray-50"
+                      onClick={() => setIsResourcesOpen(false)}
                     >
                       <div className="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                         <FontAwesomeIcon icon={faBlog} className="h-6 w-6 text-purple-600" />
@@ -210,8 +207,8 @@ export default function Navbar() {
                       </div>
                     </Link>
                     
-                    <Link 
-                      href="/website-creation-service" 
+                    <a 
+                      href={getWebsitesAppUrl()} 
                       className="flex items-start p-4 rounded-lg hover:bg-gray-50"
                     >
                       <div className="flex-shrink-0 h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
@@ -221,7 +218,7 @@ export default function Navbar() {
                         <h3 className="text-base font-semibold text-gray-800 mb-1">Website Creation Service</h3>
                         <p className="text-sm text-gray-600">Connect your retail business with premium e-commerce solutions.</p>
                       </div>
-                    </Link>
+                    </a>
                   </div>
                 </motion.div>
               )}
@@ -262,11 +259,12 @@ export default function Navbar() {
             
             <AnimatePresence>
               {isUserMenuOpen && (
-                <motion.div 
-                  className="fixed z-999 w-56 bg-white rounded-lg shadow-lg overflow-hidden"
+                <motion.div
+                  className="fixed z-999 w-60 bg-white rounded-lg shadow-lg overflow-hidden"
                   style={{
-                    top: userDropdownPos.top + 5,
-                    right: userDropdownPos.right
+                    top: userMenuRef.current ? 
+                      userMenuRef.current.getBoundingClientRect().bottom + 10 : 0,
+                    right: 16 // Fixed right margin
                   }}
                   initial="hidden"
                   animate="visible"
@@ -354,6 +352,20 @@ export default function Navbar() {
           >
             <div className="flex flex-col space-y-3">
               <Link 
+                href="/about" 
+                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 ml-2 flex items-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About Us
+              </Link>
+              <Link 
+                href="/products" 
+                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 ml-2 flex items-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Products
+              </Link>
+              <Link 
                 href="/for-retailers" 
                 className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 ml-2 flex items-center"
                 onClick={() => setIsMenuOpen(false)}
@@ -362,12 +374,19 @@ export default function Navbar() {
                 For Retailers
               </Link>
               <Link 
-                href="/for-distributors" 
+                href="/for-brands" 
                 className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <FontAwesomeIcon icon={faBox} className="mr-2" />
-                For Distributors
+                For Brands
+              </Link>
+              <Link 
+                href="/partnership" 
+                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 flex items-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Partnership
               </Link>
               
               <div className="py-2">
@@ -408,9 +427,9 @@ export default function Navbar() {
                           </div>
                         </Link>
                         
-                        <Link 
-                          href="/website-creation-service" 
-                          className="flex items-start p-2 rounded-lg hover:bg-gray-50"
+                        <a 
+                          href={getWebsiteCreationServiceUrl()} 
+                          className="flex items-start p-2 rounded-lg hover:bg-gray-50 mb-3"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
@@ -418,9 +437,23 @@ export default function Navbar() {
                           </div>
                           <div>
                             <h3 className="text-sm font-semibold text-gray-800">Website Creation Service</h3>
-                            <p className="text-xs text-gray-600">Premium e-commerce solutions</p>
+                            <p className="text-xs text-gray-600">Connect your retail business with premium e-commerce solutions.</p>
                           </div>
-                        </Link>
+                        </a>
+
+                        <a 
+                          href={getWebsitesAppUrl()}
+                          className="flex items-start p-2 rounded-lg hover:bg-gray-50"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <FontAwesomeIcon icon={faLaptopCode} className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">Website Builder</h3>
+                            <p className="text-xs text-gray-600">Create your own custom website</p>
+                          </div>
+                        </a>
                       </div>
                     </motion.div>
                   )}
@@ -498,6 +531,9 @@ export default function Navbar() {
                     <FontAwesomeIcon icon={faStore} className="mr-2" />
                     Sell now
                   </Link>
+                  <div className="mt-2 bg-amber-50 border border-amber-200 rounded-md py-2 px-3 text-xs text-amber-700 shadow-sm">
+                    Login currently unavailable to the public
+                  </div>
                 </>
               )}
             </div>

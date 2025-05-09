@@ -6,6 +6,7 @@
     "dev": "PORT=3001 next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "start:prod": "PORT=3001 NODE_ENV=production next start",
     "lint": "next lint",
     "create-storage": "node create-storage-bucket.js",
     "list-storage": "node list-buckets.js",

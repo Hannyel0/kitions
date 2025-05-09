@@ -64,7 +64,7 @@ export default function Footer() {
               <li><Link href="/retailers" className="text-gray-600 hover:text-[#8982cf]">For Retailers</Link></li>
               <li><Link href="/brands" className="text-gray-600 hover:text-[#8982cf]">For Brands</Link></li>
               <li><Link href="/pricing" className="text-gray-600 hover:text-[#8982cf]">Pricing</Link></li>
-              <li><Link href="/partnerships" className="text-gray-600 hover:text-[#8982cf]">Partnerships</Link></li>
+              <li><Link href="/partnership" className="text-gray-600 hover:text-[#8982cf]">Partnership</Link></li>
             </ul>
           </div>
 
@@ -101,7 +101,6 @@ United States</span>
             <div className="flex space-x-6">
               <Link href="/terms" className="text-gray-600 hover:text-[#8982cf] text-sm">Terms of Service</Link>
               <Link href="/privacy" className="text-gray-600 hover:text-[#8982cf] text-sm">Privacy Policy</Link>
-              <Link href="/cookies" className="text-gray-600 hover:text-[#8982cf] text-sm">Cookie Policy</Link>
             </div>
           </div>
         </div>

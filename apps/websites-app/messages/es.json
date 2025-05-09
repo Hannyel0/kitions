@@ -1,0 +1,45 @@
+{
+  "common": {
+    "nav": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "pricing": "Precios",
+      "contact": "Contacto",
+      "templates": "Plantillas"
+    },
+    "cta": {
+      "getStarted": "Empezar",
+      "learnMore": "Más Información",
+      "contactUs": "Contáctanos"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Creación Profesional de Sitios Web",
+      "subtitle": "Construye tu presencia en línea con nuestros servicios expertos de desarrollo web"
+    },
+    "features": {
+      "title": "Por Qué Elegirnos",
+      "subtitle": "Todo lo que necesitas para tener éxito en línea"
+    },
+    "howItWorks": {
+      "title": "Cómo Funciona",
+      "subtitle": "Pasos simples para tu nuevo sitio web"
+    }
+  },
+  "contact": {
+    "title": "Contáctanos",
+    "form": {
+      "name": "Nombre",
+      "email": "Correo Electrónico",
+      "message": "Mensaje",
+      "submit": "Enviar Mensaje"
+    }
+  },
+  "services": {
+    "maintenance": {
+      "title": "Mantenimiento de Sitios Web",
+      "description": "Mantén tu sitio actualizado y seguro"
+    }
+  }
+} 

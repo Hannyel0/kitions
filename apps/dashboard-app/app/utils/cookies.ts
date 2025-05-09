@@ -19,6 +19,6 @@ export const sharedCookieOptions: CookieConfig = {
   sameSite: 'lax',
   // Don't require secure cookies in development
   secure: process.env.NODE_ENV !== 'development',
-  // Make cookies httpOnly in production for security, but visible in development for debugging
-  httpOnly: process.env.NODE_ENV !== 'development',
+  // Make cookies visible to JavaScript in all environments temporarily to ensure auth works in production
+  httpOnly: false,
 }; 

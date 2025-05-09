@@ -37,7 +37,7 @@ export async function middleware(req: NextRequest) {
               path: sharedCookieOptions.path,
               sameSite: sharedCookieOptions.sameSite,
               secure: sharedCookieOptions.secure,
-              httpOnly: true, // Use httpOnly in production for security
+              httpOnly: false, // Make cookies accessible to JavaScript in all environments
             };
           }
           
@@ -77,7 +77,7 @@ export async function middleware(req: NextRequest) {
               path: sharedCookieOptions.path,
               sameSite: sharedCookieOptions.sameSite,
               secure: sharedCookieOptions.secure,
-              httpOnly: true,
+              httpOnly: false,
             };
           }
           

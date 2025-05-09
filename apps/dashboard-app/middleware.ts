@@ -21,14 +21,24 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Apply shared cookie options in production
-          if (process.env.NODE_ENV !== 'development') {
+          if (process.env.NODE_ENV === 'development') {
+            options = {
+              ...options,
+              httpOnly: false, // Make cookies visible to JavaScript in dev
+              sameSite: 'lax',
+              secure: false,
+              domain: undefined, // Use default domain in dev
+              path: '/',
+            };
+          } else {
+            // For production, use shared cookie config with httpOnly: false
             options = { 
               ...options, 
               domain: sharedCookieOptions.domain,
               path: sharedCookieOptions.path,
               sameSite: sharedCookieOptions.sameSite,
-              secure: sharedCookieOptions.secure 
+              secure: sharedCookieOptions.secure,
+              httpOnly: false, // Make cookies accessible to JavaScript in all environments
             }
           }
           req.cookies.set({ name, value, ...options })
@@ -40,14 +50,24 @@ export async function middleware(req: NextRequest) {
           res.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
-          // Apply shared cookie options in production
-          if (process.env.NODE_ENV !== 'development') {
+          if (process.env.NODE_ENV === 'development') {
+            options = {
+              ...options,
+              httpOnly: false,
+              sameSite: 'lax',
+              secure: false,
+              domain: undefined,
+              path: '/',
+            };
+          } else {
+            // For production, use shared cookie config with httpOnly: false
             options = { 
               ...options, 
               domain: sharedCookieOptions.domain,
               path: sharedCookieOptions.path,
               sameSite: sharedCookieOptions.sameSite,
-              secure: sharedCookieOptions.secure 
+              secure: sharedCookieOptions.secure,
+              httpOnly: false,
             }
           }
           req.cookies.delete(name)

@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   try {
     await resend.emails.send({
       from: 'support@kitions.com', // Verified Resend sending domain
-      to: 'kitionsus@gmail.com',   // Where you want to receive the emails
+      to: 'hannyeljimenez@gmail.com',   // Where you want to receive the emails
       subject: '🚀 New Lead from Kitions Contact Form!!',
       html: `
         <!DOCTYPE html>
