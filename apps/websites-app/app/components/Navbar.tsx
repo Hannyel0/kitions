@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -11,7 +12,10 @@ import {
   faBars, 
   faTimes,
   faStore,
-  faTools
+  faTools,
+  faGlobe,
+  faQuestionCircle,
+  faBlog
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -48,13 +52,26 @@ const dropdownVariants = {
   }
 };
 
+// Custom hook to handle client-side only rendering
+function useHasMounted() {
+  const [hasMounted, setHasMounted] = useState(false);
+  
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  
+  return hasMounted;
+}
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   
-  const servicesDropdownRef = useRef<HTMLDivElement>(null);
+  const servicesDropdownRef = useRef<HTMLDivElement | null>(null);
   const t = useTranslations('common.nav');
   const router = useRouter();
+  const pathname = usePathname();
+  const hasMounted = useHasMounted();
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -116,64 +133,98 @@ export default function Navbar() {
             {t('home')}
           </button>
           <div className="relative pl-2" ref={servicesDropdownRef}>
-            <button 
-              className="cursor-pointer text-gray-700 font-semibold hover:text-[#8982cf] flex items-center"
-              onClick={() => setIsServicesOpen(!isServicesOpen)}
-            >
-              <FontAwesomeIcon icon={faLaptopCode} className="mr-2" />
-              {t('services')}
-              <FontAwesomeIcon 
-                icon={faChevronDown} 
-                className={`ml-1 h-4 w-4 transition-transform ${isServicesOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
-            <AnimatePresence>
-              {isServicesOpen && (
-                <motion.div 
-                  className="absolute z-999 w-[300px] bg-white rounded-lg shadow-lg overflow-hidden p-4 top-full left-0"
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={dropdownVariants}
-                >
-                  <div className="absolute -top-2 left-8 w-4 h-4 bg-white transform rotate-45 shadow-sm"></div>
-                  <div className="grid grid-cols-1 gap-4">
-                    <a 
-                      href={getKitionsAppUrl()}
-                      className="flex items-start p-3 rounded-md hover:bg-gray-50"
-                      onClick={() => setIsServicesOpen(false)}
+            {/* Use a static structure during SSR to prevent hydration errors */}
+            {!hasMounted ? (
+              <div className="text-gray-700 font-semibold flex items-center">
+                <FontAwesomeIcon icon={faLaptopCode} className="mr-2" />
+                {t('services')}
+                <FontAwesomeIcon 
+                  icon={faChevronDown} 
+                  className="ml-1 h-4 w-4"
+                />
+              </div>
+            ) : (
+              <button 
+                className="cursor-pointer text-gray-700 font-semibold hover:text-[#8982cf] flex items-center"
+                onClick={() => setIsServicesOpen(!isServicesOpen)}
+              >
+                <FontAwesomeIcon icon={faLaptopCode} className="mr-2" />
+                {t('services')}
+                <FontAwesomeIcon 
+                  icon={faChevronDown} 
+                  className={`ml-1 h-4 w-4 transition-transform ${isServicesOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+            )}
+            {hasMounted && isServicesOpen && (
+              <motion.div 
+                className="absolute z-50 w-[400px] bg-white rounded-xl shadow-lg overflow-hidden p-6 top-full left-0"
+                initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="space-y-6">
+                  {/* Kitions Platform Option */}
+                  <div className="group">
+                    <button
+                      onClick={() => {
+                        window.open('https://kitions.com', '_blank');
+                        setIsServicesOpen(false);
+                      }}
+                      className="flex items-start p-3 rounded-lg hover:bg-gray-50 w-full text-left group-hover:bg-[#f9f8ff] transition-colors"
                     >
-                      <div className="text-[#8982cf] mt-1 mr-3">
-                        <FontAwesomeIcon icon={faStore} className="h-5 w-5" />
+                      <div className="bg-[#f5f3ff] p-3 rounded-lg mr-4 group-hover:bg-[#eceafd] transition-colors">
+                        <FontAwesomeIcon icon={faStore} className="h-6 w-6 text-[#8982cf]" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-800">Kitions Platform</h4>
-                        <p className="text-sm text-gray-600">Access the main Kitions platform</p>
-                      </div>
-                    </a>
-                    <button 
-                      onClick={() => handleNavigation('/services/maintenance')}
-                      className="flex items-start p-3 rounded-md hover:bg-gray-50 w-full text-left"
-                    >
-                      <div className="text-[#8982cf] mt-1 mr-3">
-                        <FontAwesomeIcon icon={faTools} className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">Website Maintenance</h4>
-                        <p className="text-sm text-gray-600">Keep your site up-to-date and secure</p>
+                        <h4 className="text-lg font-semibold text-gray-800 mb-1">Kitions Platform</h4>
+                        <p className="text-sm text-gray-600">Connect your retail business with premium e-commerce solutions.</p>
                       </div>
                     </button>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  
+                  {/* FAQ Option */}
+                  <div className="group">
+                    <button
+                      onClick={() => {
+                        handleNavigation('/faq');
+                        setIsServicesOpen(false);
+                      }}
+                      className="flex items-start p-3 rounded-lg hover:bg-gray-50 w-full text-left group-hover:bg-[#f9f8ff] transition-colors"
+                    >
+                      <div className="bg-[#f5f3ff] p-3 rounded-lg mr-4 group-hover:bg-[#eceafd] transition-colors">
+                        <FontAwesomeIcon icon={faQuestionCircle} className="h-6 w-6 text-[#8982cf]" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-800 mb-1">FAQ</h4>
+                        <p className="text-sm text-gray-600">Find answers to common questions about our services.</p>
+                      </div>
+                    </button>
+                  </div>
+                  
+                  {/* Blog Option */}
+                  <div className="group">
+                    <button
+                      onClick={() => {
+                        handleNavigation('/blog');
+                        setIsServicesOpen(false);
+                      }}
+                      className="flex items-start p-3 rounded-lg hover:bg-gray-50 w-full text-left group-hover:bg-[#f9f8ff] transition-colors"
+                    >
+                      <div className="bg-[#f5f3ff] p-3 rounded-lg mr-4 group-hover:bg-[#eceafd] transition-colors">
+                        <FontAwesomeIcon icon={faBlog} className="h-6 w-6 text-[#8982cf]" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-gray-800 mb-1">Blog</h4>
+                        <p className="text-sm text-gray-600">Read our latest articles about retail industry trends and strategies.</p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
-          <button 
-            onClick={() => handleNavigation('/pricing')} 
-            className="text-gray-700 font-semibold hover:text-[#8982cf] flex items-center"
-          >
-            {t('pricing')}
-          </button>
         </div>
       </div>
       
@@ -199,35 +250,35 @@ export default function Navbar() {
       </div>
       
       {/* Mobile menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div 
-            className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="px-4 pt-2 pb-4 space-y-3">
-              <button 
-                onClick={() => handleNavigation('/')}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#8982cf] hover:bg-gray-50"
-              >
-                {t('home')}
-              </button>
-              <div>
-                <button
-                  onClick={() => setIsServicesOpen(!isServicesOpen)}
-                  className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#8982cf] hover:bg-gray-50"
+      {hasMounted && (
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="px-4 pt-2 pb-4 space-y-3">
+                <button 
+                  onClick={() => handleNavigation('/')}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#8982cf] hover:bg-gray-50"
                 >
-                  <FontAwesomeIcon icon={faLaptopCode} className="mr-2" />
-                  {t('services')}
-                  <FontAwesomeIcon 
-                    icon={faChevronDown} 
-                    className={`ml-auto h-4 w-4 transition-transform ${isServicesOpen ? 'rotate-180' : ''}`}
-                  />
+                  {t('home')}
                 </button>
-                <AnimatePresence>
+                <div>
+                  <button
+                    onClick={() => setIsServicesOpen(!isServicesOpen)}
+                    className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#8982cf] hover:bg-gray-50"
+                  >
+                    <FontAwesomeIcon icon={faLaptopCode} className="mr-2" />
+                    {t('services')}
+                    <FontAwesomeIcon 
+                      icon={faChevronDown} 
+                      className={`ml-auto h-4 w-4 transition-transform ${isServicesOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
                   {isServicesOpen && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
@@ -236,49 +287,50 @@ export default function Navbar() {
                       className="pl-6"
                     >
                       <a 
-                        href={getKitionsAppUrl()}
+                        href="https://kitions.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="block px-3 py-2 text-sm text-gray-700 hover:text-[#8982cf]"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Kitions Platform
                       </a>
                       <button 
-                        onClick={() => handleNavigation('/services/maintenance')}
+                        onClick={() => {
+                          handleNavigation('/faq');
+                          setIsMenuOpen(false);
+                        }}
                         className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:text-[#8982cf]"
                       >
-                        Website Maintenance
+                        FAQ
+                      </button>
+                      <button 
+                        onClick={() => {
+                          handleNavigation('/blog');
+                          setIsMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:text-[#8982cf]"
+                      >
+                        Blog
                       </button>
                     </motion.div>
                   )}
-                </AnimatePresence>
+                </div>
+                <button 
+                  onClick={() => handleNavigation('/contact')}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-[#8982cf] hover:bg-[#7269c0]"
+                >
+                  <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+                  {t('contact')}
+                </button>
+                <div className="px-3 py-2">
+                  <LanguageSwitcher />
+                </div>
               </div>
-              <button 
-                onClick={() => handleNavigation('/templates')}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#8982cf] hover:bg-gray-50"
-              >
-                <FontAwesomeIcon icon={faImages} className="mr-2" />
-                Templates
-              </button>
-              <button 
-                onClick={() => handleNavigation('/pricing')}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#8982cf] hover:bg-gray-50"
-              >
-                {t('pricing')}
-              </button>
-              <button 
-                onClick={() => handleNavigation('/contact')}
-                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-[#8982cf] hover:bg-[#7269c0]"
-              >
-                <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-                {t('contact')}
-              </button>
-              <div className="px-3 py-2">
-                <LanguageSwitcher />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </nav>
   );
 } 

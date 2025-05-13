@@ -6,6 +6,7 @@ import {
   faMobileScreen,
   faGlobe
 } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 
 interface FeaturesProps {
   title: string;
@@ -13,21 +14,20 @@ interface FeaturesProps {
 }
 
 export default function Features({ title, subtitle }: FeaturesProps) {
+  const t = useTranslations('home.features');
+
   const features = [
     {
       icon: faLaptopCode,
-      title: "Professional Design",
-      description: "Expertly designed websites that look great on all devices and impress your visitors."
+      translationKey: 'professionalDesign'
     },
     {
       icon: faMobileScreen,
-      title: "Mobile Optimized",
-      description: "All our websites are fully responsive, ensuring a perfect experience on any device."
+      translationKey: 'mobileOptimized'
     },
     {
       icon: faGlobe,
-      title: "SEO Ready",
-      description: "Built with search engines in mind to help your business get found online."
+      translationKey: 'seoReady'
     }
   ];
 
@@ -48,9 +48,9 @@ export default function Features({ title, subtitle }: FeaturesProps) {
               <div className="w-12 h-12 bg-[#f5f3ff] rounded-lg flex items-center justify-center mb-4">
                 <FontAwesomeIcon icon={feature.icon} className="text-[#8982cf] h-6 w-6" />
               </div>
-              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-bold mb-3">{t(`items.${feature.translationKey}.title`)}</h3>
               <p className="text-gray-600">
-                {feature.description}
+                {t(`items.${feature.translationKey}.description`)}
               </p>
             </div>
           ))}

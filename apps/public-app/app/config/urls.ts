@@ -14,6 +14,7 @@ export const URLs = {
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
     home: '/',
+    secretEmailPanel: '/secret-email-panel',
   },
   
   /**
@@ -34,6 +35,8 @@ export const URLs = {
   api: {
     base: process.env.NEXT_PUBLIC_API_URL || 
       (process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : 'https://www.kitions.com/api'),
+    secretEmail: '/api/secret-email',
+    secretEmailValidate: '/api/secret-email/validate',
   },
   
   /**

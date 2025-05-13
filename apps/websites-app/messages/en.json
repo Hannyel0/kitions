@@ -14,17 +14,88 @@
     }
   },
   "home": {
+    "contactForm": {
+      "title": "Get a Free Proposal",
+      "subtitle": "Fill out the form below and we'll create a personalized proposal for your business website.",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "John Doe",
+      "email": "Email Address",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone Number",
+      "phonePlaceholder": "+1 (234) 567-8901",
+      "submitButton": "Get a Free Proposal",
+      "processing": "Processing...",
+      "successTitle": "Thanks for your submission!",
+      "successMessage": "We'll get back to you to talk about your website as soon as possible.",
+      "submitAnother": "Submit another request",
+      "launchTime": "Average launch time: 3-5 days",
+      "businessTestimonial": "Built for small businesses ready to grow online!"
+    },
+    "integration": {
+      "title": "Guaranteed Future Integration",
+      "subtitle": "with the Kitions app in your website",
+      "description": "We are committed to providing seamless integration with the Kitions app for all our website clients. Your site will always be ready for the latest features and business tools from Kitions."
+    },
     "hero": {
       "title": "Professional Website Creation",
       "subtitle": "Build your online presence with our expert web development services"
     },
     "features": {
       "title": "Why Choose Us",
-      "subtitle": "Everything you need to succeed online"
+      "subtitle": "Everything you need to succeed online",
+      "items": {
+        "professionalDesign": {
+          "title": "Professional Design",
+          "description": "Expertly designed websites that look great on all devices and impress your visitors."
+        },
+        "mobileOptimized": {
+          "title": "Mobile Optimized",
+          "description": "All our websites are fully responsive, ensuring a perfect experience on any device."
+        },
+        "seoReady": {
+          "title": "SEO Ready",
+          "description": "Built with search engines in mind to help your business get found online."
+        }
+      }
     },
     "howItWorks": {
       "title": "How It Works",
       "subtitle": "Simple steps to your new website"
+    },
+    "howItHelps": {
+      "title": "How a Website Helps Your Business",
+      "subtitle": "A professionally designed website is more than just an online presence—it's a powerful tool to grow and improve your business.",
+      "benefits": {
+        "increasedVisibility": {
+          "title": "Increased Visibility",
+          "description": "Get found by more potential customers with a professionally designed website that ranks well in search engines."
+        },
+        "trustCredibility": {
+          "title": "Build Trust & Credibility",
+          "description": "A polished website establishes your brand as trustworthy and professional, helping to convert visitors into loyal customers."
+        },
+        "availability": {
+          "title": "24/7 Availability",
+          "description": "Your website works around the clock, providing information and services to customers even when you're not available."
+        },
+        "expandReach": {
+          "title": "Expand Your Reach",
+          "description": "Break geographic barriers and reach customers beyond your local area, opening up new markets for your business."
+        },
+        "mobileExperience": {
+          "title": "Mobile-First Experience",
+          "description": "Capture the growing mobile audience with a responsive website that looks perfect on every device."
+        },
+        "customerService": {
+          "title": "Better Customer Service",
+          "description": "Provide instant information, FAQs, and contact options, improving customer satisfaction and reducing support calls."
+        }
+      },
+      "cta": {
+        "title": "Ready to transform your business?",
+        "description": "Our custom websites are designed with your business goals in mind, helping you attract more customers, build your brand, and streamline your operations. Let's create a website that works for you.",
+        "button": "Get Started"
+      }
     }
   },
   "contact": {
@@ -34,6 +105,77 @@
       "email": "Email",
       "message": "Message",
       "submit": "Send Message"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to common questions about our website services and how we can help your business grow online.",
+    "searchPlaceholder": "Search questions...",
+    "noResults": "No matching questions found",
+    "clearSearch": "Clear search",
+    "categories": {
+      "general": "General",
+      "pricing": "Pricing",
+      "websites": "Websites",
+      "technical": "Technical",
+      "support": "Support"
+    },
+    "items": {
+      "general": {
+        "q0": "What services do you offer?",
+        "a0": "We offer professional website design and development services for businesses of all sizes. Our services include custom website creation, e-commerce solutions, responsive design, SEO optimization, and ongoing maintenance and support.",
+        "q1": "How long does it take to build a website?",
+        "a1": "Most websites are ready in just 3-5 days, depending on the complexity and your requirements. Simple landing pages can be ready in as little as 48 hours, while more complex e-commerce sites might take up to two weeks.",
+        "q2": "Do I need technical knowledge to maintain my website?",
+        "a2": "No technical knowledge is required! Our websites are built with user-friendly content any change needed just contact the support team and they are gonna help you with the changes whenever you need it.",
+        "q3": "Can you help with existing websites?",
+        "a3": "Yes, we offer website redesign, optimization, and maintenance services for existing websites. We can help improve your site's performance, update its design, or add new features to enhance its functionality."
+      },
+      "pricing": {
+        "q0": "How much does a website cost?",
+        "a0": "The final cost depends on your specific requirements, including design complexity, number of pages, and additional features needed. We provide detailed quotes before beginning any work.",
+        "q1": "Are there any ongoing costs?",
+        "a1": "Yes, websites require hosting and domain registration to remain online. We offer affordable hosting packages, security monitoring, and technical support. Domain registration typically costs around $24-45 per year.",
+        "q2": "Do you offer payment plans?",
+        "a2": "Yes, we offer flexible payment options including monthly installments for larger projects. Standard payment terms include a 50% deposit to begin work, with the balance due upon completion.",
+        "q3": "Is there a money-back guarantee?",
+        "a3": "We're confident in the quality of our work and offer a satisfaction guarantee. If you're not completely satisfied with your website, we'll work with you to make revisions until you are. For custom development, we provide a 30-day warranty for any bugs or issues."
+      },
+      "websites": {
+        "q0": "Will my website work on mobile devices?",
+        "a0": "Yes, all our websites are fully responsive and optimized for mobile devices. They automatically adjust to look great and function properly on smartphones, tablets, desktop computers, and everything in between.",
+        "q1": "Can I sell products on my website?",
+        "a1": "Absolutely! We can build e-commerce functionality into your website, allowing you to sell products or services online. We integrate secure payment processing, inventory management, and all the features needed for a successful online store.",
+        "q2": "Will my website be search engine friendly?",
+        "a2": "Yes, we build all websites with SEO best practices in mind. This includes proper HTML structure, fast loading speeds, mobile responsiveness, and easy content management. We also offer additional SEO services to help improve your rankings even further.",
+        "q3": "Can I see examples of your previous work?",
+        "a3": "Yes, we have a portfolio of previous websites we've designed. Please contact us for examples specific to your industry or for references from past clients."
+      },
+      "technical": {
+        "q0": "What technology do you use to build websites?",
+        "a0": "We use modern technologies including React, Next.js, and other cutting-edge frameworks that ensure your website is fast, secure, and future-proof. For content management.",
+        "q1": "Is my website secure?",
+        "a1": "Yes, security is a priority for us. All websites include SSL certificates for encrypted connections, secure form handling, and protection against common vulnerabilities. We also perform regular security updates as part of our maintenance services.",
+        "q2": "Can I update the website myself?",
+        "a2": "We're here whenever you need updates - whether it's adding a new feature, creating a page, or simply changing text. Just let us know, and we'll take care of it quickly and reliably.",
+        "q3": "What about website hosting and maintenance?",
+        "a3": "We offer reliable hosting solutions optimized for the websites we build. Our hosting includes regular backups, security monitoring, and technical support. We also provide website maintenance services to keep your site up-to-date, secure, and performing well."
+      },
+      "support": {
+        "q0": "What kind of support do you offer after my website is live?",
+        "a0": "We provide ongoing support for all our websites. Our standard support includes technical assistance, minor updates, and troubleshooting. We also offer premium maintenance packages for businesses that need regular content updates or more extensive support.",
+        "q1": "How quickly do you respond to support requests?",
+        "a1": "We aim to respond to all support requests within 24 hours during business days. For urgent issues or clients on our priority support plan, we offer expedited response times and weekend coverage.",
+        "q2": "How do I get help if I have questions?",
+        "a2": "You can reach our support team via email, phone, or through our support ticket system.",
+        "q3": "Do you offer training on how to use my website?",
+        "a3": "Yes, we provide training sessions to show you how to manage your website. These can be conducted via video call or in person depending on your location. We also create custom documentation specific to your website's functionality."
+      }
+    },
+    "stillHaveQuestions": {
+      "title": "Still have questions?",
+      "description": "Can't find the answer you're looking for? Please contact our friendly team for personalized assistance with any questions about our website services.",
+      "button": "Contact Us"
     }
   },
   "services": {

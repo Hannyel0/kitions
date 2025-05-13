@@ -15,8 +15,8 @@ export default function TermsOfService() {
     }
   };
   
-  const currentDate = new Date();
-  const effectiveDate = `${currentDate.toLocaleString('default', { month: 'long' })} ${currentDate.getDate()}, ${currentDate.getFullYear()}`;
+  // Hardcoded effective date
+  const effectiveDate = "May 8, 2025";
 
   return (
     <div className="min-h-screen bg-[radial-gradient(theme(colors.gray.200)_1px,transparent_1px)] bg-[size:20px_20px]">
@@ -218,7 +218,7 @@ export default function TermsOfService() {
           
           <div className="text-center text-gray-600 text-sm mt-16">
             <p>Last updated: {effectiveDate}</p>
-            <p className="mt-2">Kitions © {currentDate.getFullYear()} All rights reserved.</p>
+            <p className="mt-2">Kitions © 2025 All rights reserved.</p>
           </div>
         </div>
       </motion.div>

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRocket, faEnvelope, faPhone, faUser, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { useTranslations } from 'next-intl';
 
 interface HeroProps {
   title: string;
@@ -14,6 +15,7 @@ interface HeroProps {
 }
 
 export default function Hero({ title, subtitle, description }: HeroProps) {
+  const t = useTranslations('home.contactForm');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -91,8 +93,8 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
               </p>
             )}
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <Link href="/pricing" className="py-4 px-8 text-lg font-medium text-white bg-[#8982cf] rounded-lg shadow-md hover:bg-[#7873b3] transition-colors text-center w-full sm:w-auto">
-                View pricing plans
+              <Link href="https://calendly.com/kitionsus/free-proposal" className="py-4 px-8 text-lg font-medium text-white bg-[#8982cf] rounded-lg shadow-md hover:bg-[#7873b3] transition-colors text-center w-full sm:w-auto">
+                Book a free call
               </Link>
 
             </div>
@@ -136,7 +138,7 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                 </div>
               </div>
               <p className="text-sm text-gray-600">
-              Built for small businesses ready to grow online!
+                {t('businessTestimonial')}
               </p>
             </div>
           </motion.div>
@@ -155,19 +157,19 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-4">Thanks for your submission!</h3>
-                  <p className="text-gray-600 mb-6">We&apos;ll get back to you to talk about your website as soon as possible.</p>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">{t('successTitle')}</h3>
+                  <p className="text-gray-600 mb-6">{t('successMessage')}</p>
                   <button 
                     onClick={() => setSubmitted(false)} 
                     className="text-[#8982cf] font-medium hover:underline"
                   >
-                    Submit another request
+                    {t('submitAnother')}
                   </button>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Get a Free Proposal</h2>
-                  <p className="text-gray-600 mb-6">Fill out the form below and we&apos;ll create a personalized proposal for your business website.</p>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-2">{t('title')}</h2>
+                  <p className="text-gray-600 mb-6">{t('subtitle')}</p>
                   
                   {error && (
                     <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
@@ -180,7 +182,7 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                   
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Full Name</label>
+                      <label className="block text-gray-700 mb-1 font-medium">{t('fullName')}</label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <FontAwesomeIcon icon={faUser} className="text-gray-400" />
@@ -192,13 +194,13 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                           onChange={handleChange}
                           required
                           className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8982cf]/50 focus:border-[#8982cf]"
-                          placeholder="John Doe"
+                          placeholder={t('fullNamePlaceholder')}
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Email Address</label>
+                      <label className="block text-gray-700 mb-1 font-medium">{t('email')}</label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <FontAwesomeIcon icon={faEnvelope} className="text-gray-400" />
@@ -210,13 +212,13 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                           onChange={handleChange}
                           required
                           className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8982cf]/50 focus:border-[#8982cf]"
-                          placeholder="you@example.com"
+                          placeholder={t('emailPlaceholder')}
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Phone Number</label>
+                      <label className="block text-gray-700 mb-1 font-medium">{t('phone')}</label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <FontAwesomeIcon icon={faPhone} className="text-gray-400" />
@@ -228,7 +230,7 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                           onChange={handleChange}
                           required
                           className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8982cf]/50 focus:border-[#8982cf]"
-                          placeholder="+1 (234) 567-8901"
+                          placeholder={t('phonePlaceholder')}
                         />
                       </div>
                     </div>
@@ -238,7 +240,7 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
                       disabled={isSubmitting}
                       className={` cursor-pointer w-full py-3 px-4 bg-[#8982cf] text-white font-medium rounded-lg shadow-md hover:bg-[#7873b3] focus:outline-none focus:ring-2 focus:ring-[#8982cf]/50 transition-colors ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
-                      {isSubmitting ? 'Processing...' : 'Get a Free Proposal'}
+                      {isSubmitting ? t('processing') : t('submitButton')}
                     </button>
                   </form>
                 </>
@@ -247,7 +249,7 @@ export default function Hero({ title, subtitle, description }: HeroProps) {
             <div className="absolute -bottom-5 -left-5 p-4 bg-white rounded-lg shadow-lg">
               <div className="flex items-center gap-3">
                 <FontAwesomeIcon icon={faRocket} className="text-[#8982cf] h-5 w-5" />
-                <p className="font-semibold">Average launch time: 3-5 days</p>
+                <p className="font-semibold">{t('launchTime')}</p>
               </div>
             </div>
           </motion.div>

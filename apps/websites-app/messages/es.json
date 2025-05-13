@@ -14,17 +14,88 @@
     }
   },
   "home": {
+    "contactForm": {
+      "title": "Obtén una Propuesta Gratis",
+      "subtitle": "Completa el formulario a continuación y crearemos una propuesta personalizada para el sitio web de tu negocio.",
+      "fullName": "Nombre Completo",
+      "fullNamePlaceholder": "Juan Pérez",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "phone": "Número de Teléfono",
+      "phonePlaceholder": "+1 (234) 567-8901",
+      "submitButton": "Obtén una Propuesta Gratis",
+      "processing": "Procesando...",
+      "successTitle": "¡Gracias por tu solicitud!",
+      "successMessage": "Nos pondremos en contacto contigo para hablar sobre tu sitio web lo antes posible.",
+      "submitAnother": "Enviar otra solicitud",
+      "launchTime": "Tiempo promedio de lanzamiento: 3-5 días",
+      "businessTestimonial": "¡Creado para empresas listas para crecer en línea!"
+    },
+    "integration": {
+      "title": "Integración futura garantizada",
+      "subtitle": "con la aplicación Kitions en tu sitio web",
+      "description": "Nos comprometemos a ofrecer una integración perfecta con la app de Kitions para todos nuestros clientes web. Su sitio web siempre estará listo para las últimas funciones y herramientas empresariales de Kitions."
+    },
     "hero": {
       "title": "Creación Profesional de Sitios Web",
       "subtitle": "Construye tu presencia en línea con nuestros servicios expertos de desarrollo web"
     },
     "features": {
       "title": "Por Qué Elegirnos",
-      "subtitle": "Todo lo que necesitas para tener éxito en línea"
+      "subtitle": "Todo lo que necesitas para tener éxito en línea",
+      "items": {
+        "professionalDesign": {
+          "title": "Diseño profesional",
+          "description": "Sitios web diseñados expertamente que se ven geniales en todos los dispositivos e impresionan a sus visitantes."
+        },
+        "mobileOptimized": {
+          "title": "Optimizado para dispositivos móviles",
+          "description": "Todos nuestros sitios web son totalmente responsivos, lo que garantiza una experiencia perfecta en cualquier dispositivo."
+        },
+        "seoReady": {
+          "title": "SEO Listo",
+          "description": "Creado teniendo en cuenta los motores de búsqueda para ayudar a que su negocio se encuentre en línea."
+        }
+      }
     },
     "howItWorks": {
       "title": "Cómo Funciona",
       "subtitle": "Pasos simples para tu nuevo sitio web"
+    },
+    "howItHelps": {
+      "title": "Como una pagina web ayuda a su negocio",
+      "subtitle": "Un sitio web diseñado profesionalmente es más que una simple presencia en línea: es una herramienta poderosa para hacer crecer y mejorar su negocio.",
+      "benefits": {
+        "increasedVisibility": {
+          "title": "Incrementa visibilidad",
+          "description": "Sea encontrado por más clientes potenciales con un sitio web diseñado profesionalmente que tenga una buena clasificación en los motores de búsqueda."
+        },
+        "trustCredibility": {
+          "title": "Generar confianza y credibilidad",
+          "description": "Un sitio web pulido establece su marca como confiable y profesional, lo que ayuda a convertir a los visitantes en clientes leales."
+        },
+        "availability": {
+          "title": "Disponibilidad 24/7",
+          "description": "Su sitio web funciona las 24 horas del día, proporcionando información y servicios a los clientes incluso cuando usted no está disponible."
+        },
+        "expandReach": {
+          "title": "Amplíe su alcance",
+          "description": "Rompa las barreras geográficas y llegue a clientes más allá de su área local, abriendo nuevos mercados para su negocio."
+        },
+        "mobileExperience": {
+          "title": "Experiencia móvil primero",
+          "description": "Capte la creciente audiencia móvil con un sitio web adaptable que se ve perfecto en cualquier dispositivo."
+        },
+        "customerService": {
+          "title": "Mejor servicio al cliente",
+          "description": "Proporcionar información instantánea, preguntas frecuentes y opciones de contacto, mejorando la satisfacción del cliente y reduciendo las llamadas de soporte."
+        }
+      },
+      "cta": {
+        "title": "¿Listo para transformar tu negocio?",
+        "description": "Nuestros sitios web personalizados están diseñados teniendo en cuenta los objetivos de tu negocio, ayudándote a atraer más clientes, construir tu marca y optimizar tus operaciones. Creemos un sitio web que funcione para ti.",
+        "button": "Comenzar"
+      }
     }
   },
   "contact": {
@@ -34,6 +105,77 @@
       "email": "Correo Electrónico",
       "message": "Mensaje",
       "submit": "Enviar Mensaje"
+    }
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "subtitle": "Encuentra respuestas a preguntas comunes sobre nuestros servicios de sitios web y cómo podemos ayudar a tu negocio a crecer en línea.",
+    "searchPlaceholder": "Buscar preguntas...",
+    "noResults": "No se encontraron preguntas coincidentes",
+    "clearSearch": "Borrar búsqueda",
+    "categories": {
+      "general": "General",
+      "pricing": "Precios",
+      "websites": "Sitios Web",
+      "technical": "Técnico",
+      "support": "Soporte"
+    },
+    "items": {
+      "general": {
+        "q0": "¿Qué servicios ofrecen?",
+        "a0": "Ofrecemos servicios profesionales de diseño y desarrollo de sitios web para empresas de todos los tamaños. Nuestros servicios incluyen creación de sitios web personalizados, soluciones de comercio electrónico, diseño responsive, optimización de SEO y mantenimiento y soporte continuos.",
+        "q1": "¿Cuánto tiempo toma construir un sitio web?",
+        "a1": "La mayoría de los sitios web están listos en solo 3-5 días, dependiendo de la complejidad y sus requisitos. Las landing pages simples pueden estar listas en tan solo 48 horas, mientras que los sitios de comercio electrónico más complejos pueden tardar hasta dos semanas.",
+        "q2": "¿Necesito conocimientos técnicos para mantener mi sitio web?",
+        "a2": "¡¡No se requieren conocimientos técnicos! Nuestros sitios web están diseñados con contenido intuitivo. Si necesita algún cambio, simplemente contacte con el equipo de soporte y le ayudarán con los cambios cuando lo necesite.",
+        "q3": "¿Pueden ayudar con sitios web existentes?",
+        "a3": "Sí, ofrecemos servicios de rediseño, optimización y mantenimiento para sitios web existentes. Podemos ayudar a mejorar el rendimiento de su sitio, actualizar su diseño o agregar nuevas funciones para mejorar su funcionalidad."
+      },
+      "pricing": {
+        "q0": "¿Cuánto cuesta un sitio web?",
+        "a0": "El costo final depende de sus requisitos específicos, incluida la complejidad del diseño, la cantidad de páginas y las funciones adicionales necesarias. Proporcionamos presupuestos detallados antes de comenzar cualquier trabajo.",
+        "q1": "¿Hay costos continuos?",
+        "a1": "Sí, los sitios web requieren alojamiento y registro de dominio para permanecer en línea. Ofrecemos paquetes de hosting asequibles que incluyen copias de seguridad regulares, monitoreo de seguridad y soporte técnico. El registro de dominio generalmente cuesta alrededor de $24-45 por año.",
+        "q2": "¿Ofrecen planes de pago?",
+        "a2": "Sí, ofrecemos opciones de pago flexibles, incluidas cuotas mensuales para proyectos más grandes. Los términos de pago estándar incluyen un depósito del 50% para comenzar el trabajo, con el saldo pendiente al finalizar.",
+        "q3": "¿Hay garantía de devolución de dinero?",
+        "a3": "Confiamos en la calidad de nuestro trabajo y ofrecemos una garantía de satisfacción. Si no está completamente satisfecho con su sitio web, trabajaremos con usted para hacer revisiones hasta que lo esté. Para desarrollos personalizados, proporcionamos una garantía de 30 días para cualquier error o problema."
+      },
+      "websites": {
+        "q0": "¿Funcionará mi sitio web en dispositivos móviles?",
+        "a0": "Sí, todos nuestros sitios web son completamente responsive y optimizados para dispositivos móviles. Se ajustan automáticamente para verse bien y funcionar correctamente en smartphones, tablets, computadoras de escritorio y todo lo demás.",
+        "q1": "¿Puedo vender productos en mi sitio web?",
+        "a1": "¡Absolutamente! Podemos incorporar funcionalidad de comercio electrónico en su sitio web, permitiéndole vender productos o servicios en línea. Integramos procesamiento de pagos seguro, gestión de inventario y todas las características necesarias para una tienda en línea exitosa.",
+        "q2": "¿Mi sitio web será amigable con los motores de búsqueda?",
+        "a2": "Sí, construimos todos los sitios web teniendo en cuenta las mejores prácticas de SEO. Esto incluye estructura HTML adecuada, velocidades de carga rápidas, capacidad de respuesta móvil y gestión de contenido fácil. También ofrecemos servicios de SEO adicionales para ayudar a mejorar aún más sus clasificaciones.",
+        "q3": "¿Puedo ver ejemplos de su trabajo anterior?",
+        "a3": "Sí, tenemos un portafolio de sitios web anteriores que hemos diseñado. Comuníquese con nosotros para obtener ejemplos específicos de su industria o referencias de clientes anteriores."
+      },
+      "technical": {
+        "q0": "¿Qué tecnología utilizan para construir sitios web?",
+        "a0": "Utilizamos tecnologías modernas, incluidas React, Next.js y otros frameworks de vanguardia que garantizan que su sitio web sea rápido.",
+        "q1": "¿Mi sitio web es seguro?",
+        "a1": "Sí, la seguridad es una prioridad para nosotros. Todos los sitios web incluyen certificados SSL para conexiones encriptadas, manejo seguro de formularios y protección contra vulnerabilidades comunes. También realizamos actualizaciones de seguridad periódicas como parte de nuestros servicios de mantenimiento.",
+        "q2": "¿Puedo actualizar el sitio web yo mismo?",
+        "a2": "Estamos aquí siempre que necesites actualizaciones, ya sea para añadir una nueva función, crear una página o simplemente cambiar el texto. Solo tienes que avisarnos y nos encargaremos de ello de forma rápida y fiable.",
+        "q3": "¿Qué hay del alojamiento y mantenimiento del sitio web?",
+        "a3": "Ofrecemos soluciones de alojamiento confiables optimizadas para los sitios web que construimos. Nuestro alojamiento incluye copias de seguridad regulares, monitoreo de seguridad y soporte técnico. También proporcionamos servicios de mantenimiento de sitios web para mantener su sitio actualizado, seguro y con un buen rendimiento."
+      },
+      "support": {
+        "q0": "¿Qué tipo de soporte ofrecen después de que mi sitio web esté en línea?",
+        "a0": "Proporcionamos soporte continuo para todos nuestros sitios web. Nuestro soporte estándar incluye asistencia técnica, actualizaciones menores y solución de problemas. También ofrecemos paquetes de mantenimiento premium para empresas que necesitan actualizaciones regulares de contenido o soporte más extenso.",
+        "q1": "¿Qué tan rápido responden a las solicitudes de soporte?",
+        "a1": "Nuestro objetivo es responder a todas las solicitudes de soporte dentro de las 24 horas durante los días hábiles. Para problemas urgentes o clientes en nuestro plan de soporte prioritario, ofrecemos tiempos de respuesta acelerados y cobertura de fin de semana.",
+        "q2": "¿Cómo obtengo ayuda si tengo preguntas?",
+        "a2": "Puede comunicarse con nuestro equipo de soporte por correo electrónico, teléfono o a través de nuestro sistema de tickets de soporte.",
+        "q3": "¿Ofrecen capacitación sobre cómo usar mi sitio web?",
+        "a3": "Sí, proporcionamos sesiones de capacitación para mostrarle cómo administrar su sitio web. Estas pueden realizarse a través de videollamada o en persona, dependiendo de su ubicación. También creamos documentación personalizada específica para la funcionalidad de su sitio web."
+      }
+    },
+    "stillHaveQuestions": {
+      "title": "¿Todavía tienes preguntas?",
+      "description": "¿No encuentras la respuesta que buscas? Comunícate con nuestro amable equipo para recibir asistencia personalizada con cualquier pregunta sobre nuestros servicios de sitios web.",
+      "button": "Contáctanos"
     }
   },
   "services": {
