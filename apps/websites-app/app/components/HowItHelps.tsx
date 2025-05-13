@@ -10,6 +10,7 @@ import {
   faHandshake
 } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function HowItHelps() {
   const t = useTranslations('home.howItHelps');
@@ -82,12 +83,12 @@ export default function HowItHelps() {
                 {t('cta.description')}
               </p>
             </div>
-            <a 
+            <Link 
               href="/contact" 
               className="btn-primary py-4 px-8 text-base font-semibold whitespace-nowrap"
             >
               {t('cta.button')}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

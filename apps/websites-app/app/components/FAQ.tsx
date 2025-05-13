@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function FAQ() {
   const t = useTranslations('faq');
@@ -46,7 +47,7 @@ export default function FAQ() {
         question = t(questionKey);
         answer = t(answerKey);
         items.push({ question, answer });
-      } catch (e) {
+      } catch {
         // Skip this item if translation fails
         console.error(`Translation error for ${questionKey} or ${answerKey}`);
       }
@@ -188,12 +189,12 @@ export default function FAQ() {
                 {t('stillHaveQuestions.description')}
               </p>
             </div>
-            <a 
+            <Link 
               href="/contact" 
               className="btn-primary py-4 px-8 text-base font-semibold whitespace-nowrap"
             >
               {t('stillHaveQuestions.button')}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

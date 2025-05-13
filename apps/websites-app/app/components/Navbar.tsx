@@ -1,19 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faChevronDown, 
   faLaptopCode, 
-  faImages,
   faEnvelope,
   faBars, 
   faTimes,
   faStore,
-  faTools,
-  faGlobe,
   faQuestionCircle,
   faBlog
 } from '@fortawesome/free-solid-svg-icons';
@@ -21,36 +17,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 
-// Animation variants for dropdown menus
-const dropdownVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: -20,
-    scale: 0.95,
-    transition: { 
-      duration: 0.2,
-      ease: "easeInOut"
-    }
-  },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    scale: 1,
-    transition: { 
-      duration: 0.3,
-      ease: "easeOut"
-    }
-  },
-  exit: { 
-    opacity: 0, 
-    y: -10,
-    scale: 0.95,
-    transition: { 
-      duration: 0.2,
-      ease: "easeInOut"
-    }
-  }
-};
+// Animation variants for dropdown menus were removed (unused)
 
 // Custom hook to handle client-side only rendering
 function useHasMounted() {
@@ -70,7 +37,7 @@ export default function Navbar() {
   const servicesDropdownRef = useRef<HTMLDivElement | null>(null);
   const t = useTranslations('common.nav');
   const router = useRouter();
-  const pathname = usePathname();
+  // pathname removed (unused)
   const hasMounted = useHasMounted();
 
   // Close dropdowns when clicking outside
@@ -87,13 +54,7 @@ export default function Navbar() {
     };
   }, []);
 
-  // Helper function to get the Kitions app URL based on environment
-  const getKitionsAppUrl = () => {
-    if (process.env.NODE_ENV === 'development') {
-      return 'http://localhost:3000';
-    }
-    return 'https://kitions.com';
-  };
+  // Helper function was removed (unused)
 
   const handleNavigation = (path: string) => {
     router.push(path);
