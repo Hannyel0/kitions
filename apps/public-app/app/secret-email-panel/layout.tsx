@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-import { TitleController, useTitleController } from '@/app/components/TitleController';
+import { TitleController } from '@/app/components/TitleController';
 
 export default function SecretEmailPanelLayout({
   children,

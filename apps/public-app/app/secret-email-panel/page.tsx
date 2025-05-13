@@ -1,11 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLock, faUser, faPaperPlane, faCircleCheck, faCircleXmark, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faEnvelope, 
+  faLock, 
+  faUser, 
+  faPaperPlane, 
+  faCircleCheck, 
+  faCircleXmark, 
+  faShieldAlt, 
+  faFileInvoice, 
+  faHandshake, 
+  faInfoCircle,
+  faEye
+} from '@fortawesome/free-solid-svg-icons';
 import { URLs } from '@/app/config/urls';
+import { getEmailTemplate } from '@/app/utils/email-templates';
 
 export default function SecretEmailPanel() {
   const searchParams = useSearchParams();
@@ -22,19 +35,31 @@ export default function SecretEmailPanel() {
     success: false,
     message: '',
   });
+  const [showPreview, setShowPreview] = useState(false);
+  const previewIframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Email template options
+  const templates = [
+    { id: 'custom', name: 'Custom Message', icon: faEnvelope, description: 'Create your own custom email message' },
+    { id: 'greeting', name: 'Customer Greeting', icon: faHandshake, description: 'Welcome new customers with a friendly greeting' },
+    { id: 'invoice', name: 'Invoice Template', icon: faFileInvoice, description: 'Send professional invoices to customers' },
+    { id: 'update', name: 'Product Update', icon: faInfoCircle, description: 'Inform customers about new products or features' },
+  ];
+  
   // Form state
+  const [selectedTemplate, setSelectedTemplate] = useState('custom');
   const [formData, setFormData] = useState({
     to: '',
     subject: '',
     message: '',
+    templateId: 'custom'
   });
 
   // Validate the secret key from URL
   useEffect(() => {
     const validateKey = async () => {
       const key = searchParams.get('key');
-      console.log('Key from URL:', key); // Debug log
+      console.log('Key from URL:', key);
       
       if (!key) {
         setIsAuthorized(false);
@@ -94,6 +119,73 @@ export default function SecretEmailPanel() {
       message.trim() !== ''
     );
   }, [formData]);
+  
+  // Update message template when selected template changes
+  useEffect(() => {
+    // Only update if the template changes and it's not custom
+    if (selectedTemplate !== 'custom') {
+      let newSubject = '';
+      let newMessage = '';
+      
+      // Set template-specific content
+      switch (selectedTemplate) {
+        case 'greeting':
+          newSubject = 'Welcome to Kitions!';
+          newMessage = `Dear Customer,
+
+We're thrilled to welcome you to the Kitions family! Thank you for choosing our platform for your business needs.
+
+Your account is now ready, and you can start exploring all the features we offer. If you have any questions or need assistance getting started, please don't hesitate to reach out to our support team.
+
+Best regards,
+The Kitions Team`;
+          break;
+        
+        case 'invoice':
+          newSubject = 'Your Kitions Invoice';
+          newMessage = `Dear Customer,
+
+Please find attached your invoice for Kitions services.
+
+Invoice #: [INVOICE_NUMBER]
+Date: ${new Date().toLocaleDateString()}
+Amount Due: [AMOUNT]
+Due Date: [DUE_DATE]
+
+Thank you for your business!
+
+Best regards,
+Kitions Billing Team`;
+          break;
+        
+        case 'update':
+          newSubject = 'Kitions Product Update';
+          newMessage = `Dear Customer,
+
+We're excited to announce new updates to the Kitions platform!
+
+What's New:
+- [FEATURE 1]: Brief description
+- [FEATURE 2]: Brief description
+- [FEATURE 3]: Brief description
+
+To learn more about these updates, please visit our documentation or contact support.
+
+Thank you for being a valued Kitions customer!
+
+Best regards,
+The Kitions Team`;
+          break;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        subject: newSubject,
+        message: newMessage,
+        templateId: selectedTemplate
+      }));
+    }
+  }, [selectedTemplate]);
 
   // Handle form input changes
   const handleInputChange = (
@@ -104,6 +196,41 @@ export default function SecretEmailPanel() {
       ...prev,
       [name]: value,
     }));
+  };
+  
+  // Handle template selection
+  const handleTemplateChange = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    
+    // If switching to custom template, don't modify the existing content
+    if (templateId === 'custom') {
+      setFormData(prev => ({
+        ...prev,
+        templateId
+      }));
+    }
+  };
+
+  // Handle preview toggle
+  const handleTogglePreview = () => {
+    setShowPreview(prev => !prev);
+
+    // Update iframe content when showing preview
+    if (!showPreview && previewIframeRef.current) {
+      // Generate preview HTML
+      const previewHtml = getEmailTemplate(formData.templateId, {
+        subject: formData.subject,
+        message: formData.message
+      });
+
+      // Update iframe content
+      const iframe = previewIframeRef.current;
+      if (iframe.contentWindow) {
+        iframe.contentWindow.document.open();
+        iframe.contentWindow.document.write(previewHtml);
+        iframe.contentWindow.document.close();
+      }
+    }
   };
 
   // Handle form submission
@@ -137,7 +264,9 @@ export default function SecretEmailPanel() {
           to: '',
           subject: '',
           message: '',
+          templateId: 'custom'
         });
+        setSelectedTemplate('custom');
       } else {
         setNotification({
           show: true,
@@ -145,11 +274,11 @@ export default function SecretEmailPanel() {
           message: data.error || 'Failed to send email.',
         });
       }
-    } catch (error) {
+    } catch (err) {
       setNotification({
         show: true,
         success: false,
-        message: 'An error occurred.',
+        message: `An error occurred. ${err}`,
       });
     } finally {
       setIsLoading(false);
@@ -218,7 +347,7 @@ export default function SecretEmailPanel() {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6">
       <motion.div 
-        className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden"
+        className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -236,29 +365,81 @@ export default function SecretEmailPanel() {
           </div>
         </div>
         
+        {/* Preview Modal */}
+        {showPreview && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h3 className="font-bold text-lg">Email Preview</h3>
+                <button 
+                  onClick={handleTogglePreview}
+                  className="text-gray-500 hover:text-gray-800"
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="p-0 overflow-auto flex-grow relative">
+                <iframe 
+                  ref={previewIframeRef}
+                  className="w-full h-full min-h-[600px] border-0"
+                  title="Email Preview"
+                ></iframe>
+              </div>
+              <div className="p-4 border-t">
+                <button 
+                  onClick={handleTogglePreview}
+                  className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                  Close Preview
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 py-8 sm:px-10">
+          {/* Template Selection */}
+          <div className="mb-8">
+            <h2 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
+              <FontAwesomeIcon icon={faEnvelope} className="text-[#8982cf] mr-2" />
+              Select Email Template
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {templates.map(template => (
+                <div 
+                  key={template.id}
+                  onClick={() => handleTemplateChange(template.id)}
+                  className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${selectedTemplate === template.id 
+                    ? 'border-[#8982cf] bg-[#f8f7fd] shadow-md transform scale-[1.02]' 
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}
+                >
+                  <div className="flex justify-center mb-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${selectedTemplate === template.id ? 'bg-[#8982cf] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                      <FontAwesomeIcon icon={template.icon} size="lg" />
+                    </div>
+                  </div>
+                  <h3 className="font-medium text-center mb-1">{template.name}</h3>
+                  <p className="text-gray-500 text-sm text-center">{template.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          
           {/* Notification */}
           {notification.show && (
             <motion.div 
-              className={`mb-6 p-4 rounded-lg ${
+              className={`mb-6 p-4 rounded-lg flex items-center ${
                 notification.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
               }`}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
             >
-              <div className="flex items-center">
-                <FontAwesomeIcon 
-                  icon={notification.success ? faCircleCheck : faCircleXmark} 
-                  className={`${notification.success ? 'text-green-500' : 'text-red-500'} mr-3 text-xl`} 
-                />
-                <p>{notification.message}</p>
-              </div>
+              <FontAwesomeIcon icon={notification.success ? faCircleCheck : faCircleXmark} className="text-lg mr-2" />
+              <span>{notification.message}</span>
             </motion.div>
           )}
           
-          {/* Recipient */}
+          {/* Recipient Email */}
           <div className="mb-6">
             <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">
               Recipient Email
@@ -298,7 +479,7 @@ export default function SecretEmailPanel() {
           </div>
           
           {/* Message */}
-          <div className="mb-8">
+          <div className="mb-4">
             <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
               Message
             </label>
@@ -312,6 +493,19 @@ export default function SecretEmailPanel() {
               placeholder="Your email message..."
               required
             ></textarea>
+          </div>
+
+          {/* Preview button */}
+          <div className="mb-8">
+            <button
+              type="button"
+              onClick={handleTogglePreview}
+              className="inline-flex items-center text-[#8982cf] hover:text-[#7873b3]"
+            >
+              <FontAwesomeIcon icon={faEye} className="mr-2" />
+              Preview Email
+            </button>
+            <p className="text-xs text-gray-500 mt-1">See how your email will look to recipients</p>
           </div>
           
           {/* Security notice */}
