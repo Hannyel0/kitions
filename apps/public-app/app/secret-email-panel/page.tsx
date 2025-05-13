@@ -68,13 +68,6 @@ export default function SecretEmailPanel() {
         return;
       }
 
-      // TEMPORARY DEVELOPMENT SOLUTION - REMOVE BEFORE PRODUCTION
-      if (key === 'correr83') {
-        console.log('Using hardcoded key validation (DEV ONLY)');
-        setIsAuthorized(true);
-        setIsLoading(false);
-        return;
-      }
 
       try {
         console.log('Validating key with endpoint:', `${URLs.api.base}${URLs.api.secretEmailValidate}`);
@@ -332,12 +325,6 @@ The Kitions Team`;
             {validationError && (
               <p className="text-red-500 mt-2 text-sm">Error: {validationError}</p>
             )}
-            <div className="mt-4 p-3 bg-yellow-50 rounded-md text-xs text-left">
-              <p className="font-medium mb-1">Debugging Info:</p>
-              <p>- Check console logs for details</p>
-              <p>- Make sure MY_SECRET_EMAIL_KEY is set in .env.local</p>
-              <p>- Current URL key: {searchParams.get('key')}</p>
-            </div>
           </div>
         </motion.div>
       </div>
