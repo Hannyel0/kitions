@@ -15,23 +15,23 @@ export default function RetailerHomeContent() {
   const loading = authLoading || profileLoading;
 
   useEffect(() => {
-    console.log('Retailer Home - Auth state:', { user, loading }); // Optional: Log state
+    console.log('Retailer Home - Auth state on initial render:', { user, loading, authLoading, profileLoading });
+    
+    // With cookie-based authentication, this is much simpler
+    // We just check if we're in a loading state or missing a user
+    if (!loading && !user) { 
+      console.log('Retailer Home: No user found after loading is complete, redirecting to login');
+      const loginUrl = process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3000/login'
+        : '/login';
+      router.replace(loginUrl);
+    }
+    
+    // No need for timeout with cookie-based auth - middleware handles initial session validation
 
-    // Set a timeout to check for authentication after a short delay
-    const timeoutId = setTimeout(() => {
-      // Check again inside the timeout
-      if (!loading && user === null) { 
-        console.log('Retailer Home: No user found after delay. Redirecting...');
-        const loginUrl = process.env.NODE_ENV === 'development'
-          ? 'http://localhost:3000/login'
-          : '/login'; // In production, assume it's on the same domain
-        router.replace(loginUrl); // Use replace to avoid adding the failed dashboard page to history
-      }
-    }, 300); // Wait 300ms
-
-    // Cleanup function
-    return () => clearTimeout(timeoutId);
-  }, [user, loading, router]);
+    // No cleanup needed since we don't use a timeout anymore
+    return () => {};
+  }, [user, loading, authLoading, profileLoading, router]);
 
   // Show loading state while checking authentication
   if (loading) {

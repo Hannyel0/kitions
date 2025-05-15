@@ -53,34 +53,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
+    // Initialize with a more verbose loading state message
+    console.log('AuthProvider: Initializing and checking for existing session...');
+    
     const getSession = async () => {
-      // Get session and user in a single call, avoiding redundant API requests
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      setLoading(true);
+      
+      try {
+        // Get session from cookies
+        console.log('AuthProvider: Attempting to get session from cookies...');
+        console.time("cookie_session_load");
+        const { data: { session } } = await supabase.auth.getSession();
+        console.timeEnd("cookie_session_load");
+        
+        if (session) {
+          console.log('AuthProvider: Session found in cookies:', { 
+            user: session.user.email,
+            expires_at: new Date(session.expires_at! * 1000).toLocaleString() 
+          });
+          setSession(session);
+          setUser(session.user);
+        } else {
+          console.log('AuthProvider: No active session found in cookies');
+          setSession(null);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('AuthProvider: Error getting session:', error);
+        // Reset state on error
+        setSession(null);
+        setUser(null);
+      } finally {
+        // Mark loading as complete
+        setLoading(false);
+      }
     };
 
-    // Helper function to refresh session state
+    // More robust session refresh that handles errors
     const refreshSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
+      try {
+        console.log('AuthProvider: Refreshing session...');
+        // Try to refresh the token first
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          console.error('AuthProvider: Error refreshing session:', refreshError);
+          return;
+        }
+        
+        // Then get the session again
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        console.log('AuthProvider: Session refreshed successfully');
+      } catch (error) {
+        console.error('AuthProvider: Error during session refresh:', error);
+      }
     };
 
+    // Initial session check
     getSession();
 
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Set up auth state change listener with improved logging
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`AuthProvider: Auth state changed: ${event}`, { 
+        hasSession: !!session, 
+        user: session?.user?.email 
+      });
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Set up periodic session refresh to handle expiry gracefully
+    // More frequent session refresh to prevent expiry issues
     const interval = setInterval(() => {
       refreshSession();
-    }, 1000 * 60 * 10); // Refresh every 10 minutes
+    }, 1000 * 60 * 5); // Refresh every 5 minutes
 
     return () => {
       subscription.unsubscribe();
@@ -326,8 +374,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     await authClient.auth.signOut();
     
-    // Use the centralized URL configuration
-    window.location.href = URLs.getPublicUrl(URLs.public.login);
+    // Instead of direct redirection which causes CORS issues,
+    // create a simple form and submit it to navigate to the public app
+    const publicLoginUrl = URLs.getPublicUrl(URLs.public.login);
+    console.log('Redirecting to:', publicLoginUrl);
+    
+    // Create a form element for POST navigation (avoids CORS with GET)
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = publicLoginUrl;
+    form.style.display = 'none';
+    
+    // Add a CSRF token if needed
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = 'csrf_token';
+    csrfToken.value = 'dashboard_signout_' + Date.now();
+    form.appendChild(csrfToken);
+    
+    // Add the form to the body and submit it
+    document.body.appendChild(form);
+    form.submit();
   };
 
   const value = {

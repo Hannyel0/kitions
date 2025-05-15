@@ -1,7 +1,8 @@
-import { createBrowserClient, createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createBrowserClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server' // Needed for Route Handler client
-import { sharedCookieOptions } from './cookies'
-import { SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { sharedCookieOptions } from './cookies' // Still needed for server-side functions
 
 // Define a type for cookie store that has the methods we need
 interface CookieStore {
@@ -14,25 +15,52 @@ interface CookieStore {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let browserClient: SupabaseClient<any, any> | null = null;
 
-// For client-side usage
+/**
+ * Creates a Supabase client for browser environments using cookies for session persistence
+ */
 export const createSupabaseBrowserClient = () => {
-  if (!browserClient) {
-    console.log('🔧 Creating new Supabase browser client instance');
-    browserClient = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: false
-        },
-        cookieOptions: sharedCookieOptions
-      }
-    );
-  } else {
+  // Always return the singleton instance if it exists
+  if (browserClient) {
     console.log('✅ Reusing existing Supabase browser client instance');
+    return browserClient;
   }
+
+  console.log('🔧 Creating new Supabase browser client instance with cookie-based session');
+  
+  // Create a new browser client with cookie-based session persistence
+  browserClient = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        // Define cookie options for browser clients
+        // In development, we use relaxed settings
+        get(name: string) {
+          const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
+            const [key, value] = cookie.split('=');
+            return { ...acc, [key]: decodeURIComponent(value) };
+          }, {} as Record<string, string>);
+          return cookies[name];
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          if (process.env.NODE_ENV === 'development') {
+            // Relaxed settings for development
+            document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${options.maxAge || 31536000}`;
+          } else {
+            // Use shared settings for production
+            document.cookie = `${name}=${encodeURIComponent(value)}; domain=${sharedCookieOptions.domain}; path=${sharedCookieOptions.path}; max-age=${options.maxAge || 31536000}; samesite=${sharedCookieOptions.sameSite}; ${sharedCookieOptions.secure ? 'secure;' : ''}`;
+          }
+        },
+        remove(name: string) {
+          if (process.env.NODE_ENV === 'development') {
+            document.cookie = `${name}=; path=/; max-age=0`;
+          } else {
+            document.cookie = `${name}=; domain=${sharedCookieOptions.domain}; path=${sharedCookieOptions.path}; max-age=0; samesite=${sharedCookieOptions.sameSite}; ${sharedCookieOptions.secure ? 'secure;' : ''}`;
+          }
+        }
+      }
+    }
+  );
 
   return browserClient;
 };

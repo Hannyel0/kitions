@@ -73,20 +73,54 @@ export default function AuthCallback() {
       setStatusMessage("Preparing your dashboard...");
       const role = user?.user_metadata?.role;
       
-      // Sanitize role handling with better error handling
+      // Determine the target URL based on role
+      let targetPath = '';
       if (role === 'retailer') {
         console.log(`AuthCallback: Valid role found: ${role}. Redirecting to retailer home.`);
-        router.push(URLs.dashboard.retailerHome);
+        targetPath = URLs.dashboard.retailerHome;
       } else if (role === 'distributor') {
         console.log(`AuthCallback: Valid role found: ${role}. Redirecting to distributor home.`);
-        router.push(URLs.dashboard.distributorHome);
+        targetPath = URLs.dashboard.distributorHome;
       } else {
         // Invalid or missing role - redirect to error page
         console.warn(`AuthCallback: Invalid or missing role: ${role}. Redirecting to error page.`);
-        router.push(URLs.dashboard.errorAuth);
+        targetPath = URLs.dashboard.errorAuth;
       }
-
-      router.refresh();
+      
+      // Get the full URL with the correct base (localhost:3001 in development)
+      const targetUrl = URLs.getDashboardUrl(targetPath);
+      console.log(`AuthCallback: Full target URL: ${targetUrl}`);
+      
+      // Add a delay before redirecting to ensure localStorage session is properly established
+      console.log('AuthCallback: Adding delay before navigation to allow session to propagate...');
+      setStatusMessage("Finalizing your session...");
+      
+      // Force a session refresh to ensure the session is completely ready
+      await supabase.auth.refreshSession();
+      
+      // Get the session one more time to verify it's really there
+      const { data: finalCheck } = await supabase.auth.getSession();
+      console.log('AuthCallback: Final session check before redirect:', { 
+        hasSession: !!finalCheck.session,
+        user: finalCheck.session?.user?.email 
+      });
+      
+      // Extra safety timeout to ensure cookies have time to propagate
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Use window.location for direct navigation instead of Next.js router
+      // This ensures we get a full page load and avoid stale state issues
+      console.log(`AuthCallback: Navigating to: ${targetUrl}`);
+      setStatusMessage("Redirecting to your dashboard...");
+      
+      // Set a cookie to mark this as a post-auth redirect
+      // This helps the middleware identify this navigation as authenticated
+      document.cookie = `kitions_post_auth_redirect=true; path=/; max-age=60; SameSite=Strict`;
+      
+      // Direct navigation to avoid Next.js router
+      window.location.href = targetUrl;
+      
+      // No need to call router.refresh() as we're doing a full page navigation
     };
 
     run();

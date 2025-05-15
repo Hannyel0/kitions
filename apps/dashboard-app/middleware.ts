@@ -82,25 +82,42 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  // Refresh session if expired - required for Server Components
-  // https://supabase.com/docs/guides/auth/server-side-rendering#securing-server-side-rendered-pages
-  const { data: { session } } = await supabase.auth.getSession();
+  // Check if the current request has auth tokens in the URL (for callback handling)
+  const hasAuthTokensInUrl = req.nextUrl.searchParams.has('access_token') && 
+                            req.nextUrl.searchParams.has('refresh_token');
 
+  // Define paths that should be accessible without authentication
   const isAuthCallback = req.nextUrl.pathname === '/auth/callback';
+  const isErrorAuth = req.nextUrl.pathname === '/error-auth';
+  // Add any static assets or API routes that should be public
+  const isStaticAsset = req.nextUrl.pathname.startsWith('/_next/') || 
+                       req.nextUrl.pathname.includes('favicon.ico');
+  const isPublicRoute = isAuthCallback || isErrorAuth || isStaticAsset;
+  
+  // Only attempt to get the session if we're not on the callback page with tokens
+  // This prevents trying to validate a session before it's properly set up
+  let session = null;
+  if (!hasAuthTokensInUrl) {
+    const { data } = await supabase.auth.getSession();
+    session = data.session;
+  }
 
   // Redirect to public app login
   const loginUrl = process.env.NODE_ENV === 'development'
     ? 'http://localhost:3000/login'
     : 'https://www.kitions.com/login'; 
 
-  // If no session and the path is not the auth callback, redirect to public login
-  if (!session && !isAuthCallback) {
+  // If no session and the path is not a public route and there are no tokens in URL
+  if (!session && !isPublicRoute && !hasAuthTokensInUrl) {
     console.log('Middleware: No session, redirecting to public login:', loginUrl);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Allow the request to proceed if authenticated or on the auth callback path
-  console.log('Middleware: Session exists or path is /auth/callback, allowing request for:', req.nextUrl.pathname);
+  // Allow the request to proceed if:
+  // 1. User is authenticated (has session)
+  // 2. Path is a public route (auth callback or error page)
+  // 3. URL contains auth tokens (we're in the process of setting up the session)
+  console.log(`Middleware: Allowing request for: ${req.nextUrl.pathname} (${session ? 'Authenticated' : isPublicRoute ? 'Public Route' : 'Has Auth Tokens'})`);
   return res;
 }
 
