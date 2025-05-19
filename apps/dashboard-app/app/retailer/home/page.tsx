@@ -3,9 +3,9 @@
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import DashboardLayout from '@/app/components/DashboardLayout';
+import { DashboardLayout } from '@/app/components/layout';
 import useUserProfile from '@/app/hooks/useUserProfile';
-import ProfileAvatar from '@/app/components/ProfileAvatar';
+import { ProfileAvatar } from '@/app/components/user';
 
 export default function RetailerHomeContent() {
   const { user, loading: authLoading } = useAuth();

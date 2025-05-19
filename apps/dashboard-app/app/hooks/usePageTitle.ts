@@ -18,7 +18,7 @@ export function usePageTitle(title: string, includeAppName: boolean = true, over
     if (overrideServerTitle || !hasSetTitle.current) {
       // Update the document title when the component mounts or title changes
       const formattedTitle = includeAppName ? `${title} | ${APP_NAME}` : title;
-      document.title = formattedTitle;
+      document.title = formattedTitle; 
       hasSetTitle.current = true;
     }
     

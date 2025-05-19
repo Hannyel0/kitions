@@ -98,7 +98,7 @@ export default function WaitingListTable({ initialCustomers }: WaitingListTableP
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-medium text-gray-900">Waiting List</h2>
+          <h2 className="text-gray-800 text-lg font-medium">Waiting List</h2>
           
           <div className="flex items-center space-x-3">
             <div className="relative">
@@ -110,7 +110,7 @@ export default function WaitingListTable({ initialCustomers }: WaitingListTableP
                 placeholder="Search"
                 value={searchTerm}
                 onChange={handleSearch}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400"
               />
             </div>
             
