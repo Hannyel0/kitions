@@ -37,29 +37,23 @@ export default function DistributorHomeContent() {
 
   }, [user, loading, router]); // Dependencies remain the same
 
-  // Show loading state while checking authentication
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8982cf]"></div>
-      </div>
-    );
-  }
-
-  // If user is null after loading, return null 
-  // (The timeout might still redirect, but this prevents rendering the dashboard briefly)
-  if (user === null) {
+  // If user is null after loading, return null
+  if (user === null && !loading) {
     return null;
   }
 
   // --- Get user's name (fallback to email if name not in metadata) ---
-  const userName = firstName || user.email;
+  const userName = loading ? '' : (firstName || user?.email || '');
 
-  // If loading is done and we have a user, render the content
-  // (Implicitly handles the case where user is defined)
+  // Always render the layout, regardless of loading state
   return (
     <DashboardLayout userType="distributor">
-      <div className="container mx-auto px-4 py-6">
+      {loading ? (
+        <div className="container mx-auto px-4 py-6 flex items-center justify-center" style={{ minHeight: '600px' }}>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8982cf]"></div>
+        </div>
+      ) : (
+        <div className="container mx-auto px-4 py-6">
         {/* Header with welcome message and profile */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <div className="flex items-center">
@@ -147,6 +141,7 @@ export default function DistributorHomeContent() {
         {/* Waiting List */}
         <WaitingList />
       </div>
+      )}
     </DashboardLayout>
   );
 } 
