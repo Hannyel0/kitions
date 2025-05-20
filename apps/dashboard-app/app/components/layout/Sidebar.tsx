@@ -9,6 +9,7 @@ import {
   Users,
   FileText,
   Package,
+  PackageCheck as Boxes,
   HelpCircle,
   Settings,
   LogOut,
@@ -44,16 +45,16 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
               active: pathname === `/${userType}/home`,
             },
             {
-              icon: <ClipboardList size={18} />,
-              label: 'Waiting List',
-              path: `/${userType}/waiting-list`,
-              active: pathname === `/${userType}/waiting-list`,
-            },
-            {
               icon: <Package size={18} />,
               label: 'Products',
               path: `/${userType}/products`,
               active: pathname === `/${userType}/products`,
+            },
+            {
+              icon: <Boxes size={18} />,
+              label: 'Inventory',
+              path: `/${userType}/inventory`,
+              active: pathname === `/${userType}/inventory`,
             },
             {
               icon: <TrendingUp size={18} />,
@@ -78,12 +79,6 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
               label: 'Reports',
               path: `/${userType}/reports`,
               active: pathname === `/${userType}/reports`,
-            },
-            {
-              icon: <HelpCircle size={18} />,
-              label: 'Help Center',
-              path: `/${userType}/help`,
-              active: pathname === `/${userType}/help`,
             },
             {
               icon: <Settings size={18} />,
