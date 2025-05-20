@@ -11,7 +11,10 @@ import {
   CheckCircleIcon,
   ScanLineIcon,
   BellIcon,
+  XIcon,
+  PackageOpenIcon
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import DashboardLayout from '@/app/components/layout/DashboardLayout'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
 import { Product } from '@/app/components/products/types'
@@ -26,6 +29,7 @@ export default function Inventory() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
+  const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false)
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -104,6 +108,7 @@ export default function Inventory() {
   }
   
   const lowStockProducts = products.filter((product) => product.stock_quantity <= 100)
+  const hasLowStock = lowStockProducts.length > 0
   
   return (
     <DashboardLayout userType="distributor">
@@ -116,41 +121,7 @@ export default function Inventory() {
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
             {error}
           </div>
-        ) : (
-          <>
-            {lowStockProducts.length > 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <BellIcon className="h-5 w-5 text-yellow-600 mr-2" />
-                  <h2 className="text-sm font-medium text-yellow-800">
-                    Low Stock Alerts
-                  </h2>
-                </div>
-                <div className="mt-3 space-y-2">
-                  {lowStockProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex items-center justify-between bg-white p-3 rounded-md border border-yellow-100"
-                    >
-                      <div className="flex items-center">
-                        <AlertTriangleIcon
-                          size={16}
-                          className="text-yellow-600 mr-2"
-                        />
-                        <span className="text-sm font-medium">{product.name}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <span className="text-sm text-yellow-600 font-medium">
-                          Only {product.stock_quantity} units left
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        ) : null}
         {!isLoading && !error && (
           <div className="flex items-center justify-between">
             <h1 className="text-gray-800 text-2xl font-semibold">Inventory Management</h1>
@@ -194,6 +165,16 @@ export default function Inventory() {
                       </option>
                     ))}
                   </select>
+                  {hasLowStock && (
+                    <div 
+                      className="cursor-pointer relative pl-2" 
+                      title="Some items are low in stock"
+                      onClick={() => setIsLowStockModalOpen(true)}
+                    >
+                      <BellIcon size={16} className="text-yellow-500" />
+                      <div className="absolute -top-1 -right-1 h-2 w-2 bg-yellow-500 rounded-full"></div>
+                    </div>
+                  )}
                 </div>
               </div>
               <button className="p-2 border border-gray-200 rounded-md hover:bg-gray-50">
@@ -310,6 +291,109 @@ export default function Inventory() {
           }}
           categories={categories.filter((c) => c !== 'all')}
         />
+        
+        {/* Low Stock Modal */}
+        <AnimatePresence>
+          {isLowStockModalOpen && lowStockProducts.length > 0 && (
+            <div className="fixed inset-0 z-50 overflow-y-auto">
+              {/* Overlay */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/50 transition-opacity"
+                onClick={() => setIsLowStockModalOpen(false)}
+              />
+              
+              {/* Modal container */}
+              <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0 relative z-50">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={{ duration: 0.3, type: 'spring', bounce: 0.25 }}
+                  className="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full relative"
+                >
+                  <div className="bg-white px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <AlertTriangleIcon className="h-5 w-5 text-yellow-500 mr-2" />
+                      <h3 className="text-lg font-medium text-gray-900">Low Stock Items</h3>
+                    </div>
+                    <button
+                      type="button"
+                      className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                      onClick={() => setIsLowStockModalOpen(false)}
+                    >
+                      <XIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                  
+                  <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">
+                    <p className="text-sm text-gray-500 mb-4">
+                      The following items are running low on stock and may need to be reordered soon:
+                    </p>
+                    
+                    <div className="space-y-3">
+                      {lowStockProducts.map((product) => (
+                        <motion.div
+                          key={product.id}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="p-4 bg-yellow-50 rounded-lg border border-yellow-100 flex items-start"
+                        >
+                          <div className="flex-shrink-0 mr-3">
+                            {product.image_url ? (
+                              <div className="h-16 w-16 rounded overflow-hidden bg-white border border-gray-200">
+                                <img
+                                  src={product.image_url}
+                                  alt={product.name}
+                                  className="h-full w-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="h-16 w-16 rounded flex items-center justify-center bg-gray-100 border border-gray-200">
+                                <PackageOpenIcon className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between">
+                              <h4 className="text-sm font-medium text-gray-900">{product.name}</h4>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                {product.stock_quantity} units
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-500">{product.description}</p>
+                            <div className="mt-2 flex items-center justify-between">
+                              <div className="text-xs text-gray-500">
+                                SKU: {product.sku || 'N/A'}
+                              </div>
+                              <button className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700">
+                                Restock
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 px-6 py-4 flex justify-end">
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      onClick={() => setIsLowStockModalOpen(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardLayout>
   );
