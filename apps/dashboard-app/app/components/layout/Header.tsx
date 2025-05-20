@@ -1,7 +1,8 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Search, Bell, ChevronDown, User, Settings2, Palette, LogOut } from 'lucide-react'
+import { Search, Bell, ChevronDown, User, Settings2, Palette, LogOut, AlertTriangle, CheckCircle, Info } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/app/providers/auth-provider'
 import useUserProfile from '@/app/hooks/useUserProfile'
 import ProfileAvatar from '@/app/components/user/ProfileAvatar'
@@ -11,7 +12,47 @@ export function Header() {
   const { user, signOut } = useAuth();
   const { firstName, lastName, profilePictureUrl } = useUserProfile();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  
+  // Sample notifications data
+  const notifications = [
+    {
+      id: '1',
+      type: 'alert',
+      title: 'Low Stock Alert',
+      message: 'Premium Coffee Beans is running low on stock (85 units remaining).',
+      timestamp: '5 min ago',
+      read: false
+    },
+    {
+      id: '2',
+      type: 'success',
+      title: 'Order Completed',
+      message: 'Order #1234 has been successfully delivered to Customer A.',
+      timestamp: '2 hours ago',
+      read: false
+    },
+    {
+      id: '3',
+      type: 'info',
+      title: 'New Feature Available',
+      message: 'Check out the new inventory management tools in your dashboard.',
+      timestamp: 'Yesterday',
+      read: true
+    },
+    {
+      id: '4',
+      type: 'alert',
+      title: 'Payment Required',
+      message: 'Your subscription will expire in 3 days. Please renew to avoid service interruption.',
+      timestamp: '2 days ago',
+      read: true
+    }
+  ];
+  
+  const unreadCount = notifications.filter((n) => !n.read).length;
   
   // Get user's name (fallback to email if name not in metadata)
   const userName = firstName || (user?.email?.split('@')[0]) || 'User';
@@ -20,14 +61,30 @@ export function Header() {
     function handleClickOutside(event: MouseEvent) {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target as Node)
       ) {
         setIsDropdownOpen(false);
+        setIsNotificationsOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+  
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'alert':
+        return <AlertTriangle size={16} className="text-yellow-500" />
+      case 'success':
+        return <CheckCircle size={16} className="text-green-500" />
+      case 'info':
+        return <Info size={16} className="text-blue-500" />
+      default:
+        return null
+    }
+  }
   
   const handleSignOut = async () => {
     await signOut();
@@ -58,13 +115,76 @@ export function Header() {
             ⌘S
           </span>
         </div>
-        <div className="flex items-center mr-4 cursor-pointer">
-          <div className="relative">
+        <div className="relative mr-4" ref={notificationsRef}>
+          <button
+            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+          >
             <Bell size={20} className="text-gray-600" />
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">1</span>
-            </div>
-          </div>
+            {unreadCount > 0 && (
+              <div className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">{unreadCount}</span>
+              </div>
+            )}
+          </button>
+          
+          <AnimatePresence>
+            {isNotificationsOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-100 z-50"
+              >
+                <div className="p-4 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold">Notifications</h3>
+                    <span className="text-xs text-gray-500">
+                      {unreadCount} unread
+                    </span>
+                  </div>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${!notification.read ? 'bg-blue-50/50' : ''}`}
+                    >
+                      <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                          {getNotificationIcon(notification.type)}
+                        </div>
+                        <div className="ml-3 flex-1">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-gray-900">
+                              {notification.title}
+                            </p>
+                            <span className="text-xs text-gray-500">
+                              {notification.timestamp}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {notification.message}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <button className="text-sm text-gray-600 hover:text-gray-900">
+                      Mark all as read
+                    </button>
+                    <button className="text-sm text-blue-600 hover:text-blue-700">
+                      View all
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div className="relative" ref={dropdownRef}>
           <div 
