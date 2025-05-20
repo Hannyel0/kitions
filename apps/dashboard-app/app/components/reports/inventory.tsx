@@ -108,7 +108,7 @@ export function InventoryReport() {
             <ArrowLeftIcon size={16} className="mr-2" />
             Back to Reports
           </Link>
-          <h1 className="text-2xl font-semibold">Inventory Report</h1>
+          <h1 className="text-gray-900 text-2xl font-semibold">Inventory Report</h1>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export function InventoryReport() {
               Total Stock Change
             </h3>
             <span
-              className={`px-2 py-1 rounded-full text-xs font-medium ${totalStockChange >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}
+              className={` px-2 py-1 rounded-full text-xs font-medium ${totalStockChange >= 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}
             >
               {totalStockChange >= 0 ? (
                 <TrendingUpIcon size={14} className="inline mr-1" />
@@ -129,7 +129,7 @@ export function InventoryReport() {
               {totalStockChange}
             </span>
           </div>
-          <p className="mt-2 text-2xl font-semibold">
+          <p className="text-gray-900 mt-2 text-2xl font-semibold">
             {totalStockChange >= 0 ? '+' : ''}
             {totalStockChange} units
           </p>
@@ -146,7 +146,7 @@ export function InventoryReport() {
               {mostRestocked[1].restocked}
             </span>
           </div>
-          <p className="mt-2 text-2xl font-semibold">{mostRestocked[0]}</p>
+          <p className="text-gray-900 mt-2 text-2xl font-semibold">{mostRestocked[0]}</p>
           <p className="mt-1 text-sm text-gray-500">Highest restock volume</p>
         </div>
 
@@ -160,7 +160,7 @@ export function InventoryReport() {
               {mostSold[1].sold}
             </span>
           </div>
-          <p className="mt-2 text-2xl font-semibold">{mostSold[0]}</p>
+          <p className="text-gray-900 mt-2 text-2xl font-semibold">{mostSold[0]}</p>
           <p className="mt-1 text-sm text-gray-500">Highest sales volume</p>
         </div>
       </div>
@@ -169,8 +169,8 @@ export function InventoryReport() {
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <h2 className="text-lg font-medium">Inventory Changes</h2>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center">
+              <h2 className="text-gray-900 text-lg font-medium">Inventory Changes</h2>
+              <button className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center">
                 <Download size={16} className="mr-2" />
                 Export Report
               </button>
