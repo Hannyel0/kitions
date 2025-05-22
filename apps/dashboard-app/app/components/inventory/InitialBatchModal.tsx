@@ -239,14 +239,10 @@ export function InitialBatchModal({
                         <div className="relative">
                           <input
                             type="date"
-                            className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer"
                             value={receiveDate}
                             onChange={(e) => setReceiveDate(e.target.value)}
                             required
-                          />
-                          <Calendar
-                            size={16}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                           />
                         </div>
                       </div>
@@ -258,14 +254,10 @@ export function InitialBatchModal({
                         <div className="relative">
                           <input
                             type="date"
-                            className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md cursor-pointer"
                             value={expirationDate}
                             onChange={(e) => setExpirationDate(e.target.value)}
                             min={today}
-                          />
-                          <Calendar
-                            size={16}
-                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                           />
                         </div>
                       </div>

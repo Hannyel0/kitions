@@ -24,12 +24,7 @@ export function AddProductModal({
   const [caseSize, setCaseSize] = useState('')
   const [category, setCategory] = useState('')
   const [sku, setSku] = useState('')
-<<<<<<< Updated upstream
   const [upc, setUpc] = useState('')
-  const [stockQuantity, setStockQuantity] = useState('0')
-=======
-  const [upc, setUpc] = useState(initialUpc)
->>>>>>> Stashed changes
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   
@@ -182,7 +177,8 @@ export function AddProductModal({
   
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numbers
-    setPrice(e.target.value.replace(/\D/g, ''))
+    const rawValue = e.target.value.replace(/\D/g, '')
+    setPrice(rawValue)
   }
   
   // Handle UPC input to ensure it's only digits and maximum 12 characters
@@ -224,10 +220,6 @@ export function AddProductModal({
     setCategory('')
     setSku('')
     setUpc('')
-<<<<<<< Updated upstream
-    setStockQuantity('0')
-=======
->>>>>>> Stashed changes
     setImageFile(null)
     setImagePreview(null)
     setError(null)
@@ -452,37 +444,39 @@ export function AddProductModal({
                     </div>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
-                      placeholder="Enter product name"
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category
-                    </label>
-                    <select
-                      className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      required
-                    >
-                      <option value="">Select a category</option>
-                      {categories.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Product Name
+                      </label>
+                      <input
+                        type="text"
+                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
+                        placeholder="Enter product name"
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Category
+                      </label>
+                      <select
+                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        required
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   
                   <div>
@@ -546,8 +540,8 @@ export function AddProductModal({
                           type="text"
                           id="price-input"
                           name="price"
-                          placeholder="1299"
-                          value={price ? price : ''}
+                          placeholder="12.99"
+                          value={price ? formatPrice(price) : ''}
                           onChange={handlePriceChange}
                           className="text-gray-700 w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
                           required

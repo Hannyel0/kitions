@@ -19,11 +19,8 @@ import DashboardLayout from '@/app/components/layout/DashboardLayout'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
 import { Product } from '@/app/components/products/types'
 import { createBrowserClient } from '@supabase/ssr'
-<<<<<<< Updated upstream
-=======
 import { BarcodeScanner } from '@/app/components/barcode/BarcodeScanner'
 import { ReceiveStockModal } from '@/app/components/inventory'
->>>>>>> Stashed changes
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([])
@@ -35,14 +32,11 @@ export default function Inventory() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false)
-<<<<<<< Updated upstream
-=======
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null)
   const [foundProductByBarcode, setFoundProductByBarcode] = useState<Product | null>(null)
   const [scannedUpcForNewProduct, setScannedUpcForNewProduct] = useState<string>('')
   const [isReceiveStockModalOpen, setIsReceiveStockModalOpen] = useState(false)
->>>>>>> Stashed changes
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -416,8 +410,6 @@ export default function Inventory() {
             </div>
           )}
         </AnimatePresence>
-<<<<<<< Updated upstream
-=======
         
         {/* Receive Stock Modal */}
         {isReceiveStockModalOpen && (
@@ -503,7 +495,6 @@ export default function Inventory() {
             }
           }}
         />
->>>>>>> Stashed changes
       </div>
     </DashboardLayout>
   );
