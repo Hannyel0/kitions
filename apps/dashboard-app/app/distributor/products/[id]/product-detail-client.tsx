@@ -7,6 +7,7 @@ import Link from 'next/link'
 import JsBarcode from 'jsbarcode'
 import { ProductDetails } from './page'
 import { EditInventoryModal } from '@/app/components/products/EditInventoryModal'
+import { ProductBatches } from '@/app/components/inventory/ProductBatches'
 
 // Barcode component that uses JsBarcode to generate a barcode from a UPC
 function ProductBarcode({ upc, productId }: { upc: string, productId: string }) {
@@ -431,9 +432,12 @@ export function ProductDetailClient({ productId }: { productId: string }) {
             </div>
           </div>
         </div>
+        <ProductBatches productId={productId} />
+        
+        {/* Product Description (moved below batches) */}
         <div className="bg-white rounded-lg shadow-sm mt-6 p-6">
           <h2 className="text-gray-800 text-lg font-medium mb-4">Product Description</h2>
-          <p className="text-gray-800 leading-relaxed">{productDetails.description}</p>
+          <p className="text-gray-800 leading-relaxed">{productDetails.description || 'No description available.'}</p>
         </div>
       </div>
       

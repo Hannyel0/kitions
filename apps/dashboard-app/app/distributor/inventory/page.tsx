@@ -19,6 +19,11 @@ import DashboardLayout from '@/app/components/layout/DashboardLayout'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
 import { Product } from '@/app/components/products/types'
 import { createBrowserClient } from '@supabase/ssr'
+<<<<<<< Updated upstream
+=======
+import { BarcodeScanner } from '@/app/components/barcode/BarcodeScanner'
+import { ReceiveStockModal } from '@/app/components/inventory'
+>>>>>>> Stashed changes
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([])
@@ -30,6 +35,14 @@ export default function Inventory() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false)
+<<<<<<< Updated upstream
+=======
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+  const [scannedBarcode, setScannedBarcode] = useState<string | null>(null)
+  const [foundProductByBarcode, setFoundProductByBarcode] = useState<Product | null>(null)
+  const [scannedUpcForNewProduct, setScannedUpcForNewProduct] = useState<string>('')
+  const [isReceiveStockModalOpen, setIsReceiveStockModalOpen] = useState(false)
+>>>>>>> Stashed changes
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -125,13 +138,22 @@ export default function Inventory() {
         {!isLoading && !error && (
           <div className="flex items-center justify-between">
             <h1 className="text-gray-800 text-2xl font-semibold">Inventory Management</h1>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"
-            >
-              <PlusIcon size={16} className="mr-2" />
-              Add Product
-            </button>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setIsReceiveStockModalOpen(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium flex items-center"
+              >
+                <PackageOpenIcon size={16} className="mr-2" />
+                Receive Stock
+              </button>
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"
+              >
+                <PlusIcon size={16} className="mr-2" />
+                Add Product
+              </button>
+            </div>
           </div>
         )}
         {!isLoading && !error && (
@@ -354,7 +376,7 @@ export default function Inventory() {
                               </div>
                             ) : (
                               <div className="h-16 w-16 rounded flex items-center justify-center bg-gray-100 border border-gray-200">
-                                <PackageOpenIcon className="h-8 w-8 text-gray-400" />
+                                <img src="/package-open.svg" alt="Package icon" className="h-8 w-8" />
                               </div>
                             )}
                           </div>
@@ -394,6 +416,94 @@ export default function Inventory() {
             </div>
           )}
         </AnimatePresence>
+<<<<<<< Updated upstream
+=======
+        
+        {/* Receive Stock Modal */}
+        {isReceiveStockModalOpen && (
+          <ReceiveStockModal 
+            isOpen={isReceiveStockModalOpen}
+            onClose={() => setIsReceiveStockModalOpen(false)}
+            products={products}
+            onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+          />
+        )}
+
+        {/* Barcode Scanner Modal */}
+        <BarcodeScanner
+          isOpen={isScannerOpen}
+          onClose={() => setIsScannerOpen(false)}
+          onBarcodeScanned={(barcode) => {
+            console.log('Scanned barcode in parent:', barcode);
+            setScannedBarcode(barcode);
+            
+            // Search for product with matching UPC or SKU - normalize the comparison
+            const foundProduct = products.find(
+              (p) => 
+                (p.upc && p.upc.replace(/\D/g, '') === barcode.replace(/\D/g, '')) || 
+                p.sku === barcode
+            );
+            
+            if (foundProduct) {
+              // Close the scanner modal
+              setIsScannerOpen(false);
+              
+              setFoundProductByBarcode(foundProduct);
+              // Set search term to help user locate the product in the table
+              setSearchTerm(foundProduct.name);
+              
+              // Display a notification toast (could be improved with a toast library)
+              const notification = document.createElement('div');
+              notification.className = 'fixed bottom-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50';
+              notification.innerHTML = `
+                <div class="flex items-center">
+                  <div class="py-1"><svg class="h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg></div>
+                  <div>
+                    <p class="font-bold">Product Found!</p>
+                    <p class="text-sm">${foundProduct.name} (${barcode})</p>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(notification);
+              
+              // Remove notification after 5 seconds
+              setTimeout(() => {
+                document.body.removeChild(notification);
+              }, 5000);
+            } else {
+              // Close the scanner modal
+              setIsScannerOpen(false);
+              
+              // Immediately open the add product modal with the scanned UPC
+              setScannedUpcForNewProduct(barcode);
+              setIsAddModalOpen(true);
+              
+              // Show a notification that product wasn't found
+              const notification = document.createElement('div');
+              notification.className = 'fixed bottom-4 right-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded shadow-md z-50';
+              notification.innerHTML = `
+                <div class="flex items-center">
+                  <div class="py-1"><svg class="h-6 w-6 text-blue-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg></div>
+                  <div>
+                    <p class="font-bold">Product Not Found</p>
+                    <p class="text-sm">Adding new product with barcode: ${barcode}</p>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(notification);
+              
+              // Remove notification after 5 seconds
+              setTimeout(() => {
+                document.body.removeChild(notification);
+              }, 5000);
+            }
+          }}
+        />
+>>>>>>> Stashed changes
       </div>
     </DashboardLayout>
   );
