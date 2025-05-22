@@ -165,11 +165,17 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 relative">
       <Link href={`/distributor/products/${product.id}`} className="block">
         <div className="relative h-48 bg-gray-100">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-gray-200">
+              <img src="/package-open.svg" alt="Package icon" className="h-16 w-16" />
+            </div>
+          )}
         </div>
         
         <div className="p-4">

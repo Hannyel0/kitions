@@ -19,11 +19,7 @@ import DashboardLayout from '@/app/components/layout/DashboardLayout'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
 import { Product } from '@/app/components/products/types'
 import { createBrowserClient } from '@supabase/ssr'
-<<<<<<< Updated upstream
-=======
 import { BarcodeScanner } from '@/app/components/barcode/BarcodeScanner'
-import { ReceiveStockModal } from '@/app/components/inventory'
->>>>>>> Stashed changes
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([])
@@ -35,14 +31,10 @@ export default function Inventory() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
   const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false)
-<<<<<<< Updated upstream
-=======
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null)
   const [foundProductByBarcode, setFoundProductByBarcode] = useState<Product | null>(null)
   const [scannedUpcForNewProduct, setScannedUpcForNewProduct] = useState<string>('')
-  const [isReceiveStockModalOpen, setIsReceiveStockModalOpen] = useState(false)
->>>>>>> Stashed changes
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -76,7 +68,7 @@ export default function Inventory() {
         name: product.name,
         description: product.description || '',
         price: product.price || 0,
-        image: product.image_url || 'https://via.placeholder.com/300',
+        image: product.image_url || '',
         image_url: product.image_url || '',
         case_size: product.case_size || 1,
         stock_quantity: product.stock_quantity || 0,
@@ -140,13 +132,6 @@ export default function Inventory() {
             <h1 className="text-gray-800 text-2xl font-semibold">Inventory Management</h1>
             <div className="flex space-x-3">
               <button
-                onClick={() => setIsReceiveStockModalOpen(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium flex items-center"
-              >
-                <PackageOpenIcon size={16} className="mr-2" />
-                Receive Stock
-              </button>
-              <button
                 onClick={() => setIsAddModalOpen(true)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"
               >
@@ -199,7 +184,11 @@ export default function Inventory() {
                   )}
                 </div>
               </div>
-              <button className="p-2 border border-gray-200 rounded-md hover:bg-gray-50">
+              <button 
+                onClick={() => setIsScannerOpen(true)}
+                className="p-2 border border-gray-200 rounded-md hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                title="Scan product barcode"
+              >
                 <ScanLineIcon size={20} className="text-gray-600" />
               </button>
             </div>
@@ -246,11 +235,17 @@ export default function Inventory() {
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0 rounded overflow-hidden bg-gray-100">
-                            <img
-                              src={product.image_url || product.image}
-                              alt={product.name}
-                              className="h-full w-full object-cover"
-                            />
+                            {((product.image_url && product.image_url !== '') || (product.image && product.image !== '')) ? (
+                              <img
+                                src={product.image_url || product.image}
+                                alt={product.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center bg-gray-100 border border-gray-200">
+                                <img src="/package-open.svg" alt="Package icon" className="h-5 w-5" />
+                              </div>
+                            )}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
@@ -308,10 +303,12 @@ export default function Inventory() {
           isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false)
+            setScannedUpcForNewProduct('')
             // Trigger a refresh of the products list
             setRefreshTrigger(prev => prev + 1)
           }}
           categories={categories.filter((c) => c !== 'all')}
+          initialUpc={scannedUpcForNewProduct}
         />
         
         {/* Low Stock Modal */}
@@ -416,18 +413,6 @@ export default function Inventory() {
             </div>
           )}
         </AnimatePresence>
-<<<<<<< Updated upstream
-=======
-        
-        {/* Receive Stock Modal */}
-        {isReceiveStockModalOpen && (
-          <ReceiveStockModal 
-            isOpen={isReceiveStockModalOpen}
-            onClose={() => setIsReceiveStockModalOpen(false)}
-            products={products}
-            onRefresh={() => setRefreshTrigger(prev => prev + 1)}
-          />
-        )}
 
         {/* Barcode Scanner Modal */}
         <BarcodeScanner
@@ -503,7 +488,6 @@ export default function Inventory() {
             }
           }}
         />
->>>>>>> Stashed changes
       </div>
     </DashboardLayout>
   );

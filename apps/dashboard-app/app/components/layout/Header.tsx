@@ -94,7 +94,7 @@ export function Header() {
       <div className="flex items-center">
         <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
           <span className="text-white text-sm">K</span>
-        </div>
+          </div>
         <span className="mx-2 text-gray-400">/</span>
         <div className="flex items-center">
           <span className=" text-gray-800 text-sm font-medium">Homepage</span>
