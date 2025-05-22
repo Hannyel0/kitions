@@ -141,8 +141,8 @@ export function ProductList({ products }: ProductListProps) {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full w-full bg-gray-200">
-                        <PackageIcon size={16} className="text-gray-400" />
+                      <div className="flex items-center justify-center h-full w-full bg-gray-100 border border-gray-200">
+                        <img src="/package-open.svg" alt="Package icon" className="h-5 w-5" />
                       </div>
                     )}
                   </div>

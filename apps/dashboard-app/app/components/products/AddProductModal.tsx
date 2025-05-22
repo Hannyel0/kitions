@@ -7,12 +7,14 @@ interface AddProductModalProps {
   isOpen: boolean
   onClose: () => void
   categories: string[]
+  initialUpc?: string
 }
 
 export function AddProductModal({
   isOpen,
   onClose,
   categories,
+  initialUpc = '',
 }: AddProductModalProps) {
   // Form state
   const [productName, setProductName] = useState('')
@@ -21,7 +23,7 @@ export function AddProductModal({
   const [caseSize, setCaseSize] = useState('')
   const [category, setCategory] = useState('')
   const [sku, setSku] = useState('')
-  const [upc, setUpc] = useState('')
+  const [upc, setUpc] = useState(initialUpc)
   const [stockQuantity, setStockQuantity] = useState('0')
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -64,6 +66,13 @@ export function AddProductModal({
       }
     }
   }, [productName, category, caseSize, userUniqueId])
+  
+  // Update UPC field when initialUpc changes or modal opens
+  useEffect(() => {
+    if (isOpen && initialUpc) {
+      setUpc(initialUpc)
+    }
+  }, [isOpen, initialUpc])
   
   // Fetch distributor ID and user info when component mounts
   useEffect(() => {
@@ -224,7 +233,12 @@ export function AddProductModal({
     setCaseSize('')
     setCategory('')
     setSku('')
-    setUpc('')
+    // Don't reset UPC if initialUpc is provided
+    if (!initialUpc) {
+      setUpc('')
+    } else {
+      setUpc(initialUpc)
+    }
     setStockQuantity('0')
     setImageFile(null)
     setImagePreview(null)

@@ -59,7 +59,7 @@ export default function ProductsPage() {
           name: product.name,
           description: product.description || '',
           price: product.price || 0,
-          image: product.image_url || 'https://via.placeholder.com/300',
+          image: product.image_url || '',
           image_url: product.image_url || '',
           case_size: product.case_size || 1,
           stock_quantity: product.stock_quantity || 0,
@@ -174,7 +174,7 @@ export default function ProductsPage() {
         ) : (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-semibold">Products</h1>
+              <h1 className="text-gray-800 text-3xl font-semibold">Products</h1>
               <button
                 onClick={() => setIsAddModalOpen(true)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"

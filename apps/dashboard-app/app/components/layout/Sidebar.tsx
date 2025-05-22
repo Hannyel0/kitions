@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 
 interface SidebarProps {
@@ -27,13 +28,18 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
   
   return (
     <div className="w-60 h-screen bg-white border-r border-gray-200 flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <div className="h-8 w-8 bg-black flex items-center justify-center">
-            <div className="text-white font-bold text-lg">K</div>
+      <div className="p-3 border-b border-gray-200">
+        <Link href="/distributor/home" className="block">
+          <div className="relative h-10 w-32">
+            <Image 
+              src="/default-monochrome-black.svg" 
+              alt="Kitions Logo" 
+              fill
+              style={{ objectFit: 'contain' }}
+              priority
+            />
           </div>
-          <span className="text-gray-800 ml-2 text-xl font-bold">Kitions</span>
-        </div>
+        </Link>
       </div>
       <div className="flex-1 overflow-y-auto">
         <nav className="py-6">
