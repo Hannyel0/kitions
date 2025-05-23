@@ -27,11 +27,7 @@ export function AddProductModal({
   const [caseSize, setCaseSize] = useState('')
   const [category, setCategory] = useState('')
   const [sku, setSku] = useState('')
-<<<<<<< HEAD
-  const [upc, setUpc] = useState('')
-=======
   const [upc, setUpc] = useState(initialUpc)
->>>>>>> master
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   
@@ -203,11 +199,6 @@ export function AddProductModal({
   }
   
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-<<<<<<< HEAD
-    // Only allow numbers
-    const rawValue = e.target.value.replace(/\D/g, '')
-    setPrice(rawValue)
-=======
     // Get the raw input value
     const inputValue = e.target.value
     
@@ -216,7 +207,6 @@ export function AddProductModal({
     
     // Store the raw numeric value
     setPrice(numericValue)
->>>>>>> master
   }
   
   // Handle UPC input to ensure it's only digits and maximum 12 characters
@@ -248,16 +238,12 @@ export function AddProductModal({
     setCaseSize('')
     setCategory('')
     setSku('')
-<<<<<<< HEAD
-    setUpc('')
-=======
     // Don't reset UPC if initialUpc is provided
     if (!initialUpc) {
       setUpc('')
     } else {
       setUpc(initialUpc)
     }
->>>>>>> master
     setImageFile(null)
     setImagePreview(null)
     setError(null)
@@ -487,12 +473,8 @@ export function AddProductModal({
                     </div>
                   </div>
                   
-<<<<<<< HEAD
-                  <div className="grid grid-cols-2 gap-6">
-=======
                   {/* Product Name and Category side by side */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
->>>>>>> master
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Product Name
@@ -588,13 +570,8 @@ export function AddProductModal({
                           type="text"
                           id="price-input"
                           name="price"
-<<<<<<< HEAD
-                          placeholder="12.99"
-                          value={price ? formatPrice(price) : ''}
-=======
                           placeholder="0.00"
                           value={price ? formatPriceForDisplay(price) : ''}
->>>>>>> master
                           onChange={handlePriceChange}
                           className="text-gray-700 w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
                           required
