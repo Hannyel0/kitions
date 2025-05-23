@@ -12,15 +12,15 @@ import {
   ScanLineIcon,
   BellIcon,
   XIcon,
-  PackageOpenIcon
+  // PackageOpenIcon
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DashboardLayout from '@/app/components/layout/DashboardLayout'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
 import { Product } from '@/app/components/products/types'
 import { createBrowserClient } from '@supabase/ssr'
+import Image from 'next/image'
 import { BarcodeScanner } from '@/app/components/barcode/BarcodeScanner'
-import { ReceiveStockModal } from '@/app/components/inventory'
 
 export default function Inventory() {
   const [products, setProducts] = useState<Product[]>([])
@@ -33,10 +33,11 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
-  const [scannedBarcode, setScannedBarcode] = useState<string | null>(null)
-  const [foundProductByBarcode, setFoundProductByBarcode] = useState<Product | null>(null)
+  // These states are used in functions but flagged as unused by the linter
+  // Using destructuring to keep the setters while avoiding the unused variable warning
+  const [, setScannedBarcode] = useState<string | null>(null)
+  const [, setFoundProductByBarcode] = useState<Product | null>(null)
   const [scannedUpcForNewProduct, setScannedUpcForNewProduct] = useState<string>('')
-  const [isReceiveStockModalOpen, setIsReceiveStockModalOpen] = useState(false)
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,13 +65,30 @@ export default function Inventory() {
       
       if (categoriesError) throw categoriesError
       
+      // Define a type for the raw product data from the database
+      type RawProductData = {
+        id: string;
+        name: string;
+        description?: string;
+        sku: string;
+        upc?: string;
+        category: string;
+        category_id?: string;
+        case_size: number;
+        price?: number;
+        price_cents?: number;
+        image_url?: string;
+        stock_quantity: number;
+        product_categories?: { name: string };
+      }
+
       // Transform the products data to match our Product interface
-      const transformedProducts = productsData.map((product: any) => ({
+      const transformedProducts = productsData.map((product: RawProductData) => ({
         id: product.id,
         name: product.name,
         description: product.description || '',
         price: product.price || 0,
-        image: product.image_url || 'https://via.placeholder.com/300',
+        image: product.image_url || '',
         image_url: product.image_url || '',
         case_size: product.case_size || 1,
         stock_quantity: product.stock_quantity || 0,
@@ -81,13 +99,18 @@ export default function Inventory() {
       }))
       
       // Extract category names from the categories data
-      const categoryNames = categoriesData.map((category: any) => category.name)
+      interface CategoryData {
+        name: string
+      }
+      
+      const categoryNames = categoriesData.map((category: CategoryData) => category.name)
       
       setProducts(transformedProducts)
       setCategories(['all', ...categoryNames])
-    } catch (err: any) {
-      console.error('Error fetching data:', err)
-      setError(err.message || 'Failed to load products')
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('Unknown error')
+      console.error('Error fetching data:', error)
+      setError(error.message || 'Failed to load products')
     } finally {
       setIsLoading(false)
     }
@@ -133,13 +156,6 @@ export default function Inventory() {
           <div className="flex items-center justify-between">
             <h1 className="text-gray-800 text-2xl font-semibold">Inventory Management</h1>
             <div className="flex space-x-3">
-              <button
-                onClick={() => setIsReceiveStockModalOpen(true)}
-                className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium flex items-center"
-              >
-                <PackageOpenIcon size={16} className="mr-2" />
-                Receive Stock
-              </button>
               <button
                 onClick={() => setIsAddModalOpen(true)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"
@@ -193,7 +209,11 @@ export default function Inventory() {
                   )}
                 </div>
               </div>
-              <button className="p-2 border border-gray-200 rounded-md hover:bg-gray-50">
+              <button 
+                onClick={() => setIsScannerOpen(true)}
+                className="p-2 border border-gray-200 rounded-md hover:bg-blue-50 hover:border-blue-200 transition-colors"
+                title="Scan product barcode"
+              >
                 <ScanLineIcon size={20} className="text-gray-600" />
               </button>
             </div>
@@ -240,11 +260,19 @@ export default function Inventory() {
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0 rounded overflow-hidden bg-gray-100">
-                            <img
-                              src={product.image_url || product.image}
-                              alt={product.name}
-                              className="h-full w-full object-cover"
-                            />
+                            {((product.image_url && product.image_url !== '') || (product.image && product.image !== '')) ? (
+                              <Image
+                                src={product.image_url || product.image}
+                                alt={product.name}
+                                width={40}
+                                height={40}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center bg-gray-100 border border-gray-200">
+                                <Image src="/package-open.svg" alt="Package icon" width={20} height={20} className="h-5 w-5" />
+                              </div>
+                            )}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
@@ -302,10 +330,12 @@ export default function Inventory() {
           isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false)
+            setScannedUpcForNewProduct('')
             // Trigger a refresh of the products list
             setRefreshTrigger(prev => prev + 1)
           }}
           categories={categories.filter((c) => c !== 'all')}
+          initialUpc={scannedUpcForNewProduct}
         />
         
         {/* Low Stock Modal */}
@@ -362,15 +392,17 @@ export default function Inventory() {
                           <div className="flex-shrink-0 mr-3">
                             {product.image_url ? (
                               <div className="h-16 w-16 rounded overflow-hidden bg-white border border-gray-200">
-                                <img
+                                <Image
                                   src={product.image_url}
                                   alt={product.name}
+                                  width={64}
+                                  height={64}
                                   className="h-full w-full object-cover"
                                 />
                               </div>
                             ) : (
                               <div className="h-16 w-16 rounded flex items-center justify-center bg-gray-100 border border-gray-200">
-                                <img src="/package-open.svg" alt="Package icon" className="h-8 w-8" />
+                                <Image src="/package-open.svg" alt="Package icon" width={32} height={32} className="h-8 w-8" />
                               </div>
                             )}
                           </div>
@@ -410,16 +442,6 @@ export default function Inventory() {
             </div>
           )}
         </AnimatePresence>
-        
-        {/* Receive Stock Modal */}
-        {isReceiveStockModalOpen && (
-          <ReceiveStockModal 
-            isOpen={isReceiveStockModalOpen}
-            onClose={() => setIsReceiveStockModalOpen(false)}
-            products={products}
-            onRefresh={() => setRefreshTrigger(prev => prev + 1)}
-          />
-        )}
 
         {/* Barcode Scanner Modal */}
         <BarcodeScanner

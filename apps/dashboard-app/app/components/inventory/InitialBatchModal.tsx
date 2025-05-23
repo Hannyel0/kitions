@@ -1,9 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X as CloseIcon, Calendar, Package, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { X as CloseIcon, Calendar, Package, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface InitialBatchModalProps {
   isOpen: boolean
@@ -140,9 +139,10 @@ export function InitialBatchModal({
         onClose()
       }, 2000)
       
-    } catch (err: any) {
-      console.error('Error adding batch:', err)
-      setError(err.message || 'Failed to add batch')
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('Unknown error')
+      console.error('Error adding batch:', error)
+      setError(error.message || 'Failed to add batch')
     } finally {
       setIsSubmitting(false)
     }

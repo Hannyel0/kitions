@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { ArrowLeftIcon, PackageIcon, TagIcon, BarcodeIcon, AlertTriangleIcon, CheckCircleIcon, Loader2, X as CloseIcon, Edit as EditIcon } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import JsBarcode from 'jsbarcode'
 import { ProductDetails } from './page'
 import { EditInventoryModal } from '@/app/components/products/EditInventoryModal'
@@ -70,9 +71,10 @@ function ProductBarcode({ upc, productId }: { upc: string, productId: string }) 
       
       // Reload the page to show updated UPC
       window.location.reload();
-    } catch (error: any) {
-      console.error('Error updating UPC:', error);
-      setEditError(error.message || 'Failed to update UPC');
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error('Unknown error');
+      console.error('Error updating UPC:', err);
+      setEditError(err.message || 'Failed to update UPC');
     } finally {
       setIsSubmitting(false);
     }
@@ -178,7 +180,7 @@ function ProductBarcode({ upc, productId }: { upc: string, productId: string }) 
         <AlertTriangleIcon size={40} className="text-red-500 mb-2" />
         <p className="text-red-700 text-sm font-medium">Invalid UPC code</p>
         <p className="text-red-600 text-xs mb-3 text-center">
-          The UPC code "{upc}" is invalid. UPC must be exactly 12 digits.
+          The UPC code &quot;{upc}&quot; is invalid. UPC must be exactly 12 digits.
         </p>
         <button 
           onClick={() => {
@@ -261,9 +263,10 @@ export function ProductDetailClient({ productId }: { productId: string }) {
         }
         
         setProductDetails(transformedData)
-      } catch (err: any) {
-        console.error('Error fetching product details:', err)
-        setError(err.message || 'Failed to load product details')
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error('Unknown error');
+        console.error('Error fetching product details:', error)
+        setError(error.message || 'Failed to load product details')
       } finally {
         setIsLoading(false)
       }
@@ -348,9 +351,11 @@ export function ProductDetailClient({ productId }: { productId: string }) {
         <div className="bg-white rounded-lg shadow-sm grid grid-cols-1 md:grid-cols-7 gap-8 overflow-hidden">
           <div className="md:col-span-3 p-6 flex flex-col h-full">
             <div className="aspect-square w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-              <img
+              <Image
                 src={productDetails.image_url}
                 alt={productDetails.name}
+                width={600}
+                height={600}
                 className="w-full h-full object-cover"
               />
             </div>

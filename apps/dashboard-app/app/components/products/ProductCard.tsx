@@ -3,6 +3,7 @@ import { MoreVertical as MoreVerticalIcon, Edit as EditIcon, Trash as TrashIcon 
 import { createBrowserClient } from '@supabase/ssr'
 import { DeleteConfirmationModal } from './DeleteConfirmationModal'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Product } from './types'
 
 interface ProductCardProps {
@@ -152,9 +153,10 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
         if (onRefresh) {
           onRefresh()
         }
-      } catch (err: any) {
-        console.error('Error deleting product:', err)
-        setDeleteError(err.message || 'Failed to delete product')
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error('Unknown error')
+        console.error('Error deleting product:', error)
+        setDeleteError(error.message || 'Failed to delete product')
       } finally {
         setIsDeleting(false)
         setIsDeleteModalOpen(false)
@@ -165,11 +167,19 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 relative">
       <Link href={`/distributor/products/${product.id}`} className="block">
         <div className="relative h-48 bg-gray-100">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={400}
+              height={192}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-gray-200">
+              <Image src="/package-open.svg" alt="Package icon" width={64} height={64} className="h-16 w-16" />
+            </div>
+          )}
         </div>
         
         <div className="p-4">

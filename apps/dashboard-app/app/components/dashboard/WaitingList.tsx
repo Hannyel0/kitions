@@ -8,6 +8,7 @@ import {
   Tablet,
   Smartphone,
 } from 'lucide-react'
+import Image from 'next/image'
 
 interface WaitingListItem {
   id: number
@@ -153,7 +154,13 @@ export function WaitingList() {
                 <td className="px-6 py-4">
                   <div className="flex items-center">
                     <div className="h-8 w-8 rounded-full overflow-hidden mr-3">
-                      <img src={item.avatar} alt={item.name} />
+                      <Image 
+                        src={item.avatar} 
+                        alt={item.name} 
+                        width={32} 
+                        height={32}
+                        className="h-full w-full object-cover" 
+                      />
                     </div>
                     <span className="text-sm font-medium">{item.name}</span>
                   </div>

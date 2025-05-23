@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { Calendar, Box, AlertCircle, PackageIcon } from 'lucide-react'
 
@@ -23,11 +23,8 @@ export function ProductBatches({ productId }: ProductBatchesProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchBatches()
-  }, [productId])
-
-  const fetchBatches = async () => {
+  // Using useCallback to memoize the fetchBatches function
+  const fetchBatches = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
@@ -41,18 +38,23 @@ export function ProductBatches({ productId }: ProductBatchesProps) {
         .from('product_batches')
         .select('*')
         .eq('product_id', productId)
-        .order('received_date', { ascending: false })
+        .order('expiration_date', { ascending: true })
 
       if (error) throw error
 
       setBatches(data || [])
-    } catch (err: any) {
-      console.error('Error fetching batches:', err)
-      setError('Failed to load batch information')
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('Unknown error')
+      console.error('Error fetching batches:', error)
+      setError('Failed to load batches')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [productId])
+
+  useEffect(() => {
+    fetchBatches()
+  }, [fetchBatches])
 
   // Format date to a more readable format
   const formatDate = (dateString: string) => {
@@ -142,7 +144,7 @@ export function ProductBatches({ productId }: ProductBatchesProps) {
           <PackageIcon className="mx-auto text-gray-400 mb-3" size={24} />
           <h3 className="text-gray-700 font-medium mb-1">No Batches Found</h3>
           <p className="text-gray-500 text-sm">
-            This product has no batch records. Use the "Receive Stock" feature in inventory to add batches.
+            This product has no batch records. Use the &quot;Receive Stock&quot; feature in inventory to add batches.
           </p>
         </div>
       ) : (

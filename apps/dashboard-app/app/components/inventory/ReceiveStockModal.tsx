@@ -29,7 +29,8 @@ export function ReceiveStockModal({
   const [showProductDropdown, setShowProductDropdown] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [success, setSuccess] = useState(false)
+  // Using setSuccess for UI state changes
+  const [, setSuccess] = useState(false)
   
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -159,7 +160,7 @@ export function ReceiveStockModal({
       
       console.log('Inserting batch record:', batchRecord)
       
-      const { data: batchData, error: batchError } = await supabase
+      const { error: batchError } = await supabase
         .from('product_batches')
         .insert(batchRecord)
         .select()
@@ -173,9 +174,10 @@ export function ReceiveStockModal({
         onRefresh() // Refresh the products list with updated quantities
         onClose()
       }, 1500)
-    } catch (err: any) {
-      console.error('Error receiving stock:', err)
-      setError(err.message || 'Failed to update inventory')
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('Unknown error')
+      console.error('Error receiving stock:', error)
+      setError(error.message || 'Failed to update inventory')
     } finally {
       setIsSubmitting(false)
     }

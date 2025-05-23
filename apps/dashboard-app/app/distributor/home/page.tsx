@@ -66,7 +66,7 @@ export default function DistributorHomeContent() {
             />
             <div>
               <h1 className="text-2xl text-gray-800 font-bold mb-1">Welcome back, {userName}!</h1>
-              <p className="text-gray-600">Here's what's happening with your business today.</p>
+              <p className="text-gray-600">Here&apos;s what&apos;s happening with your business today.</p>
             </div>
           </div>
           <div className="flex space-x-2">
