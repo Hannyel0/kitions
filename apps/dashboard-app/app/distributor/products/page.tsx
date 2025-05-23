@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/app/components/layout'
-import { PlusIcon, SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart } from 'lucide-react'
+import { SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart } from 'lucide-react'
 import { ProductCard } from '@/app/components/products/ProductCard'
 import { ProductList } from '@/app/components/products/ProductList'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
@@ -54,7 +54,24 @@ export default function ProductsPage() {
         console.log('Raw products data:', productsData)
         
         // Transform the products data to match our Product interface
-        const transformedProducts = productsData.map((product: any) => ({
+        // Define the type for the raw product data from the database
+        type RawProductData = {
+          id: string;
+          name: string;
+          description?: string;
+          sku: string;
+          upc?: string;
+          category?: string;
+          category_id?: string;
+          case_size: number;
+          price?: number;
+          price_cents?: number;
+          image_url?: string;
+          stock_quantity: number;
+          product_categories?: { name: string };
+        }
+        
+        const transformedProducts = productsData.map((product: RawProductData) => ({
           id: product.id,
           name: product.name,
           description: product.description || '',
@@ -70,13 +87,18 @@ export default function ProductsPage() {
         }))
         
         // Extract category names from the categories data
-        const categoryNames = categoriesData.map((category: any) => category.name)
+        interface CategoryData {
+          name: string
+        }
+        
+        const categoryNames = categoriesData.map((category: CategoryData) => category.name)
         
         setProducts(transformedProducts)
         setCategories(categoryNames)
-      } catch (err: any) {
-        console.error('Error fetching data:', err)
-        setError(err.message || 'Failed to load products')
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error('Unknown error')
+        console.error('Error fetching data:', error)
+        setError(error.message || 'Failed to load products')
       } finally {
         setIsLoading(false)
       }
@@ -110,7 +132,7 @@ export default function ProductsPage() {
     setIsEditModalOpen(true)
   }
   
-  const handleDeleteProduct = (productId: string) => {
+  const handleDeleteProduct = () => {
     // The actual deletion is handled in the ProductCard component
     // Just refresh the products list
     setRefreshTrigger(prev => prev + 1)

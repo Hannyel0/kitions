@@ -3,16 +3,16 @@
 import React from 'react'
 import {
   Home,
-  ClipboardList,
+  // ClipboardList, // Unused import
   TrendingUp,
   Truck,
   Users,
   FileText,
   Package,
   PackageCheck as Boxes,
-  HelpCircle,
+  // HelpCircle, // Unused import
   Settings,
-  LogOut,
+  // LogOut, // Unused import
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'

@@ -2,6 +2,7 @@ import React, { useState, FormEvent, useEffect } from 'react'
 import { X as CloseIcon, Upload as UploadIcon, Loader2, DollarSign } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/app/providers/auth-provider'
+import Image from 'next/image'
 
 interface Product {
   id: string
@@ -168,16 +169,7 @@ export function EditProductModal({
     setUpc(cleanValue)
   }
   
-  // Format price for display
-  const formatPrice = (price: string) => {
-    if (!price) return ''
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(parseFloat(price))
-  }
+  // Price formatting is handled by the UI display logic
   
   const resetForm = () => {
     if (product) {
@@ -228,7 +220,7 @@ export function EditProductModal({
           console.log('Uploading image to storage bucket...')
           
           // Upload the file to the products bucket
-          const { error: uploadError, data } = await supabase.storage
+          const { error: uploadError } = await supabase.storage
             .from('products')
             .upload(filePath, imageFile, {
               cacheControl: '3600',
@@ -247,9 +239,10 @@ export function EditProductModal({
             
           imageUrl = publicUrl
           console.log('Image uploaded successfully:', publicUrl)
-        } catch (err: any) {
-          console.error('Image upload error:', err)
-          throw new Error(`Image upload failed: ${err.message}`)
+        } catch (err: unknown) {
+          const error = err instanceof Error ? err : new Error('Unknown error')
+          console.error('Image upload error:', error)
+          throw new Error(`Image upload failed: ${error.message}`)
         }
       }
       
@@ -270,7 +263,7 @@ export function EditProductModal({
       }
       
       // Update product in database
-      const { data: productData, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('distributor_products')
         .update({
           name: productName,
@@ -297,9 +290,10 @@ export function EditProductModal({
       setTimeout(() => {
         onClose()
       }, 1500)
-    } catch (err: any) {
-      console.error('Error in form submission:', err)
-      setError(err.message || 'An error occurred while updating the product')
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('Unknown error')
+      console.error('Error in form submission:', error)
+      setError(error.message || 'An error occurred while updating the product')
     } finally {
       setIsSubmitting(false)
     }
@@ -327,9 +321,11 @@ export function EditProductModal({
               <div className="flex items-center space-x-6">
                 <div className="w-24 h-24 border border-gray-300 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                   {imagePreview ? (
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="Product preview"
+                      width={96}
+                      height={96}
                       className="w-full h-full object-cover"
                     />
                   ) : (

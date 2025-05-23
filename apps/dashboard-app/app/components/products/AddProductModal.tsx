@@ -1,10 +1,11 @@
-import React, { useState, FormEvent, useEffect, useRef } from 'react'
+import React, { useState, FormEvent, useEffect, useRef, useCallback } from 'react'
 import { X as CloseIcon, Upload as UploadIcon, Loader2, DollarSign, Barcode as BarcodeIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/app/providers/auth-provider'
 import { BarcodeScanner } from '@/app/components/barcode/BarcodeScanner'
 import { InitialBatchModal } from '@/app/components/inventory/InitialBatchModal'
+import Image from 'next/image'
 
 interface AddProductModalProps {
   isOpen: boolean
@@ -37,7 +38,8 @@ export function AddProductModal({
   const [distributorId, setDistributorId] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [userUniqueId, setUserUniqueId] = useState('')
-  const [businessName, setBusinessName] = useState('')
+  // We still need setBusinessName for the API response, but we don't use businessName directly
+  const [, setBusinessName] = useState('')
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   
   // Initial batch modal state
@@ -51,8 +53,8 @@ export function AddProductModal({
   // Get current user
   const { user } = useAuth()
   
-  // Function to generate SKU
-  const generateSku = () => {
+  // Function to generate SKU - wrapped in useCallback to avoid dependency issues
+  const generateSku = useCallback(() => {
     if (!productName || !category || !caseSize || !userUniqueId) return ''
     
     // Get category abbreviation (first 3 letters uppercase)
@@ -66,7 +68,7 @@ export function AddProductModal({
     
     // Combine all parts with hyphens: [Unique ID]-[CAT]-[NAME]-[SIZE]
     return `${userUniqueId}-${categoryAbbrev}-${nameAbbrev}-${size}`
-  }
+  }, [productName, category, caseSize, userUniqueId])
   
   // Auto-generate SKU when fields change
   useEffect(() => {
@@ -76,7 +78,7 @@ export function AddProductModal({
         setSku(generatedSku)
       }
     }
-  }, [productName, category, caseSize, userUniqueId])
+  }, [generateSku, productName, category, caseSize, userUniqueId])
   
   // Update UPC field when initialUpc changes or modal opens
   useEffect(() => {
@@ -184,9 +186,27 @@ export function AddProductModal({
     }
   }
   
+  // Format price for display and input handling
+  const formatPriceForDisplay = (value: string): string => {
+    if (!value) return ''
+    
+    // Convert to number and format as dollars and cents
+    const numericValue = parseInt(value, 10)
+    if (isNaN(numericValue)) return ''
+    
+    // Format as currency with 2 decimal places
+    return (numericValue / 100).toFixed(2)
+  }
+  
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow numbers
-    setPrice(e.target.value.replace(/\D/g, ''))
+    // Get the raw input value
+    const inputValue = e.target.value
+    
+    // Remove all non-digit characters
+    const numericValue = inputValue.replace(/\D/g, '')
+    
+    // Store the raw numeric value
+    setPrice(numericValue)
   }
   
   // Handle UPC input to ensure it's only digits and maximum 12 characters
@@ -209,16 +229,7 @@ export function AddProductModal({
     e.preventDefault() // Prevent default paste behavior
   }
   
-  // Format price for display
-  const formatPrice = (price: string) => {
-    if (!price) return ''
-    
-    const value = parseInt(price)
-    if (isNaN(value)) return ''
-    
-    // Format as currency with 2 decimal places
-    return (value / 100).toFixed(2)
-  }
+  // Price formatting is handled by the UI display logic
   
   const resetForm = () => {
     setProductName('')
@@ -291,8 +302,9 @@ export function AddProductModal({
             
           console.log('Public URL:', publicUrl)
           imageUrl = publicUrl
-        } catch (uploadErr: any) {
-          console.error('Image upload error:', uploadErr)
+        } catch (uploadErr: unknown) {
+          const uploadError = uploadErr instanceof Error ? uploadErr : new Error('Unknown upload error')
+          console.error('Image upload error:', uploadError)
           // Don't throw an error here, just use a placeholder image
           imageUrl = `https://source.unsplash.com/random/300x300/?${encodeURIComponent(productName.toLowerCase())}`
           console.log('Using placeholder image instead:', imageUrl)
@@ -354,13 +366,15 @@ export function AddProductModal({
             setShowInitialBatchModal(true)
           }, 1200)
         }
-      } catch (dbErr: any) {
-        console.error('Database operation error:', dbErr)
-        setError(dbErr.message || 'Failed to add product')
+      } catch (dbErr: unknown) {
+        const error = dbErr instanceof Error ? dbErr : new Error('Unknown database error')
+        console.error('Database operation error:', error)
+        setError(error.message || 'Failed to add product')
       }
-    } catch (err: any) {
-      console.error('Error adding product:', err)
-      setError(err.message || 'Failed to add product')
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('Unknown error')
+      console.error('Error adding product:', error)
+      setError(error.message || 'Failed to add product')
     } finally {
       setIsSubmitting(false)
     }
@@ -410,9 +424,11 @@ export function AddProductModal({
                     >
                       {imagePreview ? (
                         <div className="relative w-full h-48">
-                          <img
+                          <Image
                             src={imagePreview}
                             alt="Preview"
+                            width={400}
+                            height={192}
                             className="w-full h-full object-cover rounded-lg"
                           />
                           <button
@@ -457,37 +473,40 @@ export function AddProductModal({
                     </div>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Name
-                    </label>
-                    <input
-                      type="text"
-                      className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
-                      placeholder="Enter product name"
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category
-                    </label>
-                    <select
-                      className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      required
-                    >
-                      <option value="">Select a category</option>
-                      {categories.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
+                  {/* Product Name and Category side by side */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Product Name
+                      </label>
+                      <input
+                        type="text"
+                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
+                        placeholder="Enter product name"
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Category
+                      </label>
+                      <select
+                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        required
+                      >
+                        <option value="">Select a category</option>
+                        {categories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   
                   <div>
@@ -551,8 +570,8 @@ export function AddProductModal({
                           type="text"
                           id="price-input"
                           name="price"
-                          placeholder="1299"
-                          value={price ? price : ''}
+                          placeholder="0.00"
+                          value={price ? formatPriceForDisplay(price) : ''}
                           onChange={handlePriceChange}
                           className="text-gray-700 w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
                           required

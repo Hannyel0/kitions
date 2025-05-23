@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, createContext, useContext, useState, useEffect } from 'react';
-import { APP_NAME } from '../lib/metadata';
+import { APP_NAME } from '../../lib/metadata';
 
 // Create a context for title management
 interface TitleContextType {

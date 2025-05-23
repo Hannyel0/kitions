@@ -3,7 +3,6 @@ import { Plus } from 'lucide-react'
 import { ProductCard } from './ProductCard'
 import { AddProductModal } from './AddProductModal'
 import { Product } from './types'
-import { createBrowserClient } from '@supabase/ssr'
 
 interface ProductCatalogProps {
   products: Product[]

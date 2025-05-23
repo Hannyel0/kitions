@@ -21,11 +21,15 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
   const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
-  const [isScanning, setIsScanning] = useState(false)
+  const [isScanning, setIsScanning] = useState<boolean>(false)
   const [permissionState, setPermissionState] = useState<'prompt'|'granted'|'denied'|'unknown'>('unknown')
   const readerRef = useRef<ZXingBrowser.BrowserMultiFormatReader | null>(null)
-  // Correct type for scanner controls
-  const controlsRef = useRef<any>(null)
+  // Type for scanner controls
+  interface ScannerControls {
+    stop: () => void
+  }
+  
+  const controlsRef = useRef<ScannerControls | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -153,10 +157,9 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
               
               // Stop scanning after successful scan
               if (controlsRef.current) {
-                controlsRef.current.stop().then(() => {
-                  setIsScanning(false)
-                  onClose()
-                })
+                controlsRef.current.stop()
+                setIsScanning(false)
+                onClose()
               }
             }
             
@@ -205,7 +208,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
             className="fixed inset-0 bg-black/70 transition-opacity"
             onClick={onClose}
           />
-
+  
           {/* Modal container */}
           <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0 relative z-50">
             <motion.div
@@ -224,17 +227,8 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                   <XIcon className="h-6 w-6" />
                 </button>
               </div>
-
+  
               <div className="px-6 pt-5 pb-6">
-                <div className="text-center sm:text-left">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Scan Barcode
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Position the barcode within the camera view to scan
-                  </p>
-                </div>
-
                 {error && (
                   <div className="mb-4 p-3 rounded bg-red-50 text-red-700 text-sm">
                     {error}
@@ -242,21 +236,21 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                       <div className="mt-2">
                         <p className="font-medium">How to fix:</p>
                         <ol className="list-decimal pl-5 mt-1 text-xs space-y-1">
-                          <li>Click the camera/lock icon in your browser's address bar</li>
-                          <li>Select "Allow" for camera access</li>
+                          <li>Click the camera/lock icon in your browser&apos;s address bar</li>
+                          <li>Select &quot;Allow&quot; for camera access</li>
                           <li>Refresh the page and try again</li>
                         </ol>
                       </div>
                     )}
                   </div>
                 )}
-                
+  
                 {!error && permissionState === 'prompt' && (
                   <div className="mb-4 p-3 rounded bg-blue-50 text-blue-700 text-sm">
                     <p>Please allow camera access when prompted to scan barcodes.</p>
                   </div>
                 )}
-
+  
                 {videoDevices.length > 0 && (
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -276,7 +270,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                     </select>
                   </div>
                 )}
-
+  
                 <div className="relative bg-black rounded-md overflow-hidden aspect-video mb-4">
                   <video
                     ref={videoRef}
@@ -284,27 +278,23 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                     muted
                     playsInline
                   />
-                  
-                  {/* Scanning overlay with animated border */}
+  
                   {isScanning && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-5/6 h-5/6 border-2 border-blue-500 rounded-lg relative">
-                        <div className="absolute top-0 left-0 w-12 h-2 bg-blue-500 rounded-tl-lg"></div>
-                        <div className="absolute top-0 left-0 w-2 h-12 bg-blue-500 rounded-tl-lg"></div>
-                        
-                        <div className="absolute top-0 right-0 w-12 h-2 bg-blue-500 rounded-tr-lg"></div>
-                        <div className="absolute top-0 right-0 w-2 h-12 bg-blue-500 rounded-tr-lg"></div>
-                        
-                        <div className="absolute bottom-0 left-0 w-12 h-2 bg-blue-500 rounded-bl-lg"></div>
-                        <div className="absolute bottom-0 left-0 w-2 h-12 bg-blue-500 rounded-bl-lg"></div>
-                        
-                        <div className="absolute bottom-0 right-0 w-12 h-2 bg-blue-500 rounded-br-lg"></div>
-                        <div className="absolute bottom-0 right-0 w-2 h-12 bg-blue-500 rounded-br-lg"></div>
+                        <div className="absolute top-0 left-0 w-12 h-2 bg-blue-500 rounded-tl-lg" />
+                        <div className="absolute top-0 left-0 w-2 h-12 bg-blue-500 rounded-tl-lg" />
+                        <div className="absolute top-0 right-0 w-12 h-2 bg-blue-500 rounded-tr-lg" />
+                        <div className="absolute top-0 right-0 w-2 h-12 bg-blue-500 rounded-tr-lg" />
+                        <div className="absolute bottom-0 left-0 w-12 h-2 bg-blue-500 rounded-bl-lg" />
+                        <div className="absolute bottom-0 left-0 w-2 h-12 bg-blue-500 rounded-bl-lg" />
+                        <div className="absolute bottom-0 right-0 w-12 h-2 bg-blue-500 rounded-br-lg" />
+                        <div className="absolute bottom-0 right-0 w-2 h-12 bg-blue-500 rounded-br-lg" />
                       </div>
                     </div>
                   )}
                 </div>
-
+  
                 <div className="text-center">
                   {isScanning ? (
                     <p className="text-sm text-gray-500">
@@ -315,8 +305,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
                       type="button"
                       onClick={() => {
                         if (readerRef.current && selectedDeviceId) {
-                          // Restart scanning if it was stopped
-                          setIsScanning(true)
+                          setIsScanning(true);
                         }
                       }}
                       className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
@@ -332,5 +321,5 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
         </div>
       )}
     </AnimatePresence>
-  )
+  );
 }

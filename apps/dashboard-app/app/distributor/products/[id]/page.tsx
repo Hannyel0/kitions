@@ -1,5 +1,3 @@
-// This is a server component (no 'use client' directive)
-import React from 'react'
 import { DashboardLayout } from '@/app/components/layout'
 import { ProductClientWrapper } from './product-client-wrapper'
 
@@ -17,10 +15,14 @@ export interface ProductDetails {
   stock_quantity: number
 }
 
-// Server component - doesn't use hooks or client-side state
-export default function ProductPage({ params }: { params: { id: string } }) {
-  // In a server component, we can safely access params directly
-  const { id } = params
+// In Next.js App Router, dynamic route params are passed as a Promise
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  // We need to await the params promise to get the id
+  const { id } = await params
   
   return (
     <DashboardLayout userType="distributor">

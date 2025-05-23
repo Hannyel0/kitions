@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   MoreVertical as MoreVerticalIcon, 
   Package as PackageIcon, 
@@ -51,8 +52,8 @@ export function ProductList({ products }: ProductListProps) {
 
   // Sort the products based on the current sort field and order
   const sortedProducts = [...products].sort((a, b) => {
-    let aValue: any = a[sortField];
-    let bValue: any = b[sortField];
+    const aValue: string | number | null = a[sortField];
+    const bValue: string | number | null = b[sortField];
     
     // Handle undefined/null values (they should sort last)
     if (aValue === undefined || aValue === null) {
@@ -135,14 +136,16 @@ export function ProductList({ products }: ProductListProps) {
                 <Link href={`/distributor/products/${product.id}`} className="flex items-center">
                   <div className="h-10 w-10 flex-shrink-0 rounded overflow-hidden bg-gray-100">
                     {product.image ? (
-                      <img
+                      <Image
                         src={product.image}
                         alt={product.name}
+                        width={40}
+                        height={40}
                         className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full w-full bg-gray-100 border border-gray-200">
-                        <img src="/package-open.svg" alt="Package icon" className="h-5 w-5" />
+                        <Image src="/package-open.svg" alt="Package icon" width={20} height={20} className="h-5 w-5" />
                       </div>
                     )}
                   </div>
