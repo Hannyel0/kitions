@@ -3,18 +3,20 @@
 import React from 'react'
 import {
   Home,
-  ClipboardList,
+  // ClipboardList, // Unused import
   TrendingUp,
   Truck,
   Users,
   FileText,
   Package,
-  HelpCircle,
+  PackageCheck as Boxes,
+  // HelpCircle, // Unused import
   Settings,
-  LogOut,
+  // LogOut, // Unused import
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 
 interface SidebarProps {
@@ -26,13 +28,18 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
   
   return (
     <div className="w-60 h-screen bg-white border-r border-gray-200 flex flex-col overflow-hidden">
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center">
-          <div className="h-8 w-8 bg-black flex items-center justify-center">
-            <div className="text-white font-bold text-lg">K</div>
+      <div className="p-3 border-b border-gray-200">
+        <Link href="/distributor/home" className="block">
+          <div className="relative h-10 w-32">
+            <Image 
+              src="/default-monochrome-black.svg" 
+              alt="Kitions Logo" 
+              fill
+              style={{ objectFit: 'contain' }}
+              priority
+            />
           </div>
-          <span className="text-gray-800 ml-2 text-xl font-bold">Kitions</span>
-        </div>
+        </Link>
       </div>
       <div className="flex-1 overflow-y-auto">
         <nav className="py-6">
@@ -44,16 +51,16 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
               active: pathname === `/${userType}/home`,
             },
             {
-              icon: <ClipboardList size={18} />,
-              label: 'Waiting List',
-              path: `/${userType}/waiting-list`,
-              active: pathname === `/${userType}/waiting-list`,
-            },
-            {
               icon: <Package size={18} />,
               label: 'Products',
               path: `/${userType}/products`,
               active: pathname === `/${userType}/products`,
+            },
+            {
+              icon: <Boxes size={18} />,
+              label: 'Inventory',
+              path: `/${userType}/inventory`,
+              active: pathname === `/${userType}/inventory`,
             },
             {
               icon: <TrendingUp size={18} />,
@@ -78,12 +85,6 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
               label: 'Reports',
               path: `/${userType}/reports`,
               active: pathname === `/${userType}/reports`,
-            },
-            {
-              icon: <HelpCircle size={18} />,
-              label: 'Help Center',
-              path: `/${userType}/help`,
-              active: pathname === `/${userType}/help`,
             },
             {
               icon: <Settings size={18} />,

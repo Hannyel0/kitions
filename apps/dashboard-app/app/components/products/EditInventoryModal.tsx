@@ -68,9 +68,10 @@ export function EditInventoryModal({
       onSuccess()
       // Close the modal
       onClose()
-    } catch (error: any) {
-      console.error('Error updating inventory:', error)
-      setError(error.message || 'Failed to update inventory')
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error('Unknown error');
+      console.error('Error updating inventory:', err)
+      setError(err.message || 'Failed to update inventory')
     } finally {
       setIsSubmitting(false)
     }
