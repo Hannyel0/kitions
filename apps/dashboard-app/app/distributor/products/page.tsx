@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/app/components/layout'
 import { SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart } from 'lucide-react'
+import Link from 'next/link'
 import { ProductCard } from '@/app/components/products/ProductCard'
 import { ProductList } from '@/app/components/products/ProductList'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
@@ -197,13 +198,13 @@ export default function ProductsPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h1 className="text-gray-800 text-3xl font-semibold">Products</h1>
-              <button
-                onClick={() => setIsAddModalOpen(true)}
+              <Link
+                href="/distributor/orders/create"
                 className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"
               >
                 <ShoppingCart size={16} className="mr-2" />
                 Make Order
-              </button>
+              </Link>
             </div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
               <div className="p-4 border-b border-gray-200">
