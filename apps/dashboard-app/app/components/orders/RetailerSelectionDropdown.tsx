@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search as SearchIcon, CheckIcon } from 'lucide-react';
 
 interface Retailer {
@@ -52,7 +53,7 @@ export function RetailerSelectionDropdown({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
       >
         {selectedRetailer ? (
           <div className="flex items-center">
@@ -72,9 +73,16 @@ export function RetailerSelectionDropdown({
           <span className="cursor-pointer text-gray-500">Select a retailer</span>
         )}
       </button>
-      {isOpen && (
-        <div className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-[400px] overflow-hidden">
-          <div className="p-2 border-b border-gray-200">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-[400px] overflow-hidden"
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
+          >
+            <div className="p-2 border-b border-gray-200">
             <div className="relative">
               <SearchIcon
                 size={18}
@@ -134,8 +142,9 @@ export function RetailerSelectionDropdown({
               </div>
             )}
           </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

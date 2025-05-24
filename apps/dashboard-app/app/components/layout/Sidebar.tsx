@@ -4,7 +4,7 @@ import React from 'react'
 import {
   Home,
   // ClipboardList, // Unused import
-  TrendingUp,
+  ShoppingCart,
   Truck,
   Users,
   FileText,
@@ -63,10 +63,10 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
               active: pathname === `/${userType}/inventory`,
             },
             {
-              icon: <TrendingUp size={18} />,
-              label: 'Sales',
-              path: `/${userType}/sales`,
-              active: pathname === `/${userType}/sales`,
+              icon: <ShoppingCart size={18} />,
+              label: 'Orders',
+              path: `/${userType}/orders`,
+              active: pathname === `/${userType}/orders` || pathname.startsWith(`/${userType}/orders/`),
             },
             {
               icon: <Truck size={18} />,

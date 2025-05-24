@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X as CloseIcon,
   Search as SearchIcon,
@@ -52,8 +54,6 @@ export function ProductSelectionModal({
     return initial;
   });
 
-  if (!isOpen) return null;
-
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -87,8 +87,22 @@ export function ProductSelectionModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: [0.19, 1, 0.22, 1] }}
+        >
+          <motion.div 
+            className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden"
+            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+            transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1], delay: 0.02 }}
+          >
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
           <h2 className="text-gray-900 text-xl font-semibold">Select Products</h2>
           <button
@@ -118,14 +132,32 @@ export function ProductSelectionModal({
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="flex border border-gray-200 rounded-lg overflow-hidden"
+                className={`flex border border-gray-200 rounded-lg overflow-hidden ${selectedProducts[product.id] ? 'bg-gray-50 ring-1 ring-blue-100' : 'bg-white'}`}
               >
                 <div className="w-32 h-32 flex-shrink-0">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {product.image && !product.image.includes('placeholder.com') ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // If image fails to load, replace with fallback
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.querySelector('.fallback-container')!.style.display = 'flex';
+                      }}
+                    />
+                  ) : (
+                    <div className="fallback-container flex items-center justify-center h-full w-full bg-gray-100 border border-gray-200">
+                      <Image 
+                        src="/package-open.svg" 
+                        alt="Package icon" 
+                        width={64} 
+                        height={64} 
+                        className="h-16 w-16" 
+                        priority
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 p-4">
                   <div className="flex justify-between">
@@ -144,7 +176,7 @@ export function ProductSelectionModal({
                       <button
                         type="button"
                         onClick={() => handleQuantityChange(product.id, -1)}
-                        className="cursor-pointer p-1 text-gray-500 hover:text-gray-700"
+                        className="font-bold cursor-pointer p-1 text-gray-500 hover:text-gray-700"
                       >
                         <MinusIcon size={16} />
                       </button>
@@ -154,7 +186,7 @@ export function ProductSelectionModal({
                       <button
                         type="button"
                         onClick={() => handleQuantityChange(product.id, 1)}
-                        className="cursor-pointer p-1 text-gray-500 hover:text-gray-700"
+                        className="font-bold cursor-pointer p-1 text-gray-500 hover:text-gray-700"
                       >
                         <PlusIcon size={16} />
                       </button>
@@ -188,7 +220,9 @@ export function ProductSelectionModal({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

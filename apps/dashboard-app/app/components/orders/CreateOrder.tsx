@@ -42,6 +42,8 @@ interface OrderFormState {
   products: OrderProduct[];
   discount: number;
   notes?: string;
+  // Used for temporary empty discount input state
+  isDiscountInputActive?: boolean;
 }
 
 interface Retailer {
@@ -208,15 +210,15 @@ export function CreateOrder() {
   };
   
   const calculateTax = (subtotal: number, discount: number) => {
-    // Assuming 10% tax rate, adjust as needed
-    return (subtotal - discount) * 0.1;
+    // Return 0 to maintain function signature but not apply tax
+    return 0;
   };
-  
+
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     const discount = calculateDiscount(subtotal);
-    const tax = calculateTax(subtotal, discount);
-    return subtotal - discount + tax;
+    // Tax no longer included in total
+    return subtotal - discount;
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -278,8 +280,8 @@ export function CreateOrder() {
       
       const subtotal = calculateSubtotal();
       const discount = calculateDiscount(subtotal);
-      const tax = calculateTax(subtotal, discount);
-      const total = subtotal - discount + tax;
+      const tax = 0; // Tax set to 0 as per requirement
+      const total = subtotal - discount;
       
       // Generate order number (simple implementation)
       const orderNumber = `ORD-${Date.now().toString().slice(-6)}`;
@@ -541,8 +543,8 @@ export function CreateOrder() {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-gray-900 font-medium">{product.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        ${product.price} per case
+                      <p className="text-gray-500">
+                        <span className="text-gray-900 font-medium">${product.price}</span> / per case
                       </p>
                     </div>
                     <div className="text-gray-800 text-sm">
@@ -551,7 +553,7 @@ export function CreateOrder() {
                         {orderProduct.quantity}
                       </span>
                     </div>
-                    <div className="text-gray-900 text-sm font-medium">
+                    <div className="text-gray-900  font-semibold text-lg">
                       ${(product.price * orderProduct.quantity).toFixed(2)}
                     </div>
                     <button
@@ -580,7 +582,7 @@ export function CreateOrder() {
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(true)}
-                className="px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium flex items-center hover:bg-blue-100"
+                className="cursor-pointer px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium flex items-center hover:bg-blue-100"
               >
                 <PlusIcon size={16} className="mr-1" />
                 Add Products
@@ -596,22 +598,40 @@ export function CreateOrder() {
               <span className="text-sm text-gray-600">Discount</span>
               <div className="relative w-24">
                 <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={orderForm.discount}
-                  onChange={(e) => {
-                    const value = Math.min(
-                      100,
-                      Math.max(0, Number(e.target.value)),
-                    );
+                  type="text"
+                  inputMode="numeric"
+                  value={orderForm.isDiscountInputActive && orderForm.discount === 0 ? '' : orderForm.discount}
+                  onFocus={() => {
+                    if (orderForm.discount === 0) {
+                      setOrderForm((prev) => ({
+                        ...prev,
+                        isDiscountInputActive: true
+                      }));
+                    }
+                  }}
+                  onBlur={() => {
                     setOrderForm((prev) => ({
                       ...prev,
-                      discount: value,
+                      isDiscountInputActive: false
                     }));
                   }}
-                  className="w-full px-3 py-1 border border-gray-300 rounded-md text-sm"
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    // Allow empty string or numbers only
+                    if (inputValue === '' || /^\d+$/.test(inputValue)) {
+                      const value = inputValue === '' ? 0 : Math.min(
+                        100,
+                        Math.max(0, Number(inputValue)),
+                      );
+                      setOrderForm((prev) => ({
+                        ...prev,
+                        discount: value,
+                      }));
+                    }
+                  }}
+                  className="text-gray-900 w-full px-3 py-1 border border-gray-300 rounded-md text-sm"
                   placeholder="0"
+                  style={{ appearance: 'textfield' }}
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
                   %
@@ -636,16 +656,6 @@ export function CreateOrder() {
                 </span>
               </div>
             )}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Tax (10%)</span>
-              <span className="text-gray-900 font-medium">
-                $
-                {calculateTax(
-                  calculateSubtotal(),
-                  calculateDiscount(calculateSubtotal()),
-                ).toFixed(2)}
-              </span>
-            </div>
             <div className="h-px bg-gray-200 my-4"></div>
             <div className="flex items-center justify-between">
               <span className="text-gray-900 text-base font-medium">Total Payment</span>
