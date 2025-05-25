@@ -23,6 +23,7 @@ interface Product {
   image: string;
   case_size: number;
   category: string;
+  category_id?: string; // Add category_id for database operations
 }
 
 interface OrderProduct {
@@ -60,6 +61,8 @@ export function CreateOrder() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const [retailers, setRetailers] = useState<Retailer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -119,7 +122,7 @@ export function CreateOrder() {
         address: retailer.store_address || '',
       }));
       
-      // Fetch products for this distributor
+      // Fetch products from the distributor_products table where we know we have data
       const { data: productsData, error: productsError } = await supabase
         .from('distributor_products')
         .select(`
@@ -134,18 +137,30 @@ export function CreateOrder() {
         `)
         .eq('distributor_id', distributorId);
       
-      if (productsError) throw productsError;
+      if (productsError) {
+        console.error('Error fetching products:', productsError);
+        throw new Error(`Could not fetch products: ${productsError.message}`);
+      }
+      
+      if (!productsData || productsData.length === 0) {
+        console.log('No products found for this distributor');
+      } else {
+        console.log(`Found ${productsData.length} products`);
+      }
       
       // Transform products data to match our Product interface
       const transformedProducts = productsData.map((product: any) => ({
         id: product.id,
-        name: product.name,
+        name: product.name || 'Unnamed Product',
         description: product.description || '',
         price: product.price || 0,
-        image: product.image_url || 'https://via.placeholder.com/150',
+        image: product.image_url || '/package-open.svg',
         case_size: product.case_size || 1,
         category: product.product_categories?.name || 'Uncategorized',
+        category_id: product.category_id, // Store the category_id for later use
       }));
+      
+      console.log('Transformed products:', transformedProducts.length);
       
       setRetailers(transformedRetailers);
       setProducts(transformedProducts);
@@ -192,9 +207,15 @@ export function CreateOrder() {
   };
   
   const handleProductsSelect = (selectedProducts: OrderProduct[]) => {
+    // Make sure we're using valid product IDs that exist in the products table
+    const validSelectedProducts = selectedProducts.filter(item => {
+      // Only include products that exist in our fetched products array
+      return products.some(p => p.id === item.product_id);
+    });
+    
     setOrderForm((prev) => ({
       ...prev,
-      products: selectedProducts,
+      products: validSelectedProducts,
     }));
   };
   
@@ -231,14 +252,24 @@ export function CreateOrder() {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
       
-      // Get distributor ID
+      // Get distributor data
       const { data: { session } } = await supabase.auth.getSession();
-      const distributorId = session?.user.id;
-      
-      if (!distributorId) {
+      if (!session?.user?.id) {
         throw new Error('User not authenticated');
       }
+
+      // Get distributor ID from the distributors table
+      const { data: distributorData, error: distributorError } = await supabase
+        .from('distributors')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+        
+      if (distributorError) {
+        throw new Error('Could not find distributor record');
+      }
       
+      const distributorId = distributorData.id;
       let retailerId = orderForm.retailer_id;
       
       // Create new retailer if needed
@@ -257,7 +288,10 @@ export function CreateOrder() {
           .select()
           .single();
           
-        if (userError) throw userError;
+        if (userError) {
+          console.error(userError);
+          throw new Error(`Failed to create user: ${userError.message}`);
+        }
         
         // Then create the retailer record linked to the user
         const { data: newRetailer, error: retailerError } = await supabase
@@ -270,7 +304,11 @@ export function CreateOrder() {
           .select()
           .single();
           
-        if (retailerError) throw retailerError;
+        if (retailerError) {
+          console.error(retailerError);
+          throw new Error(`Failed to create retailer: ${retailerError.message}`);
+        }
+        
         retailerId = newRetailer.id;
       }
       
@@ -294,26 +332,67 @@ export function CreateOrder() {
           retailer_id: retailerId,
           distributor_id: distributorId,
           status: 'pending',
+          payment_status: 'pending', // Set default payment status
           subtotal,
           tax,
           discount,
           total,
-          notes: orderForm.notes,
+          notes: orderForm.notes || '',
         })
         .select()
         .single();
         
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error(orderError);
+        throw new Error(`Failed to create order: ${orderError.message}`);
+      }
       
-      // Create order items
-      const orderItems = orderForm.products.map((item) => {
-        const product = products.find((p) => p.id === item.product_id);
+      // For each product in the order, ensure there's a corresponding entry in the products table
+      // (since order_items.product_id references products.id)
+      for (const item of orderForm.products) {
+        const distributorProduct = products.find(p => p.id === item.product_id);
+        if (!distributorProduct) continue; // Skip if product not found
+        
+        // Check if this product already exists in the products table
+        const { data: existingProduct } = await supabase
+          .from('products')
+          .select('id')
+          .eq('id', item.product_id)
+          .maybeSingle();
+        
+        // If no existing product with this ID, create one
+        if (!existingProduct) {
+          const { error: insertProductError } = await supabase
+            .from('products')
+            .insert({
+              id: distributorProduct.id,
+              name: distributorProduct.name || 'Unnamed Product', // Required field
+              description: distributorProduct.description,
+              price: distributorProduct.price || 0, // Required field
+              image_url: distributorProduct.image,
+              case_quantity: distributorProduct.case_size,
+              distributor_id: distributorId, // Required field
+              created_at: new Date().toISOString(), // Required field
+              category_id: distributorProduct.category_id,
+              sku: '', // Optional
+              upc: '' // Optional
+            });
+            
+          if (insertProductError) {
+            console.error('Error creating product in products table:', insertProductError);
+            throw new Error(`Failed to create product reference: ${insertProductError.message}`);
+          }
+        }
+      }
+      
+      // Now create order items referencing products
+      const orderItems = orderForm.products.map(item => {
+        const product = products.find(p => p.id === item.product_id);
         return {
           order_id: order.id,
           product_id: item.product_id,
           quantity: item.quantity,
-          unit_price: product?.price || 0,
-          total_price: (product?.price || 0) * item.quantity,
+          price: product?.price || 0
         };
       });
       
@@ -321,42 +400,94 @@ export function CreateOrder() {
         .from('order_items')
         .insert(orderItems);
         
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Error creating order items:', itemsError);
+        throw new Error(`Failed to create order items: ${itemsError.message}`);
+      }
       
-      // Redirect to orders page
-      router.push('/distributor/orders');
+      // Set success message and redirect after a short delay
+      setFormError(null);
+      setSuccessMessage('Order created successfully!');
+      // Redirect after a brief delay to allow the user to see the success message
+      setTimeout(() => {
+        router.push('/distributor/orders');
+      }, 1500);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating order:', error);
-      alert('Failed to create order. Please try again.');
+      setFormError(error.message || 'Failed to create order. Please try again.');
+      // Scroll to the top to show the error message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setIsLoading(false);
     }
   };
   
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
-        <Link
-          href="/distributor/products"
-          className="flex items-center text-sm text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeftIcon size={16} className="mr-2" />
-          Back to Products
-        </Link>
+  const renderErrorMessage = () => {
+    if (!formError) return null;
+    return (
+      <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-700">Error</h3>
+            <p className="text-sm text-red-600 mt-1">{formError}</p>
+          </div>
+        </div>
       </div>
+    );
+  };
+  
+  const renderSuccessMessage = () => {
+    if (!successMessage) return null;
+    return (
+      <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-green-700">Success</h3>
+            <p className="text-sm text-green-600 mt-1">{successMessage}</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm space-y-6 max-w-4xl mx-auto">
+      <div className="flex items-center mb-6">
+        <Link
+          href="/distributor/orders"
+          className="text-gray-500 hover:text-gray-700 mr-4"
+        >
+          <ArrowLeftIcon size={20} />
+        </Link>
+        <h1 className="text-2xl font-semibold text-gray-800">Create New Order</h1>
+      </div>
+      
+      {renderErrorMessage()}
+      {renderSuccessMessage()}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-gray-900 text-2xl font-semibold">Create New Order</h1>
       </div>
       
       {isDataLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-t-blue-600 border-gray-200 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-          {error}
-        </div>
+        null
       ) : (
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Retailer Selection/Information */}
@@ -677,11 +808,12 @@ export function CreateOrder() {
             disabled={
               isLoading ||
               !orderForm.products.length ||
-              (!orderForm.retailer_id && !orderForm.newRetailer)
+              (!orderForm.retailer_id && !orderForm.newRetailer) ||
+              !!successMessage // Disable when success message is shown
             }
             className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Creating Order...' : 'Create Order'}
+            {isLoading ? 'Creating Order...' : successMessage ? 'Order Created' : 'Create Order'}
           </button>
         </div>
       </form>

@@ -128,14 +128,36 @@ export function ProductSelectionModal({
           </div>
         </div>
         <div className="overflow-y-auto max-h-[50vh] p-6">
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className={`flex border border-gray-200 rounded-lg overflow-hidden ${selectedProducts[product.id] ? 'bg-gray-50 ring-1 ring-blue-100' : 'bg-white'}`}
-              >
+          {filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="rounded-full bg-gray-100 p-6 mb-4">
+                <Image 
+                  src="/package-open.svg" 
+                  alt="No products" 
+                  width={48} 
+                  height={48} 
+                  className="h-12 w-12 text-gray-400" 
+                  priority 
+                />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900">
+                {searchQuery ? 'No products match your search' : 'No products available'}
+              </h3>
+              <p className="text-sm text-gray-500 mt-1 text-center max-w-md">
+                {searchQuery 
+                  ? 'Try searching with different keywords or clear your search.' 
+                  : 'Add products to your inventory before creating an order.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className={`flex border border-gray-200 rounded-lg overflow-hidden ${selectedProducts[product.id] ? 'bg-gray-50 ring-1 ring-blue-100' : 'bg-white'}`}
+                >
                 <div className="w-32 h-32 flex-shrink-0">
-                  {product.image && !product.image.includes('placeholder.com') ? (
+                  {product.image && product.image !== '/package-open.svg' ? (
                     <img
                       src={product.image}
                       alt={product.name}
@@ -143,7 +165,8 @@ export function ProductSelectionModal({
                       onError={(e) => {
                         // If image fails to load, replace with fallback
                         e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement!.querySelector('.fallback-container')!.style.display = 'flex';
+                        const fallbackContainer = e.currentTarget.parentElement!.querySelector('.fallback-container') as HTMLElement;
+                        if (fallbackContainer) fallbackContainer.style.display = 'flex';
                       }}
                     />
                   ) : (
@@ -196,6 +219,7 @@ export function ProductSelectionModal({
               </div>
             ))}
           </div>
+          )}
         </div>
         <div className="p-5 border-t border-gray-200">
           <div className="flex items-center justify-between">
