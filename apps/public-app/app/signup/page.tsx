@@ -5,14 +5,15 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, Store, Building2 } from 'lucide-react';
 
 export default function Signup() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -68,11 +69,19 @@ export default function Signup() {
     }
 
     try {
+      // Validate passwords match
+      if (password !== confirmPassword) {
+        setPasswordError('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
       const userData = {
         firstName,
         lastName,
-        businessName, 
-        phone: phoneNumber,
+        // Add default values for required fields that were removed from UI
+        businessName: "", // Will be collected in a later step if needed
+        phone: "", // Will be collected in a later step if needed
         role,
         ...(role === 'retailer' ? {
           storeAddress,
@@ -137,6 +146,94 @@ export default function Signup() {
       setMinOrderError('Minimum order amount must be greater than zero');
     }
   };
+
+  const handleRoleSelect = (selectedRole: 'retailer' | 'distributor') => {
+    setRole(selectedRole);
+    setShowRoleSpecificFields(true);
+  };
+
+  // Role selection layout (full width, no image)
+  if (showRoleSelector && !showRoleSpecificFields) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-12 md:p-16">
+          <div className="flex justify-center mb-12">
+            <Image 
+              src="/default-monochrome-black.svg" 
+              alt="Kitions" 
+              width={150} 
+              height={50}
+            />
+          </div>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setShowRoleSelector(false)}
+              className="cursor-pointer inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-12 transition-colors duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to previous step
+            </button>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+              How will you use Kitions?
+            </h2>
+            <p className="text-base text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Choose your role to help us customize your experience and get you started with the right tools
+            </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <button
+                type="button"
+                onClick={() => handleRoleSelect('retailer')}
+                className="cursor-pointer group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-[#8982cf] transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+              >
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div className="bg-blue-50 rounded-full p-4 border-8 border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                    <Store className="w-8 h-8 text-blue-600" />
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                    I'm a Retailer
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed mb-6">
+                    I want to source products from distributors and manage
+                    my inventory efficiently
+                  </p>
+                </div>
+                <div className="text-[#8982cf] font-medium group-hover:underline transition-all duration-200">
+                  Continue as Retailer →
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRoleSelect('distributor')}
+                className="cursor-pointer group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-[#8982cf] transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+              >
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                  <div className="bg-purple-50 rounded-full p-4 border-8 border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+                    <Building2 className="w-8 h-8 text-purple-600" />
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                    I'm a Distributor
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed mb-6">
+                    I want to sell my products to retailers and grow my
+                    distribution network
+                  </p>
+                </div>
+                <div className="text-[#8982cf] font-medium group-hover:underline transition-all duration-200">
+                  Continue as Distributor →
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
@@ -288,61 +385,6 @@ export default function Signup() {
                     Back
                   </button>
                 </div>
-              ) : showRoleSelector ? (
-                <div className="space-y-6">
-                  <div className="text-center mb-4">
-                    <h2 className="text-lg font-semibold mb-2">I am a...</h2>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      className={`aspect-video flex flex-col items-center justify-center p-4 border rounded-lg ${
-                        role === 'retailer' ? 'border-purple-300 bg-purple-50' : 'border-gray-200'
-                      }`}
-                      onClick={() => setRole('retailer')}
-                    >
-                      <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                      </div>
-                      <span className="font-medium">Retailer</span>
-                      <span className="text-xs text-gray-500 mt-1">I want to buy products</span>
-                    </button>
-                    
-                    <button
-                      type="button"
-                      className={`aspect-video flex flex-col items-center justify-center p-4 border rounded-lg ${
-                        role === 'distributor' ? 'border-purple-300 bg-purple-50' : 'border-gray-200'
-                      }`}
-                      onClick={() => setRole('distributor')}
-                    >
-                      <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center mb-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                        </svg>
-                      </div>
-                      <span className="font-medium">Distributor</span>
-                      <span className="text-xs text-gray-500 mt-1">I want to sell products</span>
-                    </button>
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors"
-                  >
-                    Next
-                  </button>
-                  
-                  <button
-                    type="button"
-                    className="w-full text-gray-600 py-2 hover:text-gray-900 transition-colors"
-                    onClick={() => setShowRoleSelector(false)}
-                  >
-                    Back
-                  </button>
-                </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex gap-4">
@@ -391,51 +433,47 @@ export default function Signup() {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="businessName" className="block text-sm text-gray-600 mb-1">
-                      Business Name
-                    </label>
-                    <input
-                      id="businessName"
-                      type="text"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="Your Business Name"
-                    />
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label htmlFor="password" className="block text-sm text-gray-600 mb-1">
+                        Password
+                      </label>
+                      <input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          setPasswordError(null);
+                        }}
+                        required
+                        minLength={8}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="8+ characters"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label htmlFor="confirmPassword" className="block text-sm text-gray-600 mb-1">
+                        Confirm Password
+                      </label>
+                      <input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          setPasswordError(null);
+                        }}
+                        required
+                        minLength={8}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        placeholder="8+ characters"
+                      />
+                    </div>
                   </div>
-
-                  <div>
-                    <label htmlFor="phoneNumber" className="block text-sm text-gray-600 mb-1">
-                      Phone Number
-                    </label>
-                    <input
-                      id="phoneNumber"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="(123) 456-7890"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="password" className="block text-sm text-gray-600 mb-1">
-                      Password
-                    </label>
-                    <input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={8}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="8+ characters"
-                    />
-                  </div>
+                  {passwordError && (
+                    <p className="text-sm text-red-500">{passwordError}</p>
+                  )}
 
                   <div className="flex items-start mt-4">
                     <input
