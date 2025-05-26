@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardLayout } from '@/app/components/layout';
 import { createBrowserClient } from '@supabase/ssr';
@@ -30,6 +31,7 @@ interface Order {
 }
 
 export default function Orders() {
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -280,7 +282,7 @@ export default function Orders() {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredOrders.map((order) => (
-                        <tr key={order.id} className="hover:bg-gray-50">
+                        <tr key={order.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/distributor/orders/${order.id}`)}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.order_number}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">{order.retailer_name}</div>
