@@ -6,6 +6,7 @@ import { useAuth } from '../providers/auth-provider';
 import { createSupabaseBrowserClient } from '../utils/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import ProfileAvatar from './ProfileAvatar';
 import { 
   faHome, faChevronDown, faSignOutAlt, 
   faShoppingCart, faStore, faBox, faBlog, 
@@ -234,83 +235,95 @@ export default function Navbar() {
           <div className="animate-pulse h-10 w-32 bg-gray-200 rounded-full"></div>
         ) : user ? (
           // User is logged in
-          <div className="relative" ref={userMenuRef}>
-            <button 
-              className="flex items-center space-x-3 focus:outline-none"
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+          <>
+            <a
+              href={getDashboardUrl()}
+              className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-md transition-colors shadow-sm hover:shadow-md mr-2"
             >
-              <div className="flex items-center">
-                <span className="text-gray-700 mr-2">{userName}</span>
-                <FontAwesomeIcon 
-                  icon={faChevronDown} 
-                  className={`h-4 w-4 transition-transform text-gray-500 ${isUserMenuOpen ? 'rotate-180' : ''}`}
+              Dashboard
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-4 w-4 ml-2" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M17 8l4 4m0 0l-4 4m4-4H3" 
                 />
-              </div>
-              <div className="relative h-10 w-10 rounded-full overflow-hidden border border-gray-200">
-                <Image 
-                  src={profilePicUrl || '/no-pfp.jpg'} 
-                  alt={userName || 'User profile'} 
-                  width={40} 
-                  height={40}
-                  className="object-cover"
+              </svg>
+            </a>
+            <div className="relative" ref={userMenuRef}>
+              <button 
+                className="flex items-center space-x-2 focus:outline-none group rounded-full p-1 pr-2 hover:bg-gray-100 transition-colors cursor-pointer"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              >
+                <ProfileAvatar 
+                  firstName={userName?.split(' ')[0]}
+                  lastName={userName?.split(' ')[1]}
+                  email={user?.email}
+                  profilePictureUrl={profilePicUrl}
+                  size="sm"
                 />
-              </div>
-            </button>
+                <div className="flex items-center">
+                  <span className="text-gray-700 font-medium">
+                    {userName?.split(' ')[0]}
+                  </span>
+                  <FontAwesomeIcon 
+                    icon={faChevronDown} 
+                    className={`ml-1 h-3 w-3 transition-transform text-gray-500 ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                  />
+                </div>
+              </button>
             
-            <AnimatePresence>
-              {isUserMenuOpen && (
-                <motion.div
-                  className="fixed z-999 w-60 bg-white rounded-lg shadow-lg overflow-hidden"
-                  style={{
-                    top: userMenuRef.current ? 
-                      userMenuRef.current.getBoundingClientRect().bottom + 10 : 0,
-                    right: 16 // Fixed right margin
-                  }}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={dropdownVariants}
-                >
-                  <div className="absolute -top-2 right-8 w-4 h-4 bg-white transform rotate-45 shadow-sm"></div>
-                  <div className="relative">
-                    {userRole && (
+              <AnimatePresence>
+                {isUserMenuOpen && (
+                  <motion.div
+                    className="fixed z-999 w-60 bg-white rounded-lg shadow-lg overflow-hidden"
+                    style={{
+                      top: userMenuRef.current ? 
+                        userMenuRef.current.getBoundingClientRect().bottom + 10 : 0,
+                      right: 16 // Fixed right margin
+                    }}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={dropdownVariants}
+                  >
+                    <div className="absolute -top-2 right-8 w-4 h-4 bg-white transform rotate-45 shadow-sm"></div>
+                    <div className="relative">
                       <a 
-                        href={getDashboardUrl()}
-                        className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100"
+                        href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/profile' : '/profile'} 
+                        className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100 cursor-pointer"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <FontAwesomeIcon icon={faHome} className="mr-3 w-4 text-gray-500" />
-                        Dashboard
+                        <FontAwesomeIcon icon={faUserCircle} className="mr-3 w-4 text-gray-500" />
+                        Profile
                       </a>
-                    )}
-                    <a 
-                      href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/profile' : '/profile'} 
-                      className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <FontAwesomeIcon icon={faUserCircle} className="mr-3 w-4 text-gray-500" />
-                      Profile
-                    </a>
-                    <a 
-                      href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/orders' : '/orders'} 
-                      className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    >
-                      <FontAwesomeIcon icon={faShoppingCart} className="mr-3 w-4 text-gray-500" />
-                      Orders
-                    </a>
-                    <button
-                      onClick={handleSignOut}
-                      className="flex items-center w-full text-left px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf]"
-                    >
-                      <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 w-4 text-gray-500" />
-                      Sign out
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                      <a 
+                        href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/orders' : '/orders'} 
+                        className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100 cursor-pointer"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faShoppingCart} className="mr-3 w-4 text-gray-500" />
+                        Orders
+                      </a>
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center w-full text-left px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] cursor-pointer"
+                      >
+                        <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 w-4 text-gray-500" />
+                        Sign out
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </>
         ) : (
           // User is not logged in
           <>

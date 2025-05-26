@@ -94,10 +94,10 @@ export function Header() {
       <div className="flex items-center">
         <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
           <span className="text-white text-sm">K</span>
-          </div>
+        </div>
         <span className="mx-2 text-gray-400">/</span>
         <div className="flex items-center">
-          <span className=" text-gray-800 text-sm font-medium">Homepage</span>
+          <span className="text-gray-800 text-sm font-medium">Dashboard</span>
         </div>
       </div>
       <div className="flex items-center">
@@ -115,6 +115,15 @@ export function Header() {
             ⌘S
           </span>
         </div>
+        <a
+          href={process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://kitions.com'}
+          className="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors border border-gray-200 mr-4"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to Kitions
+        </a>
         <div className="relative mr-4" ref={notificationsRef}>
           <button
             className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -216,29 +225,48 @@ export function Header() {
               <div className="py-2">
                 <Link
                   href="/distributor/profile"
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   <User size={16} className="mr-3 text-gray-400" />
-                  Your Profile
+                  My Profile
                 </Link>
                 <Link
                   href="/distributor/settings"
-                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   <Settings2 size={16} className="mr-3 text-gray-400" />
-                  Account Settings
+                  Settings
                 </Link>
-                <button className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  <Palette size={16} className="mr-3 text-gray-400" />
-                  Theme
+                <button 
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer text-left"
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    setIsNotificationsOpen(true);
+                  }}
+                >
+                  <Bell size={16} className="mr-3 text-gray-400" />
+                  Notifications
+                  {unreadCount > 0 && (
+                    <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
                 </button>
+                <Link
+                  href="/help-support"
+                  className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  <Info size={16} className="mr-3 text-gray-400" />
+                  Help/Support
+                </Link>
               </div>
               <div className="py-2 border-t border-gray-100">
                 <button 
                   onClick={handleSignOut}
-                  className="cursor-pointer  w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50 cursor-pointer text-left"
                 >
                   <LogOut size={16} className="mr-3 text-red-400" />
                   Sign Out
