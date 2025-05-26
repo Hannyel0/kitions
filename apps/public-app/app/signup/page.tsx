@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Store, Building2 } from 'lucide-react';
+import { ArrowLeft, Store, Building2, Building, MapPin, Phone, Tag, ChevronDown, Check } from 'lucide-react';
 
 export default function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -19,16 +19,14 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<'retailer' | 'distributor'>('retailer');
   const [showRoleSelector, setShowRoleSelector] = useState(false);
-  const [showRoleSpecificFields, setShowRoleSpecificFields] = useState(false);
+  const [showBusinessInfo, setShowBusinessInfo] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
-  // Retailer-specific fields
-  const [storeAddress, setStoreAddress] = useState('');
-  const [storeType, setStoreType] = useState('');
-  const [inventoryNeeds, setInventoryNeeds] = useState('');
-  
-  // Distributor-specific fields
-  const [minOrderAmount, setMinOrderAmount] = useState<string>('0.00');
-  const [minOrderError, setMinOrderError] = useState<string | null>(null);
+  // Business information fields
+  const [businessName, setBusinessName] = useState('');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [businessPhone, setBusinessPhone] = useState('');
+  const [businessType, setBusinessType] = useState('');
 
   const { signUp, signIn } = useAuth();
   const router = useRouter();
@@ -36,7 +34,6 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setMinOrderError(null);
     setLoading(true);
 
     // If role selector hasn't been shown yet, show it
@@ -46,26 +43,11 @@ export default function Signup() {
       return;
     }
     
-    // If role-specific fields haven't been shown yet, show them
-    if (showRoleSelector && !showRoleSpecificFields) {
-      setShowRoleSpecificFields(true);
+    // If business info hasn't been shown yet, show it
+    if (showRoleSelector && !showBusinessInfo) {
+      setShowBusinessInfo(true);
       setLoading(false);
       return;
-    }
-
-    // Validate distributor-specific fields
-    if (role === 'distributor') {
-      const orderAmount = parseFloat(minOrderAmount);
-      if (isNaN(orderAmount)) {
-        setMinOrderError('Please enter a valid number');
-        setLoading(false);
-        return;
-      }
-      if (orderAmount <= 0) {
-        setMinOrderError('Minimum order amount must be greater than zero');
-        setLoading(false);
-        return;
-      }
     }
 
     try {
@@ -79,17 +61,9 @@ export default function Signup() {
       const userData = {
         firstName,
         lastName,
-        // Add default values for required fields that were removed from UI
-        businessName: "", // Will be collected in a later step if needed
-        phone: "", // Will be collected in a later step if needed
+        businessName,
+        phone: businessPhone,
         role,
-        ...(role === 'retailer' ? {
-          storeAddress,
-          storeType,
-          inventoryNeeds
-        } : {
-          minOrderAmount: parseFloat(minOrderAmount)
-        })
       };
       
       const { error: signUpError, data: signUpData } = await signUp(email, password, userData);
@@ -117,17 +91,8 @@ export default function Signup() {
           return;
       }
       
-      const token = signInData.session.access_token;
-
-      // In development, redirect to dashboard app with token
-      if (process.env.NODE_ENV === 'development') {
-        window.location.href = `http://localhost:3001/auth/callback?token=${token}`;
-        // No need to setLoading(false) here as the page is navigating away
-        return;
-      }
-
-      // If signup is successful in non-dev env, redirect to verification page (or other desired flow)
-      router.push('/verification');
+      // Redirect to success page instead of dashboard
+      router.push('/signup/success');
     } catch (err) {
       console.error('Signup error:', err);
       setError('An unexpected error occurred. Please try again.');
@@ -136,24 +101,215 @@ export default function Signup() {
     }
   };
 
-  const handleMinOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setMinOrderAmount(value);
-    setMinOrderError(null);
+    // Only allow numbers, spaces, parentheses, and dashes
+    const phoneRegex = /^[0-9\s\(\)\-\+]*$/;
     
-    // Validate as the user types, but don't block empty field for usability
-    if (value !== '' && parseFloat(value) <= 0) {
-      setMinOrderError('Minimum order amount must be greater than zero');
+    if (phoneRegex.test(value)) {
+      setBusinessPhone(value);
     }
   };
 
   const handleRoleSelect = (selectedRole: 'retailer' | 'distributor') => {
     setRole(selectedRole);
-    setShowRoleSpecificFields(true);
+    setShowBusinessInfo(true);
   };
 
+  const getBusinessTypeOptions = () => {
+    return [
+      { value: 'sole_proprietorship', label: 'Sole Proprietorship', description: 'Individual ownership' },
+      { value: 'partnership', label: 'Partnership', description: 'Shared ownership' },
+      { value: 'llc', label: 'LLC', description: 'Limited Liability Company' },
+      { value: 'corporation', label: 'Corporation', description: 'Corporate entity' }
+    ];
+  };
+
+  // Business information layout (full width, no image)
+  if (showBusinessInfo) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-12 md:p-16">
+          <div className="flex justify-center mb-12">
+            <Image 
+              src="/default-monochrome-black.svg" 
+              alt="Kitions" 
+              width={150} 
+              height={50}
+            />
+          </div>
+
+          <div className="text-center mb-8">
+            <button
+              type="button"
+              onClick={() => setShowBusinessInfo(false)}
+              className="cursor-pointer inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-8 transition-colors duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to role selection
+            </button>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              Tell us about your business
+            </h2>
+            <p className="text-base text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
+              Help us customize your experience by providing some basic information about your {role === 'retailer' ? 'store' : 'distribution business'}
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">
+                Business Name *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Building className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="businessName"
+                  type="text"
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
+                  placeholder="Enter your business name"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="businessAddress" className="block text-sm font-medium text-gray-700 mb-2">
+                Business Address *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MapPin className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="businessAddress"
+                  type="text"
+                  value={businessAddress}
+                  onChange={(e) => setBusinessAddress(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
+                  placeholder="123 Business St, City, State, ZIP"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="businessPhone" className="block text-sm font-medium text-gray-700 mb-2">
+                Business Phone Number *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="businessPhone"
+                  type="tel"
+                  value={businessPhone}
+                  onChange={handlePhoneChange}
+                  required
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">
+                Business Type *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                  <Tag className="h-5 w-5 text-gray-400" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200 bg-white text-left flex items-center justify-between"
+                >
+                  <span className={businessType ? 'text-gray-900' : 'text-gray-500'}>
+                    {businessType ? getBusinessTypeOptions().find(option => option.value === businessType)?.label : 'Select your business type'}
+                  </span>
+                  <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {/* Custom Dropdown */}
+                <div className={`absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-200 origin-top ${
+                  isDropdownOpen 
+                    ? 'opacity-100 scale-y-100 translate-y-0' 
+                    : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
+                }`}>
+                  <div className="py-2">
+                    {getBusinessTypeOptions().map((option, index) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setBusinessType(option.value);
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between group ${
+                          businessType === option.value ? 'bg-[#8982cf]/5 text-[#8982cf]' : 'text-gray-900'
+                        }`}
+                        style={{
+                          animationDelay: `${index * 50}ms`
+                        }}
+                      >
+                        <div>
+                          <div className="font-medium">{option.label}</div>
+                          <div className="text-sm text-gray-500">{option.description}</div>
+                        </div>
+                        {businessType === option.value && (
+                          <Check className="h-4 w-4 text-[#8982cf]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Backdrop to close dropdown */}
+                {isDropdownOpen && (
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setIsDropdownOpen(false)}
+                  />
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!businessName || !businessAddress || !businessPhone || !businessType || loading}
+              className="w-full bg-[#8982cf] text-white py-4 rounded-lg hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+            >
+              {loading ? 'Processing...' : 'Continue to Next Step'}
+            </button>
+          </form>
+
+          <div className="text-center pt-6">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link href="/login" className="text-[#8982cf] hover:underline font-medium">
+                Log In
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Role selection layout (full width, no image)
-  if (showRoleSelector && !showRoleSpecificFields) {
+  if (showRoleSelector && !showBusinessInfo) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-12 md:p-16">
@@ -297,207 +453,117 @@ export default function Signup() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {showRoleSelector && showRoleSpecificFields ? (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-center mb-2">
-                    {role === 'retailer' ? 'Retailer Information' : 'Distributor Information'}
-                  </h2>
-                  <p className="text-sm text-gray-600 text-center mb-4">
-                    Please provide additional information about your business.
-                  </p>
-                  
-                  {role === 'retailer' ? (
-                    <>
-                      <div>
-                        <label htmlFor="storeAddress" className="block text-sm text-gray-600 mb-1">Store Address</label>
-                        <input
-                          id="storeAddress"
-                          type="text"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          placeholder="123 Main St, City, State, ZIP"
-                          value={storeAddress}
-                          onChange={(e) => setStoreAddress(e.target.value)}
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="storeType" className="block text-sm text-gray-600 mb-1">Store Type</label>
-                        <select
-                          id="storeType"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          value={storeType}
-                          onChange={(e) => setStoreType(e.target.value)}
-                        >
-                          <option value="">Select store type</option>
-                          <option value="grocery">Grocery</option>
-                          <option value="convenience">Convenience</option>
-                          <option value="specialty">Specialty</option>
-                          <option value="restaurant">Restaurant</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="inventoryNeeds" className="block text-sm text-gray-600 mb-1">Inventory Needs</label>
-                        <textarea
-                          id="inventoryNeeds"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          placeholder="Describe your inventory requirements"
-                          value={inventoryNeeds}
-                          onChange={(e) => setInventoryNeeds(e.target.value)}
-                          rows={3}
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <div>
-                      <label htmlFor="minOrderAmount" className="block text-sm text-gray-600 mb-1">Minimum Order Amount ($)</label>
-                      <input
-                        id="minOrderAmount"
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        className={`w-full px-3 py-2 border rounded-md ${minOrderError ? 'border-red-300' : 'border-gray-300'}`}
-                        placeholder="Enter minimum order amount"
-                        value={minOrderAmount}
-                        onChange={handleMinOrderChange}
-                      />
-                      {minOrderError && (
-                        <p className="text-red-500 text-xs mt-1">{minOrderError}</p>
-                      )}
-                      <p className="text-xs text-gray-500 mt-1">Must be greater than zero</p>
-                    </div>
-                  )}
-                  
-                  <button
-                    type="submit"
-                    disabled={loading || (role === 'distributor' && !!minOrderError)}
-                    className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Creating Account...' : 'Create Account'}
-                  </button>
-                  
-                  <button
-                    type="button"
-                    className="w-full text-gray-600 py-2 hover:text-gray-900 transition-colors"
-                    onClick={() => setShowRoleSpecificFields(false)}
-                  >
-                    Back
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label htmlFor="firstName" className="block text-sm text-gray-600 mb-1">
-                        First Name
-                      </label>
-                      <input
-                        id="firstName"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        placeholder="John"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label htmlFor="lastName" className="block text-sm text-gray-600 mb-1">
-                        Last Name
-                      </label>
-                      <input
-                        id="lastName"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        placeholder="Doe"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block text-sm text-gray-600 mb-1">
-                      Email Address
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label htmlFor="firstName" className="block text-sm text-gray-600 mb-1">
+                      First Name
                     </label>
                     <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="you@example.com"
+                      placeholder="John"
                     />
                   </div>
-
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label htmlFor="password" className="block text-sm text-gray-600 mb-1">
-                        Password
-                      </label>
-                      <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          setPasswordError(null);
-                        }}
-                        required
-                        minLength={8}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        placeholder="8+ characters"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label htmlFor="confirmPassword" className="block text-sm text-gray-600 mb-1">
-                        Confirm Password
-                      </label>
-                      <input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => {
-                          setConfirmPassword(e.target.value);
-                          setPasswordError(null);
-                        }}
-                        required
-                        minLength={8}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        placeholder="8+ characters"
-                      />
-                    </div>
-                  </div>
-                  {passwordError && (
-                    <p className="text-sm text-red-500">{passwordError}</p>
-                  )}
-
-                  <div className="flex items-start mt-4">
-                    <input
-                      id="agreeTerms"
-                      type="checkbox"
-                      className="h-4 w-4 mt-1 text-[#8982cf]"
-                      checked={agreeTerms}
-                      onChange={(e) => setAgreeTerms(e.target.checked)}
-                      required
-                    />
-                    <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-600">
-                      I agree to the <Link href="/terms" className="text-[#8982cf] hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-[#8982cf] hover:underline">Privacy Policy</Link>
+                  <div className="flex-1">
+                    <label htmlFor="lastName" className="block text-sm text-gray-600 mb-1">
+                      Last Name
                     </label>
+                    <input
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="Doe"
+                    />
                   </div>
-
-                  <button
-                    type="submit"
-                    disabled={!agreeTerms || loading}
-                    className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-                  >
-                    Next
-                  </button>
                 </div>
-              )}
+
+                <div>
+                  <label htmlFor="email" className="block text-sm text-gray-600 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="you@example.com"
+                  />
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label htmlFor="password" className="block text-sm text-gray-600 mb-1">
+                      Password
+                    </label>
+                    <input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setPasswordError(null);
+                      }}
+                      required
+                      minLength={8}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="8+ characters"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label htmlFor="confirmPassword" className="block text-sm text-gray-600 mb-1">
+                      Confirm Password
+                    </label>
+                    <input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setPasswordError(null);
+                      }}
+                      required
+                      minLength={8}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="8+ characters"
+                    />
+                  </div>
+                </div>
+                {passwordError && (
+                  <p className="text-sm text-red-500">{passwordError}</p>
+                )}
+
+                <div className="flex items-start mt-4">
+                  <input
+                    id="agreeTerms"
+                    type="checkbox"
+                    className="h-4 w-4 mt-1 text-[#8982cf]"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    required
+                  />
+                  <label htmlFor="agreeTerms" className="ml-2 block text-sm text-gray-600">
+                    I agree to the <Link href="/terms" className="text-[#8982cf] hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-[#8982cf] hover:underline">Privacy Policy</Link>
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!agreeTerms || loading}
+                  className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                >
+                  Next
+                </button>
+              </div>
               
               <div className="text-center pt-4">
                 <p className="text-sm text-gray-600">
