@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Store, Building2, Building, MapPin, Phone, Tag, ChevronDown, Check } from 'lucide-react';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 export default function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -36,6 +37,16 @@ export default function Signup() {
     setError(null);
     setLoading(true);
 
+    // Validate passwords match before proceeding to any step
+    if (password !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    // Clear password error if passwords match
+    setPasswordError(null);
+
     // If role selector hasn't been shown yet, show it
     if (!showRoleSelector) {
       setShowRoleSelector(true);
@@ -51,7 +62,7 @@ export default function Signup() {
     }
 
     try {
-      // Validate passwords match
+      // Final validation before signup (redundant but safe)
       if (password !== confirmPassword) {
         setPasswordError('Passwords do not match');
         setLoading(false);
@@ -62,7 +73,9 @@ export default function Signup() {
         firstName,
         lastName,
         businessName,
-        phone: businessPhone,
+        businessAddress,
+        businessType,
+        phone: businessPhone.replace(/\D/g, ''), // Store only numbers in database
         role,
       };
       
@@ -80,19 +93,8 @@ export default function Signup() {
           return;
       }
       
-      // After successful signup, sign in the user to get the session/token
-      const { error: signInError, data: signInData } = await signIn(email, password);
-      
-      if (signInError || !signInData?.session?.access_token) {
-          setError(signInError?.message || 'Failed to log in after signup. Please try logging in manually.');
-          setLoading(false);
-          // Redirect to login even if sign-in fails after signup, as account exists
-          router.push('/login'); 
-          return;
-      }
-      
-      // Redirect to success page instead of dashboard
-      router.push('/signup/success');
+      // Redirect to verification page instead of signing in
+      router.push('/signup/verification');
     } catch (err) {
       console.error('Signup error:', err);
       setError('An unexpected error occurred. Please try again.');
@@ -103,12 +105,25 @@ export default function Signup() {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Only allow numbers, spaces, parentheses, and dashes
-    const phoneRegex = /^[0-9\s\(\)\-\+]*$/;
+    // Remove all non-numeric characters
+    const numbersOnly = value.replace(/\D/g, '');
     
-    if (phoneRegex.test(value)) {
-      setBusinessPhone(value);
+    // Limit to 10 digits
+    const limitedNumbers = numbersOnly.slice(0, 10);
+    
+    // Format the phone number
+    let formattedPhone = '';
+    if (limitedNumbers.length > 0) {
+      if (limitedNumbers.length <= 3) {
+        formattedPhone = `(${limitedNumbers}`;
+      } else if (limitedNumbers.length <= 6) {
+        formattedPhone = `(${limitedNumbers.slice(0, 3)})-${limitedNumbers.slice(3)}`;
+      } else {
+        formattedPhone = `(${limitedNumbers.slice(0, 3)})-${limitedNumbers.slice(3, 6)}-${limitedNumbers.slice(6)}`;
+      }
     }
+    
+    setBusinessPhone(formattedPhone);
   };
 
   const handleRoleSelect = (selectedRole: 'retailer' | 'distributor') => {
@@ -187,20 +202,12 @@ export default function Signup() {
               <label htmlFor="businessAddress" className="block text-sm font-medium text-gray-700 mb-2">
                 Business Address *
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MapPin className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="businessAddress"
-                  type="text"
-                  value={businessAddress}
-                  onChange={(e) => setBusinessAddress(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
-                  placeholder="123 Business St, City, State, ZIP"
-                />
-              </div>
+              <AddressAutocomplete
+                value={businessAddress}
+                onChange={(value) => setBusinessAddress(value)}
+                required
+                placeholder="123 Business St, City, State, ZIP"
+              />
             </div>
 
             <div>
@@ -218,7 +225,7 @@ export default function Signup() {
                   onChange={handlePhoneChange}
                   required
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
-                  placeholder="(555) 123-4567"
+                  placeholder="(555)-123-4567"
                 />
               </div>
             </div>
@@ -515,7 +522,11 @@ export default function Signup() {
                       }}
                       required
                       minLength={8}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        password && confirmPassword && password !== confirmPassword
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                          : 'border-gray-300 focus:border-[#8982cf] focus:ring-[#8982cf]'
+                      }`}
                       placeholder="8+ characters"
                     />
                   </div>
@@ -533,7 +544,11 @@ export default function Signup() {
                       }}
                       required
                       minLength={8}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className={`w-full px-3 py-2 border rounded-md ${
+                        password && confirmPassword && password !== confirmPassword
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                          : 'border-gray-300 focus:border-[#8982cf] focus:ring-[#8982cf]'
+                      }`}
                       placeholder="8+ characters"
                     />
                   </div>
@@ -558,7 +573,7 @@ export default function Signup() {
 
                 <button
                   type="submit"
-                  disabled={!agreeTerms || loading}
+                  disabled={!agreeTerms || loading || (password !== confirmPassword && password.length > 0 && confirmPassword.length > 0)}
                   className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
                 >
                   Next
