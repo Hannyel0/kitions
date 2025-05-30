@@ -14,8 +14,9 @@ export default function Footer() {
                 src="/default-monochrome-black.svg" 
                 alt="Kitions Logo" 
                 width={120} 
-                height={40} 
-                className="h-6 sm:h-8 md:h-10 w-auto" 
+                height={40}
+                className="w-20 sm:w-24 md:w-30 h-auto"
+                style={{ width: "auto" }}
                 priority
               />
             </Link>

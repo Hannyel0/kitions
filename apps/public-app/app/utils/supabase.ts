@@ -21,7 +21,6 @@ let browserClient: SupabaseClient<any, any> | null = null;
 export const createSupabaseBrowserClient = () => {
   // Always return the singleton instance if it exists
   if (browserClient) {
-    console.log('✅ Reusing existing Supabase browser client instance');
     return browserClient;
   }
 
@@ -32,6 +31,11 @@ export const createSupabaseBrowserClient = () => {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      auth: {
+        persistSession: true, // Explicitly enable session persistence
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      },
       cookies: {
         // Define cookie options for browser clients
         // In development, we use relaxed settings
@@ -87,6 +91,11 @@ export const createSupabaseServerComponentClient = (cookieStore: CookieStore) =>
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false // Server-side doesn't need URL detection
+      },
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value;
@@ -128,6 +137,11 @@ export const createSupabaseRouteHandlerClient = (req: NextRequest, res: NextResp
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: false // Server-side doesn't need URL detection
+            },
             cookies: {
                 get(name: string) {
                     return req.cookies.get(name)?.value;

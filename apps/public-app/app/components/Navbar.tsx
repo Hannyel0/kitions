@@ -77,17 +77,35 @@ export default function Navbar() {
   useEffect(() => {
     async function fetchUserDetails() {
       if (user) {
-        const supabase = createSupabaseBrowserClient();
-        const { data, error } = await supabase
-          .from('users')
-          .select('first_name, last_name, profile_picture_url, role')
-          .eq('id', user.id)
-          .single();
-          
-        if (data && !error) {
-          setUserName(`${data.first_name} ${data.last_name}`);
-          setProfilePicUrl(data.profile_picture_url || '');
-          setUserRole(data.role || '');
+        try {
+          const supabase = createSupabaseBrowserClient();
+          const { data, error } = await supabase
+            .from('users')
+            .select('first_name, last_name, profile_picture_url, role')
+            .eq('id', user.id)
+            .single();
+            
+          if (data && !error) {
+            setUserName(`${data.first_name} ${data.last_name}`);
+            setProfilePicUrl(data.profile_picture_url || '');
+            setUserRole(data.role || '');
+          } else if (error) {
+            console.log('User details not found in database yet, using auth metadata');
+            // Fallback to user metadata if database record doesn't exist yet
+            const metadata = user.user_metadata;
+            if (metadata) {
+              setUserName(`${metadata.first_name || ''} ${metadata.last_name || ''}`.trim());
+              setUserRole(metadata.role || '');
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching user details:', err);
+          // Fallback to user metadata
+          const metadata = user.user_metadata;
+          if (metadata) {
+            setUserName(`${metadata.first_name || ''} ${metadata.last_name || ''}`.trim());
+            setUserRole(metadata.role || '');
+          }
         }
       }
     }
@@ -124,13 +142,11 @@ export default function Navbar() {
     else if (userRole === 'distributor') path = '/distributor/home';
     else if (userRole === 'admin') path = '/admin/home';
 
-    // Prepend the dashboard app URL in development
+    // Return the correct dashboard URL based on environment
     if (process.env.NODE_ENV === 'development') {
       return `http://localhost:3001${path}`;
     }
-    // In production, assume it's handled differently (e.g., same domain or env var)
-    // If dashboard is always on a separate domain in prod, use an env var here.
-    return path; 
+    return `https://dashboard.kitions.com${path}`;
   };
 
   return (

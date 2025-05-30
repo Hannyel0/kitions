@@ -3,10 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Store, Building2, Building, MapPin, Phone, Tag, ChevronDown, Check } from 'lucide-react';
-import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 export default function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -18,18 +15,7 @@ export default function Signup() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<'retailer' | 'distributor'>('retailer');
-  const [showRoleSelector, setShowRoleSelector] = useState(false);
-  const [showBusinessInfo, setShowBusinessInfo] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
-  // Business information fields
-  const [businessName, setBusinessName] = useState('');
-  const [businessAddress, setBusinessAddress] = useState('');
-  const [businessPhone, setBusinessPhone] = useState('');
-  const [businessType, setBusinessType] = useState('');
-
-  const { signUp, signIn } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +23,7 @@ export default function Signup() {
     setError(null);
     setLoading(true);
 
-    // Validate passwords match before proceeding to any step
+    // Validate passwords match
     if (password !== confirmPassword) {
       setPasswordError('Passwords do not match');
       setLoading(false);
@@ -47,356 +33,26 @@ export default function Signup() {
     // Clear password error if passwords match
     setPasswordError(null);
 
-    // If role selector hasn't been shown yet, show it
-    if (!showRoleSelector) {
-      setShowRoleSelector(true);
-      setLoading(false);
-      return;
-    }
-    
-    // If business info hasn't been shown yet, show it
-    if (showRoleSelector && !showBusinessInfo) {
-      setShowBusinessInfo(true);
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Final validation before signup (redundant but safe)
-      if (password !== confirmPassword) {
-        setPasswordError('Passwords do not match');
-        setLoading(false);
-        return;
-      }
-
+      // Store user data in sessionStorage
       const userData = {
         firstName,
         lastName,
-        businessName,
-        businessAddress,
-        businessType,
-        phone: businessPhone.replace(/\D/g, ''), // Store only numbers in database
-        role,
+        email,
+        password,
       };
       
-      const { error: signUpError, data: signUpData } = await signUp(email, password, userData);
-
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
-      }
+      sessionStorage.setItem('signupData', JSON.stringify(userData));
       
-      if (!signUpData?.user) {
-          setError('Signup successful, but user creation failed. Please contact support.');
-          setLoading(false);
-          return;
-      }
-      
-      // Redirect to verification page instead of signing in
-      router.push('/signup/verification');
+      // Redirect to role selection page
+      router.push('/signup/role');
     } catch (err) {
-      console.error('Signup error:', err);
+      console.error('Error storing signup data:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Remove all non-numeric characters
-    const numbersOnly = value.replace(/\D/g, '');
-    
-    // Limit to 10 digits
-    const limitedNumbers = numbersOnly.slice(0, 10);
-    
-    // Format the phone number
-    let formattedPhone = '';
-    if (limitedNumbers.length > 0) {
-      if (limitedNumbers.length <= 3) {
-        formattedPhone = `(${limitedNumbers}`;
-      } else if (limitedNumbers.length <= 6) {
-        formattedPhone = `(${limitedNumbers.slice(0, 3)})-${limitedNumbers.slice(3)}`;
-      } else {
-        formattedPhone = `(${limitedNumbers.slice(0, 3)})-${limitedNumbers.slice(3, 6)}-${limitedNumbers.slice(6)}`;
-      }
-    }
-    
-    setBusinessPhone(formattedPhone);
-  };
-
-  const handleRoleSelect = (selectedRole: 'retailer' | 'distributor') => {
-    setRole(selectedRole);
-    setShowBusinessInfo(true);
-  };
-
-  const getBusinessTypeOptions = () => {
-    return [
-      { value: 'sole_proprietorship', label: 'Sole Proprietorship', description: 'Individual ownership' },
-      { value: 'partnership', label: 'Partnership', description: 'Shared ownership' },
-      { value: 'llc', label: 'LLC', description: 'Limited Liability Company' },
-      { value: 'corporation', label: 'Corporation', description: 'Corporate entity' }
-    ];
-  };
-
-  // Business information layout (full width, no image)
-  if (showBusinessInfo) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-12 md:p-16">
-          <div className="flex justify-center mb-12">
-            <Image 
-              src="/default-monochrome-black.svg" 
-              alt="Kitions" 
-              width={150} 
-              height={50}
-            />
-          </div>
-
-          <div className="text-center mb-8">
-            <button
-              type="button"
-              onClick={() => setShowBusinessInfo(false)}
-              className="cursor-pointer inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-8 transition-colors duration-200"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to role selection
-            </button>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              Tell us about your business
-            </h2>
-            <p className="text-base text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
-              Help us customize your experience by providing some basic information about your {role === 'retailer' ? 'store' : 'distribution business'}
-            </p>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">
-                Business Name *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Building className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="businessName"
-                  type="text"
-                  value={businessName}
-                  onChange={(e) => setBusinessName(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your business name"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="businessAddress" className="block text-sm font-medium text-gray-700 mb-2">
-                Business Address *
-              </label>
-              <AddressAutocomplete
-                value={businessAddress}
-                onChange={(value) => setBusinessAddress(value)}
-                required
-                placeholder="123 Business St, City, State, ZIP"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="businessPhone" className="block text-sm font-medium text-gray-700 mb-2">
-                Business Phone Number *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  id="businessPhone"
-                  type="tel"
-                  value={businessPhone}
-                  onChange={handlePhoneChange}
-                  required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200"
-                  placeholder="(555)-123-4567"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">
-                Business Type *
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                  <Tag className="h-5 w-5 text-gray-400" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8982cf] focus:border-transparent transition-all duration-200 bg-white text-left flex items-center justify-between"
-                >
-                  <span className={businessType ? 'text-gray-900' : 'text-gray-500'}>
-                    {businessType ? getBusinessTypeOptions().find(option => option.value === businessType)?.label : 'Select your business type'}
-                  </span>
-                  <ChevronDown className={`h-5 w-5 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {/* Custom Dropdown */}
-                <div className={`absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-200 origin-top ${
-                  isDropdownOpen 
-                    ? 'opacity-100 scale-y-100 translate-y-0' 
-                    : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
-                }`}>
-                  <div className="py-2">
-                    {getBusinessTypeOptions().map((option, index) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          setBusinessType(option.value);
-                          setIsDropdownOpen(false);
-                        }}
-                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between group ${
-                          businessType === option.value ? 'bg-[#8982cf]/5 text-[#8982cf]' : 'text-gray-900'
-                        }`}
-                        style={{
-                          animationDelay: `${index * 50}ms`
-                        }}
-                      >
-                        <div>
-                          <div className="font-medium">{option.label}</div>
-                          <div className="text-sm text-gray-500">{option.description}</div>
-                        </div>
-                        {businessType === option.value && (
-                          <Check className="h-4 w-4 text-[#8982cf]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Backdrop to close dropdown */}
-                {isDropdownOpen && (
-                  <div 
-                    className="fixed inset-0 z-10" 
-                    onClick={() => setIsDropdownOpen(false)}
-                  />
-                )}
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={!businessName || !businessAddress || !businessPhone || !businessType || loading}
-              className="w-full bg-[#8982cf] text-white py-4 rounded-lg hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
-            >
-              {loading ? 'Processing...' : 'Continue to Next Step'}
-            </button>
-          </form>
-
-          <div className="text-center pt-6">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link href="/login" className="text-[#8982cf] hover:underline font-medium">
-                Log In
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Role selection layout (full width, no image)
-  if (showRoleSelector && !showBusinessInfo) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-12 md:p-16">
-          <div className="flex justify-center mb-12">
-            <Image 
-              src="/default-monochrome-black.svg" 
-              alt="Kitions" 
-              width={150} 
-              height={50}
-            />
-          </div>
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => setShowRoleSelector(false)}
-              className="cursor-pointer inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-12 transition-colors duration-200"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to previous step
-            </button>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-              How will you use Kitions?
-            </h2>
-            <p className="text-base text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Choose your role to help us customize your experience and get you started with the right tools
-            </p>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <button
-                type="button"
-                onClick={() => handleRoleSelect('retailer')}
-                className="cursor-pointer group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-[#8982cf] transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-              >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="bg-blue-50 rounded-full p-4 border-8 border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                    <Store className="w-8 h-8 text-blue-600" />
-                  </div>
-                </div>
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    I'm a Retailer
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">
-                    I want to source products from distributors and manage
-                    my inventory efficiently
-                  </p>
-                </div>
-                <div className="text-[#8982cf] font-medium group-hover:underline transition-all duration-200">
-                  Continue as Retailer →
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleRoleSelect('distributor')}
-                className="cursor-pointer group relative bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-[#8982cf] transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-              >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="bg-purple-50 rounded-full p-4 border-8 border-white shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-                    <Building2 className="w-8 h-8 text-purple-600" />
-                  </div>
-                </div>
-                <div className="mt-8">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                    I'm a Distributor
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">
-                    I want to sell my products to retailers and grow my
-                    distribution network
-                  </p>
-                </div>
-                <div className="text-[#8982cf] font-medium group-hover:underline transition-all duration-200">
-                  Continue as Distributor →
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
@@ -433,8 +89,8 @@ export default function Signup() {
               <Image 
                 src="/default-monochrome-black.svg" 
                 alt="Kitions" 
-                width={150} 
-                height={50}
+                width={160} 
+                height={54}
               />
             </div>
 
@@ -494,7 +150,7 @@ export default function Signup() {
 
                 <div>
                   <label htmlFor="email" className="block text-sm text-gray-600 mb-1">
-                    Email Address
+                    Business Email
                   </label>
                   <input
                     id="email"
@@ -503,7 +159,7 @@ export default function Signup() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    placeholder="you@example.com"
+                    placeholder="business@company.com"
                   />
                 </div>
 
@@ -576,7 +232,7 @@ export default function Signup() {
                   disabled={!agreeTerms || loading || (password !== confirmPassword && password.length > 0 && confirmPassword.length > 0)}
                   className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
                 >
-                  Next
+                  {loading ? 'Processing...' : 'Next'}
                 </button>
               </div>
               
