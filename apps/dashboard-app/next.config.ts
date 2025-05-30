@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['panftygjjjgfwfrpwlbj.supabase.co'],
+    domains: ['panftygjjjgfwfrpwlbj.supabase.co', 'via.placeholder.com', 'randomuser.me'],
     remotePatterns: [
       {
         protocol: 'https',

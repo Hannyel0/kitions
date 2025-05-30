@@ -22,12 +22,16 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<SignInResponse>;
   signOut: () => Promise<void>;
   loading: boolean;
+  completeUserProfile: () => Promise<{ error: Error | null }>;
+  handleEmailVerification: (code: string) => Promise<{ error: Error | null; user: User | null }>;
 };
 
 type UserData = {
   firstName: string;
   lastName: string;
   businessName: string;
+  businessAddress?: string;
+  businessType?: string;
   phone: string;
   role: 'retailer' | 'distributor';
   storeAddress?: string;
@@ -74,25 +78,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase.auth]);
 
   const signUp = async (email: string, password: string, userData: UserData): Promise<SignUpResponse> => {
-    console.log('⭐ SIGNUP START ⭐ - Creating account for:', email);
+    console.log('🔐 SIGNUP START - Creating account for:', email);
     setLoading(true);
     
     // Cache the client instance to ensure we use the same one throughout
     const authClient = supabase;
     console.log('🔶 Using Supabase client instance:', authClient ? 'Valid' : 'Invalid');
     
-    const { data, error } = await authClient.auth.signUp({ 
-      email, 
+    const { data, error } = await authClient.auth.signUp({
+      email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirm`,
         data: {
           first_name: userData.firstName,
           last_name: userData.lastName,
           role: userData.role,
-        },
-        emailRedirectTo: process.env.NODE_ENV === 'development' 
-          ? 'http://localhost:3001/auth/callback'
-          : 'https://dashboard.kitions.com/auth/callback'
+          business_name: userData.businessName,
+          business_type: userData.businessType,
+          phone: userData.phone,
+        }
       }
     });
 
@@ -100,6 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data ? 'Success' : 'Failed',
       error ? `Error: ${error.message}` : 'No errors'
     );
+    console.log('🔶 User data:', data?.user ? 'User created' : 'No user');
+    console.log('🔶 Session data:', data?.session ? 'Session created' : 'No session');
+    console.log('🔗 EMAIL REDIRECT URL USED:', `${window.location.origin}/auth/confirm`);
 
     if (error) {
       console.error('❌ SIGNUP ERROR:', error.message);
@@ -116,70 +124,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('✅ Auth signup successful, user created with ID:', data.user.id);
     console.log('✅ User email:', data.user.email);
     console.log('✅ Session present:', data.session ? 'Yes' : 'No');
+    console.log('📧 Email confirmation required - user will verify email and return to signup page');
     
+    // If we have a session (email confirmation disabled), set it
+    if (data.session) {
+      console.log('🍪 Setting session with authClient...');
+      setSession(data.session);
+      setUser(data.session.user);
+    }
+
+    console.log('⭐ SIGNUP COMPLETED SUCCESSFULLY - User will verify email and return ⭐');
+    setLoading(false);
+    return { data, error: null };
+  };
+
+  const completeUserProfile = async (): Promise<{ error: Error | null }> => {
+    console.log('🔐 COMPLETE PROFILE START - Setting up user profile after email verification');
+    
+    const authClient = supabase;
+    const { data: { user } } = await authClient.auth.getUser();
+    
+    if (!user) {
+      console.error('❌ No authenticated user found');
+      return { error: new Error('No authenticated user found') };
+    }
+
+    console.log('✅ Authenticated user found:', user.id);
+    console.log('📝 User metadata:', user.user_metadata);
+
     try {
-      // Add delay before setting session to allow cookies to be processed
-      console.log('⏱️ Adding small delay before updating session state...');
-      await new Promise(res => setTimeout(res, 100));
-      
-      // If we have a session, set it explicitly
-      if (data.session) {
-        console.log('🍪 Setting session with authClient...');
-        setSession(data.session);
-        setUser(data.session.user);
-      }
-      
-      // Verify session with retries to ensure cookies are properly set
-      const maxRetries = 5;
-      let retryCount = 0;
-      let sessionConfirmed = false;
-      
-      while (retryCount < maxRetries && !sessionConfirmed) {
-        try {
-          console.log(`🔄 Verifying session - attempt ${retryCount + 1}/${maxRetries}`);
-          await new Promise(res => setTimeout(res, 200)); // Wait between retries
-          
-          const { data: sessionData } = await authClient.auth.getSession();
-          
-          if (sessionData?.session) {
-            console.log('✅ Session verified successfully!');
-            console.log('🍪 Session cookie should now be set');
-            sessionConfirmed = true;
-            setSession(sessionData.session);
-            setUser(sessionData.session.user);
-          } else {
-            console.log('⚠️ Session not found, retrying...');
-            retryCount++;
-          }
-        } catch (sessionError) {
-          console.error('❌ Error verifying session:', sessionError);
-          retryCount++;
-        }
-      }
-      
-      // Store original user ID for database operations
-      const originalUserId = data.user.id;
-      console.log('📝 Original user ID for DB operations:', originalUserId);
+      // Get user data from metadata
+      const userData = user.user_metadata;
       
       // DATABASE OPERATIONS - INSERT USER RECORDS
       console.log('📝 BEGINNING DATABASE OPERATIONS -----');
       
-      console.log('📝 Inserting user with ID:', originalUserId);
+      console.log('📝 Inserting user with ID:', user.id);
+      // Note: unique_identifier will be automatically generated by database trigger
       const { data: userData1, error: usersError } = await authClient
         .from('users')
         .insert({
-          id: originalUserId,
-          email: email,
-          first_name: userData.firstName,
-          last_name: userData.lastName,
-          phone: userData.phone,
-          business_name: userData.businessName,
-          role: userData.role,
+          id: user.id,
+          email: user.email!,
+          first_name: userData.first_name || '',
+          last_name: userData.last_name || '',
+          phone: userData.phone || '',
+          business_name: userData.business_name || '',
+          business_type: userData.business_type || '',
+          role: userData.role || 'retailer',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           profile_picture_url: ''
         })
-        .select();
+        .select('id, email, unique_identifier');
 
       if (usersError) {
         console.error('❌ Users insert error:', usersError.message);
@@ -187,12 +184,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(usersError.message);
       }
       console.log('✅ User record inserted successfully:', userData1 ? 'Data returned' : 'No data returned');
+      if (userData1 && userData1[0]) {
+        console.log('✅ Generated unique identifier:', userData1[0].unique_identifier);
+      }
 
-      console.log('📝 Inserting verification status with user ID:', originalUserId);
+      console.log('📝 Inserting verification status with user ID:', user.id);
       const { data: verificationData, error: verificationError } = await authClient
         .from('user_verification_statuses')
         .insert({
-          user_id: originalUserId,
+          user_id: user.id,
           status: 'pending',
           updated_at: new Date().toISOString()
         })
@@ -206,14 +206,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('✅ Verification status inserted successfully:', verificationData ? 'Data returned' : 'No data returned');
 
       if (userData.role === 'retailer') {
-        console.log('📝 Inserting retailer with user ID:', originalUserId);
+        console.log('📝 Inserting retailer with user ID:', user.id);
         const { data: retailerData, error: retailerError } = await authClient
           .from('retailers')
           .insert({
-            user_id: originalUserId,
-            store_address: userData.storeAddress || '',
-            store_type: userData.storeType || '',
-            inventory_needs: userData.inventoryNeeds || '',
+            user_id: user.id,
+            store_address: '',
+            store_type: '',
+            inventory_needs: '',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
@@ -225,13 +225,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error(retailerError.message);
         }
         console.log('✅ Retailer record inserted successfully:', retailerData ? 'Data returned' : 'No data returned');
-      } else {
-        console.log('📝 Inserting distributor with user ID:', originalUserId);
+      } else if (userData.role === 'distributor') {
+        console.log('📝 Inserting distributor with user ID:', user.id);
         const { data: distributorData, error: distributorError } = await authClient
           .from('distributors')
           .insert({
-            user_id: originalUserId,
-            min_order_amount: userData.minOrderAmount || 0,
+            user_id: user.id,
+            min_order_amount: 0,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
@@ -246,34 +246,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       console.log('✅ ALL DATABASE OPERATIONS COMPLETED SUCCESSFULLY -----');
-
-      // For development only - manual token handling
-      if (process.env.NODE_ENV === 'development') {
-        const currentSession = data.session; 
-        if (currentSession) {
-          const accessToken = currentSession.access_token;
-          const refreshToken = currentSession.refresh_token;
-          if (accessToken && refreshToken) { 
-            console.log("✅ SignUp: Redirecting with access_token & refresh_token to dashboard.");
-            window.location.href = `http://localhost:3001/auth/callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
-            return { data, error: null };
-          } else {
-            console.warn("⚠️ SignUp: Session received but missing access or refresh token.");
-          }
-        }
-      }
+      return { error: null };
 
     } catch (err: unknown) {
-      console.error('❌ SIGNUP PROCESS ERROR:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Error creating user profile';
+      console.error('❌ PROFILE COMPLETION ERROR:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Error completing user profile';
       console.error('❌ Error message:', errorMessage);
-      setLoading(false);
-      return { error: new Error(errorMessage), data: null };
+      return { error: new Error(errorMessage) };
     }
+  };
 
-    console.log('⭐ SIGNUP COMPLETED SUCCESSFULLY ⭐');
-    setLoading(false);
-    return { data, error: null };
+  const handleEmailVerification = async (code: string): Promise<{ error: Error | null; user: User | null }> => {
+    console.log('🔐 HANDLE EMAIL VERIFICATION START - Using PKCE code exchange');
+    setLoading(true);
+    
+    const authClient = supabase;
+    
+    try {
+      // Exchange the code for a session using PKCE flow
+      const { data, error } = await authClient.auth.exchangeCodeForSession(code);
+
+      if (error) {
+        console.error('❌ Error exchanging code for session:', error.message);
+        setLoading(false);
+        return { error, user: null };
+      }
+
+      if (!data.session || !data.user) {
+        console.error('❌ No session or user returned from code exchange');
+        setLoading(false);
+        return { error: new Error('No session created from code exchange'), user: null };
+      }
+
+      console.log('✅ Code exchanged for session successfully:', data.user.id);
+      
+      // Update the auth state
+      setSession(data.session);
+      setUser(data.user);
+      
+      // Wait a moment for state to update
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Verify the session is working by making an authenticated request
+      const { data: { user: verifiedUser }, error: verifyError } = await authClient.auth.getUser();
+      
+      if (verifyError || !verifiedUser) {
+        console.error('❌ Session verification failed:', verifyError?.message);
+        setLoading(false);
+        return { error: new Error('Session verification failed'), user: null };
+      }
+      
+      console.log('✅ Email verification completed successfully with PKCE flow');
+      setLoading(false);
+      return { error: null, user: verifiedUser };
+      
+    } catch (err) {
+      console.error('❌ Email verification error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Email verification failed';
+      setLoading(false);
+      return { error: new Error(errorMessage), user: null };
+    }
   };
 
   const signIn = async (email: string, password: string): Promise<SignInResponse> => {
@@ -358,6 +390,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signOut,
     loading,
+    completeUserProfile,
+    handleEmailVerification,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

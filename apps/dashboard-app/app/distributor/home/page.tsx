@@ -6,7 +6,8 @@ import { useEffect } from 'react';
 import { DashboardLayout } from '@/app/components/layout';
 import useUserProfile from '@/app/hooks/useUserProfile';
 import { ProfileAvatar } from '@/app/components/user';
-import { Statistics, QuickActions, WaitingList } from '@/app/components/dashboard';
+import { Statistics, QuickActions } from '@/app/components/dashboard';
+import { RecentOrders } from '@/app/components/dashboard/RecentOrders';
 
 export default function DistributorHomeContent() {
   const { user, loading: authLoading } = useAuth();
@@ -82,64 +83,11 @@ export default function DistributorHomeContent() {
         {/* Statistics Section */}
         <Statistics />
         
-        {/* Orders Overview */}
+        {/* Recent Orders */}
         <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retailer</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {/* Sample order data - replace with real data */}
-                  <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#8982cf]">ORD-2025-001</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Corner Market</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 May 2025</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$1,250.00</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        Pending
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#8982cf]">ORD-2025-002</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Urban Grocery</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">14 May 2025</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$3,420.00</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        Shipped
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#8982cf]">ORD-2025-003</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">Fresh Foods</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12 May 2025</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">$980.00</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        Delivered
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <h2 className="text-gray-800 text-xl font-semibold mb-4">Recent Orders</h2>
+          <RecentOrders />
         </section>
-        
-        {/* Waiting List */}
-        <WaitingList />
       </div>
       )}
     </DashboardLayout>

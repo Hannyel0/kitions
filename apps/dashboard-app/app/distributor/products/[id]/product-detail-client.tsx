@@ -351,13 +351,31 @@ export function ProductDetailClient({ productId }: { productId: string }) {
         <div className="bg-white rounded-lg shadow-sm grid grid-cols-1 md:grid-cols-7 gap-8 overflow-hidden">
           <div className="md:col-span-3 p-6 flex flex-col h-full">
             <div className="aspect-square w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-              <Image
-                src={productDetails.image_url}
-                alt={productDetails.name}
-                width={600}
-                height={600}
-                className="w-full h-full object-cover"
-              />
+              {productDetails.image_url ? (
+                <div className="relative w-full h-full">
+                  <Image
+                    src={productDetails.image_url}
+                    alt={productDetails.name}
+                    width={600}
+                    height={600}
+                    className="w-full h-full object-cover"
+                    onError={() => {
+                      // If the image fails to load, we'll show the fallback in the UI
+                      // This is handled by the component's error state
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full h-full">
+                  <Image 
+                    src="/package-open.svg" 
+                    alt="Product image unavailable" 
+                    width={150} 
+                    height={150} 
+                    className="w-36 h-36 opacity-50" 
+                  />
+                </div>
+              )}
             </div>
             
             {/* Barcode section */}

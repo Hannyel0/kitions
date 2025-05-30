@@ -56,8 +56,8 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
           process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         )
         
-        // Delete the product image from storage if it exists
-        if (product.image && !product.image.includes('unsplash.com') && !product.image.includes('placeholder.com')) {
+        // Delete the product image from storage if it exists and is not a fallback image
+        if (product.image && !product.image.includes('unsplash.com') && !product.image.startsWith('/')) {
           try {
             console.log('Image URL to delete:', product.image)
             
