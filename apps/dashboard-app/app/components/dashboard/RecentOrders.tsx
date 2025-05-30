@@ -16,7 +16,7 @@ interface Order {
   order_number: string;
   created_at: string;
   status: 'pending' | 'processing' | 'completed' | 'cancelled';
-  payment_status?: 'paid' | 'pending' | 'failed';
+  payment_status: 'pending' | 'paid' | 'failed';
   total: number;
   retailer_id: string;
   retailer_name: string;
@@ -87,12 +87,13 @@ export function RecentOrders() {
         if (ordersError) throw ordersError;
         
         // Transform the data to match our Order interface
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transformedOrders = ordersData.map((order: any) => ({
           id: order.id,
           order_number: order.order_number,
           created_at: order.created_at,
-          status: order.status || 'pending',
-          payment_status: order.payment_status || 'pending',
+          status: (order.status || 'pending') as Order['status'],
+          payment_status: (order.payment_status || 'pending') as Order['payment_status'],
           total: order.total || 0,
           retailer_id: order.retailer_id,
           retailer_name: order.retailers?.users?.business_name || 'Unknown Business',

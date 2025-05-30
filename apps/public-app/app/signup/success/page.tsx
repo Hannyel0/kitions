@@ -38,7 +38,7 @@ export default function SignupSuccess() {
           </div>
           <p className="text-blue-800 text-sm leading-relaxed">
             Kitions will review your information in the next <strong>24-48 hours</strong> to verify your account. 
-            You'll receive an email notification once your account is fully verified and ready to use.
+            You&apos;ll receive an email notification once your account is fully verified and ready to use.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function SignupSuccess() {
                 <span className="text-purple-600 font-bold">2</span>
               </div>
               <h5 className="font-medium text-gray-900 mb-1">Email Notification</h5>
-              <p className="text-gray-600">You'll receive verification confirmation</p>
+              <p className="text-gray-600">You&apos;ll receive verification confirmation</p>
             </div>
             <div className="text-center">
               <div className="bg-purple-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">

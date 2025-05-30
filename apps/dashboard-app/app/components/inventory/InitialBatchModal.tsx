@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X as CloseIcon, Calendar, Package, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { X as CloseIcon, Package, CheckCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
 
 interface InitialBatchModalProps {

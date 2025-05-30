@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft as ArrowLeftIcon,
@@ -23,7 +24,7 @@ interface Product {
   image: string;
   case_size: number;
   category: string;
-  category_id?: string; // Add category_id for database operations
+  category_id?: string | null; // Allow null values from database
 }
 
 interface OrderProduct {
@@ -114,6 +115,7 @@ export function CreateOrder() {
       if (retailersError) throw retailersError;
       
       // Transform retailers data to match our Retailer interface
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const transformedRetailers = retailersData.map((retailer: any) => ({
         id: retailer.id,
         name: retailer.users?.business_name || 'Unknown Business',
@@ -149,6 +151,7 @@ export function CreateOrder() {
       }
       
       // Transform products data to match our Product interface
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const transformedProducts = productsData.map((product: any) => ({
         id: product.id,
         name: product.name || 'Unnamed Product',
@@ -164,9 +167,10 @@ export function CreateOrder() {
       
       setRetailers(transformedRetailers);
       setProducts(transformedProducts);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
       console.error('Error fetching data:', err);
-      setError(err.message || 'Failed to load data');
+      setError(errorMessage);
     } finally {
       setIsDataLoading(false);
     }
@@ -228,11 +232,6 @@ export function CreateOrder() {
   
   const calculateDiscount = (subtotal: number) => {
     return (subtotal * orderForm.discount) / 100;
-  };
-  
-  const calculateTax = (subtotal: number, discount: number) => {
-    // Return 0 to maintain function signature but not apply tax
-    return 0;
   };
 
   const calculateTotal = () => {
@@ -342,57 +341,17 @@ export function CreateOrder() {
         .select()
         .single();
         
-      if (orderError) {
-        console.error(orderError);
-        throw new Error(`Failed to create order: ${orderError.message}`);
-      }
+      if (orderError) throw orderError;
       
-      // For each product in the order, ensure there's a corresponding entry in the products table
-      // (since order_items.product_id references products.id)
-      for (const item of orderForm.products) {
-        const distributorProduct = products.find(p => p.id === item.product_id);
-        if (!distributorProduct) continue; // Skip if product not found
-        
-        // Check if this product already exists in the products table
-        const { data: existingProduct } = await supabase
-          .from('products')
-          .select('id')
-          .eq('id', item.product_id)
-          .maybeSingle();
-        
-        // If no existing product with this ID, create one
-        if (!existingProduct) {
-          const { error: insertProductError } = await supabase
-            .from('products')
-            .insert({
-              id: distributorProduct.id,
-              name: distributorProduct.name || 'Unnamed Product', // Required field
-              description: distributorProduct.description,
-              price: distributorProduct.price || 0, // Required field
-              image_url: distributorProduct.image,
-              case_quantity: distributorProduct.case_size,
-              distributor_id: distributorId, // Required field
-              created_at: new Date().toISOString(), // Required field
-              category_id: distributorProduct.category_id,
-              sku: '', // Optional
-              upc: '' // Optional
-            });
-            
-          if (insertProductError) {
-            console.error('Error creating product in products table:', insertProductError);
-            throw new Error(`Failed to create product reference: ${insertProductError.message}`);
-          }
-        }
-      }
-      
-      // Now create order items referencing products
-      const orderItems = orderForm.products.map(item => {
-        const product = products.find(p => p.id === item.product_id);
+      // Create order items
+      const orderItems = orderForm.products.map((orderProduct) => {
+        const product = products.find((p) => p.id === orderProduct.product_id);
         return {
           order_id: order.id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          price: product?.price || 0
+          product_id: orderProduct.product_id,
+          quantity: orderProduct.quantity,
+          unit_price: product?.price || 0,
+          total_price: (product?.price || 0) * orderProduct.quantity,
         };
       });
       
@@ -400,22 +359,18 @@ export function CreateOrder() {
         .from('order_items')
         .insert(orderItems);
         
-      if (itemsError) {
-        console.error('Error creating order items:', itemsError);
-        throw new Error(`Failed to create order items: ${itemsError.message}`);
-      }
+      if (itemsError) throw itemsError;
       
-      // Set success message and redirect after a short delay
-      setFormError(null);
       setSuccessMessage('Order created successfully!');
       // Redirect after a brief delay to allow the user to see the success message
       setTimeout(() => {
         router.push('/distributor/orders');
       }, 1500);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create order. Please try again.';
       console.error('Error creating order:', error);
-      setFormError(error.message || 'Failed to create order. Please try again.');
+      setFormError(errorMessage);
       // Scroll to the top to show the error message
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
@@ -665,11 +620,12 @@ export function CreateOrder() {
                     key={orderProduct.product_id}
                     className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg"
                   >
-                    <div className="w-16 h-16 flex-shrink-0">
-                      <img
+                    <div className="w-16 h-16 flex-shrink-0 relative">
+                      <Image
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-cover rounded"
+                        fill
+                        className="object-cover rounded"
                       />
                     </div>
                     <div className="flex-1">
@@ -709,7 +665,7 @@ export function CreateOrder() {
             <div className="flex flex-col items-center justify-center py-16 px-4 text-gray-500">
               <PackageXIcon size={48} className="text-gray-300 mb-4" />
               <p className="text-gray-600 font-medium mb-1">No products in your order</p>
-              <p className="text-gray-500 text-sm mb-4">Click "Add Products" to start adding products to your order</p>
+              <p className="text-gray-500 text-sm mb-4">Click &quot;Add Products&quot; to start adding products to your order</p>
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(true)}

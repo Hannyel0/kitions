@@ -166,9 +166,10 @@ export function OrderDetailsClient({ orderId }: { orderId: string }) {
         };
 
         setOrderDetails(orderWithDetails);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load order details';
         console.error('Error fetching order details:', err);
-        setError(err.message || 'Failed to load order details');
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -293,12 +294,13 @@ export function OrderDetailsClient({ orderId }: { orderId: string }) {
             <div className="divide-y divide-gray-200">
               {orderDetails.items.map((item) => (
                 <div key={item.id} className="p-6 flex items-center">
-                  <div className="h-14 w-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+                  <div className="h-14 w-14 flex-shrink-0 rounded-md overflow-hidden bg-gray-100 relative">
                     {item.product_image && item.product_image !== '/package-open.svg' ? (
-                      <img
+                      <Image
                         src={item.product_image}
                         alt={item.product_name}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                         onError={(e) => {
                           // If image fails to load, show fallback
                           const img = e.currentTarget as HTMLImageElement;

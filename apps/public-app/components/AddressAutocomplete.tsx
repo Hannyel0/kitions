@@ -17,6 +17,16 @@ interface AddressSuggestion {
   text: string;
 }
 
+interface MapboxFeature {
+  id: string;
+  place_name: string;
+  text: string;
+}
+
+interface MapboxResponse {
+  features: MapboxFeature[];
+}
+
 export default function AddressAutocomplete({
   value,
   onChange,
@@ -32,12 +42,12 @@ export default function AddressAutocomplete({
   
   const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 
-  // Debounce function
-  const debounce = useCallback((func: Function, delay: number) => {
+  // Debounce function with proper typing
+  const debounce = useCallback((func: (query: string) => void, delay: number) => {
     let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
+    return (...args: [string]) => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func.apply(null, args), delay);
+      timeoutId = setTimeout(() => func(...args), delay);
     };
   }, []);
 
@@ -56,8 +66,8 @@ export default function AddressAutocomplete({
       );
       
       if (response.ok) {
-        const data = await response.json();
-        const addressSuggestions = data.features.map((feature: any) => ({
+        const data: MapboxResponse = await response.json();
+        const addressSuggestions = data.features.map((feature: MapboxFeature) => ({
           id: feature.id,
           place_name: feature.place_name,
           text: feature.text
@@ -75,10 +85,10 @@ export default function AddressAutocomplete({
   }, [accessToken]);
 
   // Debounced version of fetchSuggestions
-  const debouncedFetchSuggestions = useCallback(
-    debounce(fetchSuggestions, 300),
-    [fetchSuggestions]
-  );
+  const debouncedFetchSuggestions = useCallback((query: string) => {
+    const debouncedFunc = debounce(fetchSuggestions, 300);
+    debouncedFunc(query);
+  }, [debounce, fetchSuggestions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

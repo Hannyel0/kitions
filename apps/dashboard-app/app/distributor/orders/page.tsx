@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardLayout } from '@/app/components/layout';
@@ -33,7 +33,6 @@ interface Order {
 export default function Orders() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -42,7 +41,6 @@ export default function Orders() {
   useEffect(() => {
     async function fetchOrders() {
       try {
-        setIsLoading(true);
         setError(null);
         
         const supabase = createBrowserClient(
@@ -97,6 +95,7 @@ export default function Orders() {
         if (ordersError) throw ordersError;
         
         // Transform the data to match our Order interface
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transformedOrders = ordersData.map((order: any) => ({
           id: order.id,
           order_number: order.order_number,
@@ -113,8 +112,6 @@ export default function Orders() {
       } catch (error) {
         console.error('Error fetching orders:', error);
         setError('Failed to load orders. Please try again.');
-      } finally {
-        setIsLoading(false);
       }
     }
     
@@ -257,7 +254,7 @@ export default function Orders() {
                     <PackageIcon className="h-12 w-12 text-gray-400" />
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-                  <p className="text-gray-500 mb-6">You haven't created any orders yet.</p>
+                  <p className="text-gray-500 mb-6">You haven&apos;t created any orders yet.</p>
                   <Link
                     href="/distributor/orders/create"
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

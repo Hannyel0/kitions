@@ -306,12 +306,13 @@ The Kitions Team`;
         businessName: ''
       });
       
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send invitation.';
       console.error('Invite error:', err);
       setNotification({
         show: true,
         success: false,
-        message: err.message || 'Failed to send invitation.',
+        message: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -780,7 +781,7 @@ The Kitions Team`;
                   <FontAwesomeIcon icon={faShieldAlt} className="text-blue-500 mr-3 mt-0.5" />
                   <div>
                     <p className="font-medium">Invitation Process</p>
-                    <p className="mt-1">The user will receive an email invitation with a link to complete their account setup. They'll need to set their password and verify their email address.</p>
+                    <p className="mt-1">The user will receive an email invitation with a link to complete their account setup. They&apos;ll need to set their password and verify their email address.</p>
                   </div>
                 </div>
               </div>

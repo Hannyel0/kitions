@@ -65,7 +65,8 @@ export function ProductSelectionModal({
       const currentQuantity = prev[productId] || 0;
       const newQuantity = Math.max(0, currentQuantity + change);
       if (newQuantity === 0) {
-        const { [productId]: removed, ...rest } = prev;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [productId]: _, ...rest } = prev;
         return rest;
       }
       return {
@@ -156,12 +157,13 @@ export function ProductSelectionModal({
                   key={product.id}
                   className={`flex border border-gray-200 rounded-lg overflow-hidden ${selectedProducts[product.id] ? 'bg-gray-50 ring-1 ring-blue-100' : 'bg-white'}`}
                 >
-                <div className="w-32 h-32 flex-shrink-0">
+                <div className="w-32 h-32 flex-shrink-0 relative">
                   {product.image && product.image !== '/package-open.svg' ? (
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       onError={(e) => {
                         // If image fails to load, replace with fallback
                         e.currentTarget.style.display = 'none';

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Search, Bell, ChevronDown, User, Settings2, Palette, LogOut, AlertTriangle, CheckCircle, Info } from 'lucide-react'
+import { Search, Bell, ChevronDown, User, Settings2, LogOut, AlertTriangle, CheckCircle, Info } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/app/providers/auth-provider'
 import useUserProfile from '@/app/hooks/useUserProfile'

@@ -39,7 +39,7 @@ export default function EmailVerification() {
         </h1>
         
         <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-          We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.
+          We&apos;ve sent a verification link to your email address. Please check your inbox and click the link to verify your account.
         </p>
 
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-8">
@@ -85,7 +85,7 @@ export default function EmailVerification() {
 
         <div className="text-sm text-gray-500 space-y-2">
           <p>
-            Didn't receive the email? Check your spam folder or{' '}
+            Didn&apos;t receive the email? Check your spam folder or{' '}
             <button 
               onClick={handleResendEmail}
               className="text-[#8982cf] hover:underline font-medium"
