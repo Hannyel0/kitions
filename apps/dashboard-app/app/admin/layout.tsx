@@ -14,9 +14,11 @@ import {
   Menu,
   X,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  ExternalLink
 } from 'lucide-react';
 import { useAuth } from '@/app/providers/auth-provider';
+import { URLs } from '@/app/config/urls';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -34,15 +36,28 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const pathname = usePathname();
   const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
+    if (signingOut) {
+      return;
+    }
+    
+    setSigningOut(true);
+    setUserMenuOpen(false);
+    
     try {
       await signOut();
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('❌ ADMIN LAYOUT - Sign out error:', error);
+      // Don't reset signingOut here since we should be redirecting anyway
     }
+  };
+
+  const handleUserMenuClick = () => {
+    setUserMenuOpen(!userMenuOpen);
   };
 
   return (
@@ -121,10 +136,19 @@ export default function AdminLayout({
                 <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
               </button>
 
+              {/* Go to Dashboard button */}
+              <Link
+                href={URLs.dashboard.authCallback}
+                className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span className="hidden sm:inline">Go to Dashboard</span>
+              </Link>
+
               {/* User menu */}
               <div className="relative">
                 <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  onClick={handleUserMenuClick}
                   className="flex items-center space-x-3 p-2 text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -144,10 +168,20 @@ export default function AdminLayout({
                     </div>
                     <button
                       onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                      disabled={signingOut}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign out
+                      {signingOut ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                          Signing out...
+                        </>
+                      ) : (
+                        <>
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Sign out
+                        </>
+                      )}
                     </button>
                   </div>
                 )}

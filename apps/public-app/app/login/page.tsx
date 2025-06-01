@@ -106,7 +106,7 @@ export default function Login() {
                 <input
                   id="email"
                   type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -119,7 +119,7 @@ export default function Login() {
                 <input
                   id="password"
                   type="password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

@@ -368,33 +368,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    console.log('🚪 DASHBOARD SIGNOUT - Logging out user');
-    // Cache the client instance to ensure we use the same one throughout
-    const authClient = supabase;
-    
-    await authClient.auth.signOut();
-    
-    // Instead of direct redirection which causes CORS issues,
-    // create a simple form and submit it to navigate to the public app
-    const publicLoginUrl = URLs.getPublicUrl(URLs.public.login);
-    console.log('Redirecting to:', publicLoginUrl);
-    
-    // Create a form element for POST navigation (avoids CORS with GET)
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = publicLoginUrl;
-    form.style.display = 'none';
-    
-    // Add a CSRF token if needed
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = 'csrf_token';
-    csrfToken.value = 'dashboard_signout_' + Date.now();
-    form.appendChild(csrfToken);
-    
-    // Add the form to the body and submit it
-    document.body.appendChild(form);
-    form.submit();
+    try {
+      setLoading(true);
+      
+      // Clear local state immediately
+      setSession(null);
+      setUser(null);
+      
+      // Try to sign out from Supabase (but don't let it block the process)
+      const authClient = supabase;
+      
+      // Set a timeout for the Supabase signOut operation
+      const signOutPromise = authClient.auth.signOut();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('SignOut timeout')), 3000)
+      );
+      
+      try {
+        await Promise.race([signOutPromise, timeoutPromise]);
+      } catch (supabaseError) {
+        console.warn('⚠️ Supabase signOut failed or timed out:', supabaseError);
+        // Continue anyway since we cleared local state
+      }
+      
+      // Redirect to public app login
+      const publicLoginUrl = URLs.getPublicUrl(URLs.public.login);
+      
+      // Force redirect
+      window.location.replace(publicLoginUrl);
+      
+    } catch (error) {
+      console.error('❌ Error during sign out:', error);
+      
+      // Fallback: clear state and redirect anyway
+      setSession(null);
+      setUser(null);
+      
+      // Force redirect even on error
+      const publicLoginUrl = URLs.getPublicUrl(URLs.public.login);
+      window.location.replace(publicLoginUrl);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
