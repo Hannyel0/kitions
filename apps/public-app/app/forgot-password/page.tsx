@@ -3,16 +3,41 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useAuth } from '@/app/providers/auth-provider';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const { forgotPassword, loading } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle password reset logic here
-    console.log({ email });
-    setSubmitted(true);
+    setError('');
+
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    try {
+      const { error: resetError } = await forgotPassword(email);
+      
+      if (resetError) {
+        setError(resetError.message);
+        return;
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      setError('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const handleTryAgain = () => {
+    setSubmitted(false);
+    setError('');
   };
 
   return (
@@ -37,24 +62,39 @@ export default function ForgotPassword() {
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
+
               <div>
                 <label htmlFor="email" className="block text-sm text-gray-600 mb-1">Email</label>
                 <input
                   id="email"
                   type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8982cf] focus:border-transparent"
                   placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
                   required
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors"
+                disabled={loading || !email.trim()}
+                className="w-full bg-[#8982cf] text-white py-3 rounded-md hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                Send Reset Link
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Sending...
+                  </>
+                ) : (
+                  'Send Reset Link'
+                )}
               </button>
             </form>
           </>
@@ -72,7 +112,7 @@ export default function ForgotPassword() {
             <p className="text-sm text-gray-500">
               Didn&apos;t receive the email? Check your spam folder or{' '}
               <button 
-                onClick={() => setSubmitted(false)}
+                onClick={handleTryAgain}
                 className="text-[#8982cf] hover:text-[#7873b3]"
               >
                 try again

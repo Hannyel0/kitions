@@ -24,6 +24,8 @@ type AuthContextType = {
   loading: boolean;
   completeUserProfile: () => Promise<{ error: Error | null }>;
   handleEmailVerification: (code: string) => Promise<{ error: Error | null; user: User | null }>;
+  forgotPassword: (email: string) => Promise<{ error: Error | null }>;
+  resetPassword: (password: string) => Promise<{ error: Error | null }>;
 };
 
 type UserData = {
@@ -383,6 +385,96 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.refresh();
   };
 
+  const forgotPassword = async (email: string): Promise<{ error: Error | null }> => {
+    console.log('🔐 FORGOT PASSWORD START - Sending reset email to:', email);
+    setLoading(true);
+    
+    try {
+      const authClient = supabase;
+      const { error } = await authClient.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        console.error('❌ FORGOT PASSWORD ERROR:', error.message);
+        setLoading(false);
+        return { error };
+      }
+
+      console.log('✅ Password reset email sent successfully');
+      setLoading(false);
+      return { error: null };
+    } catch (err) {
+      console.error('❌ Unexpected error during forgot password:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send reset email';
+      setLoading(false);
+      return { error: new Error(errorMessage) };
+    }
+  };
+
+  const resetPassword = async (password: string): Promise<{ error: Error | null }> => {
+    console.log('🔐 AUTH PROVIDER - RESET PASSWORD START');
+    console.log('🔍 Password length:', password.length);
+    setLoading(true);
+    
+    try {
+      const authClient = supabase;
+      console.log('🔧 Using Supabase client for password update');
+      
+      // Check current session before attempting update
+      const { data: { session }, error: sessionError } = await authClient.auth.getSession();
+      console.log('🔍 Current session check:', {
+        hasSession: !!session,
+        userId: session?.user?.id,
+        sessionError: sessionError?.message
+      });
+
+      if (!session) {
+        console.error('❌ No active session found for password reset');
+        setLoading(false);
+        return { error: new Error('No active session. Please use a fresh password reset link.') };
+      }
+
+      console.log('✅ Active session found, proceeding with password update...');
+      
+      const { error } = await authClient.auth.updateUser({
+        password: password
+      });
+
+      if (error) {
+        console.error('❌ RESET PASSWORD ERROR from Supabase:', {
+          message: error.message,
+          status: error.status,
+          details: error
+        });
+        setLoading(false);
+        return { error };
+      }
+
+      console.log('✅ Password reset successfully in Supabase');
+      
+      // Verify the update by getting the user again
+      const { data: { user }, error: userError } = await authClient.auth.getUser();
+      console.log('🔍 Post-update user check:', {
+        hasUser: !!user,
+        userId: user?.id,
+        userError: userError?.message
+      });
+
+      setLoading(false);
+      return { error: null };
+    } catch (err) {
+      console.error('❌ Unexpected error during password reset in auth provider:', {
+        error: err,
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined
+      });
+      const errorMessage = err instanceof Error ? err.message : 'Failed to reset password';
+      setLoading(false);
+      return { error: new Error(errorMessage) };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -392,6 +484,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     completeUserProfile,
     handleEmailVerification,
+    forgotPassword,
+    resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
