@@ -137,6 +137,7 @@ export async function middleware(req: NextRequest) {
   const isAuthCallback = req.nextUrl.pathname === '/auth/callback';
   const isErrorAuth = req.nextUrl.pathname === '/error-auth';
   const isPendingVerification = req.nextUrl.pathname === '/pending-verification';
+  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin');
   // Add any static assets or API routes that should be public
   const isStaticAsset = req.nextUrl.pathname.startsWith('/_next/') || 
                        req.nextUrl.pathname.includes('favicon.ico');
@@ -147,6 +148,7 @@ export async function middleware(req: NextRequest) {
     isAuthCallback,
     isErrorAuth,
     isPendingVerification,
+    isAdminRoute,
     isStaticAsset,
     isPublicRoute
   });
@@ -284,13 +286,49 @@ export async function middleware(req: NextRequest) {
               logMiddleware(`👤 User role: ${userData?.role}`);
             }
             
-            const redirectPath = userData?.role === 'distributor' ? '/distributor/home' : '/retailer/home';
+            const redirectPath = userData?.role === 'distributor' ? '/distributor/home' : 
+                                userData?.role === 'admin' ? '/admin/dashboard' : 
+                                '/retailer/home';
             logMiddleware(`🏠 Redirecting verified user to dashboard: ${redirectPath}`);
             return NextResponse.redirect(new URL(redirectPath, req.url));
           } catch (roleError) {
             logMiddleware(`💥 Unexpected role fetch error:`, roleError);
             // Continue with default redirect
             return NextResponse.redirect(new URL('/retailer/home', req.url));
+          }
+        }
+
+        // Check admin access for admin routes
+        if (isAdminRoute && isVerified) {
+          logMiddleware(`🔐 Admin route access check for: ${req.nextUrl.pathname}`);
+          
+          try {
+            const adminStart = Date.now();
+            const { data: userData, error: roleError } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            
+            const adminDuration = Date.now() - adminStart;
+            logMiddleware(`⏱️ Admin role query took: ${adminDuration}ms`);
+            
+            if (roleError) {
+              logMiddleware(`⚠️ Admin role fetch error:`, roleError);
+              return NextResponse.redirect(new URL('/error-auth', req.url));
+            } else {
+              logMiddleware(`👤 User role for admin check: ${userData?.role}`);
+            }
+            
+            if (userData?.role !== 'admin') {
+              logMiddleware(`🚫 Access denied - user role '${userData?.role}' is not admin`);
+              return NextResponse.redirect(new URL('/error-auth', req.url));
+            }
+            
+            logMiddleware(`✅ Admin access granted for user role: ${userData?.role}`);
+          } catch (adminError) {
+            logMiddleware(`💥 Unexpected admin check error:`, adminError);
+            return NextResponse.redirect(new URL('/error-auth', req.url));
           }
         }
       }

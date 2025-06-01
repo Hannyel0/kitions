@@ -1,6 +1,18 @@
 # Kitions Platform - Technical Documentation
 
 ## Table of Contents
+Here’s the setup:
+- There’s a Supabase table called `user_verification_statuses` with columns: `user_id (uuid)`, `status (enum: 'pending', 'approved', 'rejected')`.
+- When a user logs in and tries to access the dashboard app, I want to check their verification status.
+- If their status is not 'approved', redirect them to `/pending-verification`.
+- If approved, allow normal access (continue to protected pages).
+- If there’s no session, redirect them to `/login`.
+Here’s the setup:
+- There’s a Supabase table called `user_verification_statuses` with columns: `user_id (uuid)`, `status (enum: 'pending', 'approved', 'rejected')`.
+- When a user logs in and tries to access the dashboard app, I want to check their verification status.
+- If their status is not 'approved', redirect them to `/pending-verification`.
+- If approved, allow normal access (continue to protected pages).
+- If there’s no session, redirect them to `/login`.
 
 1. [Project Overview](#project-overview)
 2. [Architecture Overview](#architecture-overview)
