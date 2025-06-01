@@ -106,7 +106,7 @@ export default function PendingVerificationPage() {
     let isInitialized = false;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event) => { // Removed _session parameter since we don't use it
         if (event === 'INITIAL_SESSION') {
           if (!isInitialized) {
             isInitialized = true;
@@ -132,7 +132,8 @@ export default function PendingVerificationPage() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]); // 🔥 REMOVED fetchVerificationStatus completely
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supabase.auth]); // fetchVerificationStatus intentionally excluded to prevent infinite loops
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -150,7 +151,8 @@ export default function PendingVerificationPage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [user]); // 🔥 REMOVED fetchVerificationStatus completely
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]); // fetchVerificationStatus intentionally excluded to prevent infinite loops
 
   const handleSignOut = async () => {
     try {
