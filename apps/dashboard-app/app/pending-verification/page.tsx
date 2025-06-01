@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createSupabaseBrowserClient } from '@/app/utils/supabase';
 import { User } from '@supabase/supabase-js';
 import { Clock, AlertCircle, Mail, LogOut, RefreshCw } from 'lucide-react';
@@ -15,17 +15,43 @@ export default function PendingVerificationPage() {
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const supabase = createSupabaseBrowserClient();
+  
+  // Use refs to avoid circular dependencies
+  const isFetchingRef = useRef(false);
+  const retryCountRef = useRef(0);
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    isFetchingRef.current = isFetching;
+  }, [isFetching]);
+  
+  useEffect(() => {
+    retryCountRef.current = retryCount;
+  }, [retryCount]);
 
-  const fetchVerificationStatus = useCallback(async () => {
+  const fetchVerificationStatus = useCallback(async (isManualRetry = false) => {
+    if (isFetchingRef.current) {
+      return;
+    }
+
+    if (!isManualRetry && retryCountRef.current >= 3) {
+      setError('Too many failed attempts. Please refresh the page or contact support.');
+      setLoading(false);
+      return;
+    }
+
     try {
+      setIsFetching(true);
       setLoading(true);
       setError(null);
 
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => {
           reject(new Error('Session timeout after 10 seconds'));
-        }, 10000);
+        }, 3000);
       });
 
       const sessionResult = await Promise.race([
@@ -49,16 +75,16 @@ export default function PendingVerificationPage() {
           .single();
         
         if (statusError) {
-          // If no record found (PGRST116), that's okay - user just hasn't been reviewed yet
           if (statusError.code === 'PGRST116') {
             setVerificationStatus(null);
           } else {
-            // For other errors, show the error but don't crash
             throw new Error(`Database error: ${statusError.message} (Code: ${statusError.code})`);
           }
         } else {
           setVerificationStatus(statusData);
         }
+        
+        setRetryCount(0);
       } else {
         setUser(null);
         setVerificationStatus(null);
@@ -66,24 +92,39 @@ export default function PendingVerificationPage() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
+      
+      if (!isManualRetry) {
+        setRetryCount(prev => prev + 1);
+      }
     } finally {
       setLoading(false);
+      setIsFetching(false);
     }
-  }, [supabase]);
+  }, [supabase]); // Only supabase dependency
 
   useEffect(() => {
+    let isInitialized = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'INITIAL_SESSION') {
-          await fetchVerificationStatus();
+          if (!isInitialized) {
+            isInitialized = true;
+            await fetchVerificationStatus();
+          }
         } else if (event === 'SIGNED_IN') {
           await fetchVerificationStatus();
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
           setVerificationStatus(null);
           setLoading(false);
+          setIsFetching(false);
+          setRetryCount(0);
+          isInitialized = false;
         } else if (event === 'TOKEN_REFRESHED') {
-          await fetchVerificationStatus();
+          if (!isFetchingRef.current && isInitialized) {
+            await fetchVerificationStatus();
+          }
         }
       }
     );
@@ -91,13 +132,30 @@ export default function PendingVerificationPage() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth, fetchVerificationStatus]);
+  }, [supabase.auth]); // 🔥 REMOVED fetchVerificationStatus completely
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user && !isFetchingRef.current && retryCountRef.current < 3) {
+        setTimeout(() => {
+          if (!document.hidden && !isFetchingRef.current) {
+            fetchVerificationStatus();
+          }
+        }, 500);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [user]); // 🔥 REMOVED fetchVerificationStatus completely
 
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
       
-      // Redirect to public app login
       const loginUrl = process.env.NODE_ENV === 'development'
         ? 'http://localhost:3000/login'
         : 'https://www.kitions.com/login';
@@ -109,7 +167,8 @@ export default function PendingVerificationPage() {
   };
 
   const handleRefreshStatus = async () => {
-    await fetchVerificationStatus();
+    setRetryCount(0);
+    await fetchVerificationStatus(true);
   };
 
   const getStatusConfig = () => {
@@ -138,7 +197,6 @@ export default function PendingVerificationPage() {
         titleColor: 'text-red-800'
       };
     } else {
-      // Default for no status or unknown status
       return {
         icon: Clock,
         title: 'Account Verification Required',
