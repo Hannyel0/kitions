@@ -4,13 +4,38 @@ import { sharedCookieOptions } from './app/utils/cookies'
 
 // import type { Database } from '@/lib/database.types' // Import your database types if you have them
 
+// Helper function for consistent logging
+function logMiddleware(message: string, data?: any) {
+  const timestamp = new Date().toISOString();
+  const prefix = `[${timestamp}] MIDDLEWARE:`;
+  
+  if (data) {
+    console.log(`${prefix} ${message}`, data);
+  } else {
+    console.log(`${prefix} ${message}`);
+  }
+}
+
 export async function middleware(req: NextRequest) {
+  const startTime = Date.now();
+  logMiddleware(`🚀 Processing request: ${req.method} ${req.nextUrl.pathname}`);
+  logMiddleware(`🌐 User-Agent: ${req.headers.get('user-agent')?.substring(0, 50)}...`);
+  logMiddleware(`🍪 Cookies present: ${req.cookies.getAll().length} cookies`);
+  
+  // Log cookies (safely)
+  const cookieNames = req.cookies.getAll().map(c => c.name);
+  logMiddleware(`🍪 Cookie names: ${cookieNames.join(', ')}`);
+  const hasSupabaseCookies = cookieNames.some(name => name.startsWith('sb-'));
+  logMiddleware(`🔐 Has Supabase cookies: ${hasSupabaseCookies}`);
+
   let res = NextResponse.next({
     request: {
       headers: new Headers(req.headers),
     },
   })
 
+  logMiddleware('🔧 Creating Supabase client...');
+  
   // Create a Supabase client configured for middleware
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,9 +43,23 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          return req.cookies.get(name)?.value
+          const value = req.cookies.get(name)?.value;
+          if (name.startsWith('sb-')) {
+            logMiddleware(`🍪 Getting cookie: ${name} = ${value ? '[EXISTS]' : '[MISSING]'}`);
+          }
+          return value;
         },
         set(name: string, value: string, options: CookieOptions) {
+          if (name.startsWith('sb-')) {
+            logMiddleware(`🍪 Setting cookie: ${name} = [VALUE] with options:`, {
+              domain: options.domain,
+              path: options.path,
+              sameSite: options.sameSite,
+              secure: options.secure,
+              httpOnly: options.httpOnly
+            });
+          }
+          
           if (process.env.NODE_ENV === 'development') {
             options = {
               ...options,
@@ -50,6 +89,10 @@ export async function middleware(req: NextRequest) {
           res.cookies.set({ name, value, ...options })
         },
         remove(name: string, options: CookieOptions) {
+          if (name.startsWith('sb-')) {
+            logMiddleware(`🍪 Removing cookie: ${name}`);
+          }
+          
           if (process.env.NODE_ENV === 'development') {
             options = {
               ...options,
@@ -82,24 +125,69 @@ export async function middleware(req: NextRequest) {
     }
   )
 
+  logMiddleware('✅ Supabase client created');
+
   // Check if the current request has auth tokens in the URL (for callback handling)
   const hasAuthTokensInUrl = req.nextUrl.searchParams.has('access_token') && 
                             req.nextUrl.searchParams.has('refresh_token');
+  
+  logMiddleware(`🔑 Has auth tokens in URL: ${hasAuthTokensInUrl}`);
 
-  // Define paths that should be accessible without authentication
+  // Define paths that should be accessible without authentication or verification
   const isAuthCallback = req.nextUrl.pathname === '/auth/callback';
   const isErrorAuth = req.nextUrl.pathname === '/error-auth';
+  const isPendingVerification = req.nextUrl.pathname === '/pending-verification';
   // Add any static assets or API routes that should be public
   const isStaticAsset = req.nextUrl.pathname.startsWith('/_next/') || 
                        req.nextUrl.pathname.includes('favicon.ico');
-  const isPublicRoute = isAuthCallback || isErrorAuth || isStaticAsset;
+  const isPublicRoute = isAuthCallback || isErrorAuth || isStaticAsset || isPendingVerification;
+  
+  logMiddleware(`🛣️ Route analysis:`, {
+    path: req.nextUrl.pathname,
+    isAuthCallback,
+    isErrorAuth,
+    isPendingVerification,
+    isStaticAsset,
+    isPublicRoute
+  });
   
   // Only attempt to get the session if we're not on the callback page with tokens
   // This prevents trying to validate a session before it's properly set up
   let session = null;
   if (!hasAuthTokensInUrl) {
-    const { data } = await supabase.auth.getSession();
-    session = data.session;
+    logMiddleware('👤 Fetching session...');
+    const sessionStart = Date.now();
+    
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      const sessionDuration = Date.now() - sessionStart;
+      
+      logMiddleware(`⏱️ Session fetch took: ${sessionDuration}ms`);
+      
+      if (error) {
+        logMiddleware(`❌ Session error:`, {
+          message: error.message,
+          status: error.status
+        });
+      } else {
+        session = data.session;
+        if (session) {
+          logMiddleware(`✅ Session found:`, {
+            userId: session.user.id,
+            email: session.user.email,
+            expiresAt: new Date(session.expires_at! * 1000).toISOString(),
+            hasAccessToken: !!session.access_token,
+            hasRefreshToken: !!session.refresh_token
+          });
+        } else {
+          logMiddleware('❌ No session found');
+        }
+      }
+    } catch (sessionError) {
+      logMiddleware(`💥 Unexpected session error:`, sessionError);
+    }
+  } else {
+    logMiddleware('⏭️ Skipping session fetch due to auth tokens in URL');
   }
 
   // Redirect to public app login
@@ -107,17 +195,136 @@ export async function middleware(req: NextRequest) {
     ? 'http://localhost:3000/login'
     : 'https://www.kitions.com/login'; 
 
+  logMiddleware(`🔗 Login URL configured: ${loginUrl}`);
+
   // If no session and the path is not a public route and there are no tokens in URL
   if (!session && !isPublicRoute && !hasAuthTokensInUrl) {
-    console.log('Middleware: No session, redirecting to public login:', loginUrl);
+    logMiddleware(`🚫 Access denied - redirecting to login:`, {
+      reason: 'No session',
+      path: req.nextUrl.pathname,
+      isPublicRoute,
+      hasAuthTokensInUrl
+    });
     return NextResponse.redirect(loginUrl);
   }
 
+  // If user is authenticated, check their verification status (except for public routes)
+  if (session && !isPublicRoute) {
+    logMiddleware('🔍 Checking verification status for authenticated user...');
+    
+    try {
+      const verificationStart = Date.now();
+      logMiddleware(`📊 Querying user_verification_statuses for user_id: ${session.user.id}`);
+      
+      const { data: verificationStatus, error } = await supabase
+        .from('user_verification_statuses')
+        .select('status')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      const verificationDuration = Date.now() - verificationStart;
+      logMiddleware(`⏱️ Verification query took: ${verificationDuration}ms`);
+
+      if (error) {
+        logMiddleware(`⚠️ Verification status error:`, {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // If there's an error fetching verification status, redirect to pending verification
+        // This handles cases where the user doesn't have a verification record yet
+        if (!isPendingVerification) {
+          logMiddleware(`🔀 Redirecting to pending verification due to error`);
+          return NextResponse.redirect(new URL('/pending-verification', req.url));
+        }
+      } else {
+        logMiddleware(`✅ Verification status retrieved:`, {
+          status: verificationStatus?.status,
+          userId: session.user.id
+        });
+        
+        // Check if user is verified/approved (supporting both 'verified' and 'approved' statuses)
+        const isVerified = verificationStatus?.status === 'verified' || verificationStatus?.status === 'approved';
+        
+        logMiddleware(`🔐 User verification check:`, {
+          status: verificationStatus?.status,
+          isVerified,
+          supportsVerified: verificationStatus?.status === 'verified',
+          supportsApproved: verificationStatus?.status === 'approved'
+        });
+        
+        if (!isVerified && !isPendingVerification) {
+          logMiddleware(`🚫 User not verified - redirecting to pending verification:`, {
+            currentStatus: verificationStatus?.status,
+            currentPath: req.nextUrl.pathname
+          });
+          return NextResponse.redirect(new URL('/pending-verification', req.url));
+        }
+
+        // If user is on pending verification page but is actually verified, redirect to appropriate dashboard
+        if (isVerified && isPendingVerification) {
+          logMiddleware(`🔀 User is verified but on pending page - fetching user role...`);
+          
+          try {
+            const roleStart = Date.now();
+            const { data: userData, error: roleError } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            
+            const roleDuration = Date.now() - roleStart;
+            logMiddleware(`⏱️ Role query took: ${roleDuration}ms`);
+            
+            if (roleError) {
+              logMiddleware(`⚠️ Role fetch error:`, roleError);
+            } else {
+              logMiddleware(`👤 User role: ${userData?.role}`);
+            }
+            
+            const redirectPath = userData?.role === 'distributor' ? '/distributor/home' : '/retailer/home';
+            logMiddleware(`🏠 Redirecting verified user to dashboard: ${redirectPath}`);
+            return NextResponse.redirect(new URL(redirectPath, req.url));
+          } catch (roleError) {
+            logMiddleware(`💥 Unexpected role fetch error:`, roleError);
+            // Continue with default redirect
+            return NextResponse.redirect(new URL('/retailer/home', req.url));
+          }
+        }
+      }
+    } catch (verificationError) {
+      logMiddleware(`💥 Unexpected verification error:`, verificationError);
+      // On unexpected errors, redirect to pending verification for safety
+      if (!isPendingVerification) {
+        logMiddleware(`🛡️ Safety redirect to pending verification due to unexpected error`);
+        return NextResponse.redirect(new URL('/pending-verification', req.url));
+      }
+    }
+  }
+
+  // Calculate total processing time
+  const totalDuration = Date.now() - startTime;
+  
   // Allow the request to proceed if:
-  // 1. User is authenticated (has session)
-  // 2. Path is a public route (auth callback or error page)
+  // 1. User is authenticated and verified
+  // 2. Path is a public route (auth callback, error page, pending verification)
   // 3. URL contains auth tokens (we're in the process of setting up the session)
-  console.log(`Middleware: Allowing request for: ${req.nextUrl.pathname} (${session ? 'Authenticated' : isPublicRoute ? 'Public Route' : 'Has Auth Tokens'})`);
+  const allowReason = session && !isPublicRoute ? 'Authenticated & Verified' : 
+                     isPublicRoute ? 'Public Route' : 
+                     hasAuthTokensInUrl ? 'Has Auth Tokens' : 
+                     'Unknown';
+  
+  logMiddleware(`✅ Request allowed - proceeding:`, {
+    path: req.nextUrl.pathname,
+    reason: allowReason,
+    totalProcessingTime: `${totalDuration}ms`,
+    hasSession: !!session,
+    isPublicRoute,
+    hasAuthTokensInUrl
+  });
+  
   return res;
 }
 
