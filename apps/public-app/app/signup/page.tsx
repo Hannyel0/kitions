@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Signup() {
   const [firstName, setFirstName] = useState('');
@@ -86,12 +87,14 @@ export default function Signup() {
           {/* Right side with signup form */}
           <div className="w-full md:w-1/2 py-10 px-8 md:px-12">
             <div className="flex justify-center mb-6">
-              <Image 
-                src="/default-monochrome-black.svg" 
-                alt="Kitions" 
-                width={160} 
-                height={54}
-              />
+              <Link href="/" className="flex-shrink-0">
+                <Image 
+                  src="/default-monochrome-black.svg" 
+                  alt="Kitions" 
+                  width={160} 
+                  height={54}
+                />
+              </Link>
             </div>
 
             <h1 className="text-2xl font-bold text-center mb-2 text-gray-900">Create your account</h1>
@@ -109,11 +112,20 @@ export default function Signup() {
               <p className="text-xs mt-1 ml-7">Our platform is in private beta. Please contact us for early access.</p>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
-                {error}
-              </div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div 
+                  key="error"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4"
+                >
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-4">
@@ -209,9 +221,20 @@ export default function Signup() {
                     />
                   </div>
                 </div>
-                {passwordError && (
-                  <p className="text-sm text-red-500">{passwordError}</p>
-                )}
+                <AnimatePresence>
+                  {passwordError && (
+                    <motion.p 
+                      key="password-error"
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className="text-sm text-red-500"
+                    >
+                      {passwordError}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
 
                 <div className="flex items-start mt-4">
                   <input
@@ -243,6 +266,15 @@ export default function Signup() {
                     Log In
                   </Link>
                 </p>
+              </div>
+
+              <div className="flex justify-center mt-4">
+                <Link href="/" className="inline-flex items-center text-gray-600 hover:text-[#8982cf] transition-colors text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to Home
+                </Link>
               </div>
             </form>
           </div>

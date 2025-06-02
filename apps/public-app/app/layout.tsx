@@ -3,11 +3,10 @@ import "./globals.css";
 import { Roboto } from "next/font/google";
 import { AuthProvider } from "./providers/auth-provider";
 import Script from "next/script";
-import Navbar from '@/app/components/Navbar';
-import Footer from '@/app/components/Footer';
 import { validateEnv } from './lib/env-validator';
 import { defaultMetadata } from './lib/metadata';
 import { Metadata } from "next";
+import ConditionalLayout from './components/ConditionalLayout';
 
 const roboto = Roboto({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -57,11 +56,7 @@ export default function RootLayout({
       </head>
       <body className={roboto.className}>
         <AuthProvider>
-          <div className="min-h-screen flex flex-col bg-white">
-            <Navbar />
-            <main className="flex-grow pt-16">{children}</main>
-            <Footer />
-          </div>
+          <ConditionalLayout>{children}</ConditionalLayout>
         </AuthProvider>
       </body>
     </html>

@@ -12,7 +12,7 @@ export default function ConditionalLayout({
   const pathname = usePathname();
   
   // Define auth pages that should not have navbar/footer
-  const authPages = ['/login', '/signup', '/forgot-password', '/reset-password', '/verification'];
+  const authPages = ['/login', '/signup', '/reset-password', '/verification'];
   
   // Check if current page is an auth page
   const isAuthPage = authPages.some(page => pathname.startsWith(page));
