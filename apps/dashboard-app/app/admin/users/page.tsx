@@ -39,6 +39,7 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const supabase = createSupabaseBrowserClient();
 
@@ -125,6 +126,21 @@ export default function UserManagement() {
   const updateVerificationStatus = async (userId: string, status: 'verified' | 'rejected') => {
     try {
       setUpdatingUser(userId);
+      setError(null);
+      setSuccessMessage(null);
+
+      // Get user details for email notification
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('email, first_name, last_name, business_name')
+        .eq('id', userId)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        setError('Failed to fetch user data');
+        return;
+      }
 
       // Check if verification record exists
       const { data: existingVerification } = await supabase
@@ -157,6 +173,29 @@ export default function UserManagement() {
         if (error) throw error;
       }
 
+      // Send verification email if status is verified
+      if (status === 'verified' && userData) {
+        try {
+          await sendVerificationEmail({
+            user_id: userId,
+            status: status,
+            user_email: userData.email,
+            user_name: `${userData.first_name} ${userData.last_name}`,
+            business_name: userData.business_name || 'Your Business'
+          });
+          console.log('✅ Verification email sent successfully');
+          setSuccessMessage(`User verified successfully! Verification email sent to ${userData.email}`);
+        } catch (emailError) {
+          console.error('❌ Failed to send verification email:', emailError);
+          // Don't throw here - we don't want to roll back the verification just because email failed
+          setError('User verified successfully, but there was an issue sending the notification email.');
+        }
+      } else if (status === 'verified') {
+        setSuccessMessage('User verified successfully!');
+      } else {
+        setSuccessMessage(`User status updated to ${status}`);
+      }
+
       // Update local state
       setUsers(prevUsers =>
         prevUsers.map(user =>
@@ -166,12 +205,45 @@ export default function UserManagement() {
         )
       );
 
+      // Clear messages after 5 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+        setError(null);
+      }, 5000);
+
     } catch (err) {
       console.error('Status update error:', err);
-      alert('Failed to update verification status');
+      setError('Failed to update verification status');
     } finally {
       setUpdatingUser(null);
     }
+  };
+
+  // Email notification function
+  const sendVerificationEmail = async (emailData: {
+    user_id: string;
+    status: string;
+    user_email: string;
+    user_name: string;
+    business_name: string;
+  }) => {
+    // For now, we'll use a simple approach with Supabase Edge Functions
+    // You can replace this with your preferred email service (Resend, SendGrid, etc.)
+    
+    const response = await fetch('/api/send-verification-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to send email: ${errorText}`);
+    }
+
+    return response.json();
   };
 
   const getStatusIcon = (status: string) => {
@@ -241,6 +313,25 @@ export default function UserManagement() {
           </span>
         </div>
       </div>
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+            <span className="text-green-700">{successMessage}</span>
+          </div>
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+            <span className="text-red-700">{error}</span>
+          </div>
+        </div>
+      )}
 
       {/* Filters and Search */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
