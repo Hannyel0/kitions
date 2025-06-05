@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { Building, Phone, Tag, ChevronDown, Check } from 'lucide-react';
@@ -23,6 +23,19 @@ function CompleteProfileContent() {
 
   const { user } = useAuth();
   const router = useRouter();
+
+  const getDashboardUrl = useCallback(() => {
+    let path = '/'; // Default path
+    if (userRole === 'retailer') path = '/retailer/home';
+    else if (userRole === 'distributor') path = '/distributor/home';
+    else if (userRole === 'admin') path = '/admin/home';
+
+    // Return the correct dashboard URL based on environment
+    if (process.env.NODE_ENV === 'development') {
+      return `http://localhost:3001${path}`;
+    }
+    return `https://dashboard.kitions.com${path}`;
+  }, [userRole]);
 
   useEffect(() => {
     // Check if this is a cross-app redirect from dashboard (client-side only)
@@ -99,7 +112,7 @@ function CompleteProfileContent() {
       console.log('❌ No authenticated user after auth check delay, redirecting to signup...');
       router.push('/signup');
     }
-  }, [user, router, authCheckComplete]);
+  }, [user, router, authCheckComplete, getDashboardUrl]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -131,19 +144,6 @@ function CompleteProfileContent() {
       { value: 'llc', label: 'LLC', description: 'Limited Liability Company' },
       { value: 'corporation', label: 'Corporation', description: 'Corporate entity' }
     ];
-  };
-
-  const getDashboardUrl = () => {
-    let path = '/'; // Default path
-    if (userRole === 'retailer') path = '/retailer/home';
-    else if (userRole === 'distributor') path = '/distributor/home';
-    else if (userRole === 'admin') path = '/admin/home';
-
-    // Return the correct dashboard URL based on environment
-    if (process.env.NODE_ENV === 'development') {
-      return `http://localhost:3001${path}`;
-    }
-    return `https://dashboard.kitions.com${path}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -322,6 +322,7 @@ function CompleteProfileContent() {
               onChange={(value) => setBusinessAddress(value)}
               required
               placeholder="123 Business St, City, State, ZIP"
+              className='text-black'
             />
           </div>
 

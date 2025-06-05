@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Users, Package, TrendingUp } from 'lucide-react';
+import { Building2, Package, TrendingUp } from 'lucide-react';
 
 export default function DistributorsPage() {
   return (

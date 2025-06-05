@@ -26,7 +26,6 @@ export default function ResetPassword() {
         // Check if we have the token_hash parameter from the email link
         const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
-        const next = searchParams.get('next');
 
         if (!tokenHash) {
           setError('Invalid or expired reset link. Please request a new password reset.');
@@ -70,7 +69,7 @@ export default function ResetPassword() {
         setTokenValid(true);
         setValidatingToken(false);
 
-      } catch (err) {
+      } catch {
         setError('An error occurred while validating your reset link. Please try again.');
         setValidatingToken(false);
       }
@@ -113,7 +112,7 @@ export default function ResetPassword() {
         router.push('/login?message=password_updated');
       }, 3000);
 
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     }
   };

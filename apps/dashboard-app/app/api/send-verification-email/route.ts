@@ -11,7 +11,7 @@ interface EmailData {
 export async function POST(request: NextRequest) {
   try {
     const emailData: EmailData = await request.json();
-    const { user_id, status, user_email, user_name, business_name } = emailData;
+    const { status, user_email, user_name, business_name } = emailData;
 
     console.log('📧 Verification email request received:', { user_email, status, user_name });
 

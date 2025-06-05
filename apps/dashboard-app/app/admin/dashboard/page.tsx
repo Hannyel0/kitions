@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/app/utils/supabase';
 import { 
   Users, 
   Building2, 
-  Package, 
   ShoppingCart,
   TrendingUp,
   AlertCircle,
@@ -48,11 +47,7 @@ export default function AdminDashboard() {
 
   const supabase = createSupabaseBrowserClient();
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -112,7 +107,11 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -161,7 +160,7 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600">Monitor your platform's key metrics and recent activity</p>
+        <p className="text-gray-600">Monitor your platform&apos;s key metrics and recent activity</p>
       </div>
 
       {/* Stats Cards */}

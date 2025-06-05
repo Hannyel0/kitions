@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createSupabaseBrowserClient } from '@/app/utils/supabase';
 import { 
   Users, 
@@ -10,7 +10,6 @@ import {
   XCircle,
   Clock,
   AlertCircle,
-  Eye,
   Mail,
   Building2,
   Calendar,
@@ -43,15 +42,7 @@ export default function UserManagement() {
 
   const supabase = createSupabaseBrowserClient();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    filterUsers();
-  }, [users, searchTerm, filter]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -96,9 +87,9 @@ export default function UserManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase]);
 
-  const filterUsers = () => {
+  const filterUsers = useCallback(() => {
     let filtered = users;
 
     // Apply search filter
@@ -121,7 +112,15 @@ export default function UserManagement() {
     }
 
     setFilteredUsers(filtered);
-  };
+  }, [users, searchTerm, filter]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    filterUsers();
+  }, [filterUsers]);
 
   const updateVerificationStatus = async (userId: string, status: 'verified' | 'rejected') => {
     try {
