@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/app/components/layout'
-import { SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart } from 'lucide-react'
+import { SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart, Package, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { ProductCard } from '@/app/components/products/ProductCard'
 import { ProductList } from '@/app/components/products/ProductList'
@@ -143,42 +143,9 @@ export default function ProductsPage() {
     setRefreshTrigger(prev => prev + 1)
   }
   
-  // Sample fallback data for development
-  const sampleProducts: Product[] = [
-    {
-      id: '1',
-      name: 'Premium Coffee Beans',
-      description: 'Freshly roasted Arabica beans from Colombia',
-      price: 24.99,
-      image: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      image_url: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      case_size: 12,
-      stock_quantity: 120,
-      category: 'Beverages',
-      category_id: 'bev-123',
-      sku: 'COF-001',
-      upc: '012345678901'
-    },
-    {
-      id: '2',
-      name: 'Organic Green Tea',
-      description: 'High-quality Japanese Sencha green tea',
-      price: 18.99,
-      image: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      image_url: 'https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-      case_size: 24,
-      stock_quantity: 85,
-      category: 'Beverages',
-      category_id: 'bev-124',
-      sku: 'TEA-002',
-      upc: '123456789013'
-    },
-  ]
-  
   const allCategories = ['all', 'Beverages', 'Food', 'Snacks', 'Electronics', 'Apparel']
   
-  // Use sample data if loading or if there's an error/no data
-  const displayProducts = products.length > 0 ? products : sampleProducts
+  // Use actual products data, fallback to categories if available
   const displayCategories = categories.length > 0 ? 
     ['all', ...categories] : 
     allCategories
@@ -200,12 +167,13 @@ export default function ProductsPage() {
               <h1 className="text-gray-800 text-3xl font-semibold">Products</h1>
               <Link
                 href="/distributor/orders/create"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center"
+                className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium flex items-center hover:bg-green-700"
               >
                 <ShoppingCart size={16} className="mr-2" />
                 Make Order
               </Link>
             </div>
+            
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
@@ -257,46 +225,86 @@ export default function ProductsPage() {
                     </div>
                   </div>
                   <div className="text-sm text-gray-500">
-                    {displayProducts.length} products
+                    {products.length} products
                   </div>
                 </div>
               </div>
+              
               <div className="p-6">
-                {/* Filter products based on search term and selected category */}
-                {(() => {
-                  const filteredProducts = displayProducts
-                    .filter(product => 
-                      searchTerm === '' || 
-                      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      product.description.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
-                    .filter(product => 
-                      selectedCategory === 'all' || 
-                      product.category.toLowerCase() === selectedCategory.toLowerCase()
-                    );
-                    
-                  return viewType === 'grid' ? (
-                    // Grid view
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {filteredProducts.map((product) => (
-                        <ProductCard 
-                          key={product.id} 
-                          product={product} 
-                          onEdit={handleEditProduct}
-                          onDelete={handleDeleteProduct}
-                          onRefresh={handleRefresh}
-                        />
-                      ))}
+                {products.length === 0 ? (
+                  <div className="p-16 text-center">
+                    <div className="mx-auto w-24 h-24 bg-gray-100 flex items-center justify-center rounded-full mb-6">
+                      <Package className="h-12 w-12 text-gray-400" />
                     </div>
-                  ) : (
-                    // List view with sorting capability
-                    <ProductList 
-                      products={filteredProducts} 
-                    />
-                  );
-                })()}
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+                    <p className="text-gray-500 mb-6">You haven&apos;t added any products yet. Start building your catalog!</p>
+                    <button
+                      onClick={() => setIsAddModalOpen(true)}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Add your first product
+                    </button>
+                  </div>
+                ) : (
+                  /* Filter products based on search term and selected category */
+                  (() => {
+                    const filteredProducts = products
+                      .filter(product => 
+                        searchTerm === '' || 
+                        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        product.description.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .filter(product => 
+                        selectedCategory === 'all' || 
+                        product.category.toLowerCase() === selectedCategory.toLowerCase()
+                      );
+                    
+                    if (filteredProducts.length === 0) {
+                      return (
+                        <div className="p-16 text-center">
+                          <div className="mx-auto w-24 h-24 bg-gray-100 flex items-center justify-center rounded-full mb-6">
+                            <Package className="h-12 w-12 text-gray-400" />
+                          </div>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">No products match your search</h3>
+                          <p className="text-gray-500 mb-6">Try adjusting your search terms or filters to find what you&apos;re looking for.</p>
+                          <button
+                            onClick={() => {
+                              setSearchTerm('')
+                              setSelectedCategory('all')
+                            }}
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            Clear filters
+                          </button>
+                        </div>
+                      );
+                    }
+                      
+                    return viewType === 'grid' ? (
+                      // Grid view
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredProducts.map((product) => (
+                          <ProductCard 
+                            key={product.id} 
+                            product={product} 
+                            onEdit={handleEditProduct}
+                            onDelete={handleDeleteProduct}
+                            onRefresh={handleRefresh}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      // List view with sorting capability
+                      <ProductList 
+                        products={filteredProducts} 
+                      />
+                    );
+                  })()
+                )}
               </div>
             </div>
+            
             <AddProductModal
               isOpen={isAddModalOpen}
               onClose={() => {
