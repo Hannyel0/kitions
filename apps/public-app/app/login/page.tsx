@@ -2,25 +2,40 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/app/providers/auth-provider';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  
+  const searchParams = useSearchParams();
+  
   // Use the dynamic title hook for client-side title updates
   usePageTitle('Log In');
 
   const { signIn } = useAuth();
 
+  useEffect(() => {
+    // Check for success messages from URL params
+    const message = searchParams.get('message');
+    if (message === 'password_updated') {
+      setSuccessMessage('Your password has been successfully updated. You can now log in with your new password.');
+    }
+  }, [searchParams]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
     setLoading(true);
 
     try {
@@ -28,12 +43,17 @@ export default function Login() {
 
       if (error) {
         setError(error.message);
+        setFailedAttempts(prev => prev + 1); // Increment failed attempts
         setLoading(false);
         return;
       }
+      
+      // Reset failed attempts on successful login
+      setFailedAttempts(0);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
       setError(message);
+      setFailedAttempts(prev => prev + 1); // Increment failed attempts
     } finally {
       setLoading(false); 
     }
@@ -71,12 +91,14 @@ export default function Login() {
           {/* Right side with login form */}
           <div className="w-full md:w-1/2 py-10 px-8 md:px-12">
             <div className="flex justify-center mb-6">
-              <Image 
-                src="/default-monochrome-black.svg" 
-                alt="Kitions" 
-                width={150} 
-                height={50}
-              />
+              <Link href="/" className="flex-shrink-0">
+                <Image 
+                  src="/default-monochrome-black.svg" 
+                  alt="Kitions" 
+                  width={150} 
+                  height={50}
+                />
+              </Link>
             </div>
 
             <h1 className="text-2xl font-bold text-center mb-2 text-gray-900">Welcome back</h1>
@@ -94,11 +116,38 @@ export default function Login() {
               <p className="text-xs mt-1 ml-7">Our platform is in private beta. Please contact us for access.</p>
             </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
-                {error}
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {successMessage && (
+                <motion.div 
+                  key="success"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-4"
+                >
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {successMessage}
+                  </div>
+                </motion.div>
+              )}
+
+              {error && (
+                <motion.div 
+                  key="error"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4"
+                >
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -106,7 +155,7 @@ export default function Login() {
                 <input
                   id="email"
                   type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -119,7 +168,7 @@ export default function Login() {
                 <input
                   id="password"
                   type="password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -141,9 +190,20 @@ export default function Login() {
                   </label>
                 </div>
                 <div>
-                  <Link href="/forgot-password" className="text-sm text-[#8982cf] hover:text-[#7873b3]">
-                    Forgot password?
-                  </Link>
+                  <AnimatePresence>
+                    {failedAttempts > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      >
+                        <Link href="/forgot-password" className="text-sm text-[#8982cf] hover:text-[#7873b3]">
+                          Forgot password?
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
 
@@ -183,6 +243,15 @@ export default function Login() {
                   Sign up
                 </Link>
               </p>
+
+              <div className="flex justify-center mt-4">
+                <Link href="/" className="inline-flex items-center text-gray-600 hover:text-[#8982cf] transition-colors text-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  Back to Home
+                </Link>
+              </div>
             </form>
           </div>
         </div>
