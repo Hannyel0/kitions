@@ -210,15 +210,54 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // If user is authenticated, check their verification status (except for public routes)
+  // If user is authenticated, check their onboarding and verification status (except for public routes)
   if (session && !isPublicRoute) {
-    logMiddleware('🔍 Checking verification status for authenticated user...');
+    logMiddleware('🔍 Checking user status for authenticated user...');
     
     try {
+      // First, try to check onboarding completion status
+      logMiddleware('🔍 Checking onboarding completion status...');
+      const onboardingStart = Date.now();
+      const { data: userData, error: onboardingError } = await supabase
+        .from('users')
+        .select('onboarding_completed, role')
+        .eq('id', session.user.id)
+        .single();
+        
+      const onboardingDuration = Date.now() - onboardingStart;
+      logMiddleware(`⏱️ Onboarding query took: ${onboardingDuration}ms`);
+
+      if (!onboardingError && userData) {
+        logMiddleware(`✅ User data retrieved:`, {
+          onboardingCompleted: userData.onboarding_completed,
+          userRole: userData.role,
+          userId: session.user.id
+        });
+
+        // If onboarding is not completed, redirect to complete profile regardless of verification status
+        if (!userData.onboarding_completed) {
+          logMiddleware(`🚫 Onboarding not completed - redirecting to complete profile:`, {
+            onboardingCompleted: userData.onboarding_completed,
+            userRole: userData.role,
+            currentPath: req.nextUrl.pathname
+          });
+          
+          const completeProfileUrl = process.env.NODE_ENV === 'development'
+            ? 'http://localhost:3000/signup/complete-profile?from=dashboard'
+            : 'https://www.kitions.com/signup/complete-profile?from=dashboard';
+          return NextResponse.redirect(completeProfileUrl);
+        }
+
+        logMiddleware(`✅ Onboarding completed, checking verification status...`);
+      } else {
+        logMiddleware(`⚠️ Could not retrieve user data, falling back to verification check:`, onboardingError);
+      }
+
+      // Now check verification status (only if onboarding is complete or we couldn't check onboarding)
       const verificationStart = Date.now();
       logMiddleware(`📊 Querying user_verification_statuses for user_id: ${session.user.id}`);
       
-      const { data: verificationStatus, error } = await supabase
+      const { data: verificationStatus, error: verificationError } = await supabase
         .from('user_verification_statuses')
         .select('status')
         .eq('user_id', session.user.id)
@@ -227,18 +266,18 @@ export async function middleware(req: NextRequest) {
       const verificationDuration = Date.now() - verificationStart;
       logMiddleware(`⏱️ Verification query took: ${verificationDuration}ms`);
 
-      if (error) {
+      if (verificationError) {
         logMiddleware(`⚠️ Verification status error:`, {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
+          message: verificationError.message,
+          code: verificationError.code,
+          details: verificationError.details,
+          hint: verificationError.hint
         });
         
         // If there's an error fetching verification status, redirect to pending verification
         // This handles cases where the user doesn't have a verification record yet
         if (!isPendingVerification) {
-          logMiddleware(`🔀 Redirecting to pending verification due to error`);
+          logMiddleware(`🔀 Redirecting to pending verification due to verification error`);
           return NextResponse.redirect(new URL('/pending-verification', req.url));
         }
       } else {
@@ -271,7 +310,7 @@ export async function middleware(req: NextRequest) {
           
           try {
             const roleStart = Date.now();
-            const { data: userData, error: roleError } = await supabase
+            const { data: userRoleData, error: roleError } = await supabase
               .from('users')
               .select('role')
               .eq('id', session.user.id)
@@ -283,11 +322,11 @@ export async function middleware(req: NextRequest) {
             if (roleError) {
               logMiddleware(`⚠️ Role fetch error:`, roleError);
             } else {
-              logMiddleware(`👤 User role: ${userData?.role}`);
+              logMiddleware(`👤 User role: ${userRoleData?.role}`);
             }
             
-            const redirectPath = userData?.role === 'distributor' ? '/distributor/home' : 
-                                userData?.role === 'admin' ? '/admin/dashboard' : 
+            const redirectPath = userRoleData?.role === 'distributor' ? '/distributor/home' : 
+                                userRoleData?.role === 'admin' ? '/admin/dashboard' : 
                                 '/retailer/home';
             logMiddleware(`🏠 Redirecting verified user to dashboard: ${redirectPath}`);
             return NextResponse.redirect(new URL(redirectPath, req.url));
@@ -304,7 +343,7 @@ export async function middleware(req: NextRequest) {
           
           try {
             const adminStart = Date.now();
-            const { data: userData, error: roleError } = await supabase
+            const { data: adminUserData, error: adminRoleError } = await supabase
               .from('users')
               .select('role')
               .eq('id', session.user.id)
@@ -313,27 +352,27 @@ export async function middleware(req: NextRequest) {
             const adminDuration = Date.now() - adminStart;
             logMiddleware(`⏱️ Admin role query took: ${adminDuration}ms`);
             
-            if (roleError) {
-              logMiddleware(`⚠️ Admin role fetch error:`, roleError);
+            if (adminRoleError) {
+              logMiddleware(`⚠️ Admin role fetch error:`, adminRoleError);
               return NextResponse.redirect(new URL('/error-auth', req.url));
             } else {
-              logMiddleware(`👤 User role for admin check: ${userData?.role}`);
+              logMiddleware(`👤 User role for admin check: ${adminUserData?.role}`);
             }
             
-            if (userData?.role !== 'admin') {
-              logMiddleware(`🚫 Access denied - user role '${userData?.role}' is not admin`);
+            if (adminUserData?.role !== 'admin') {
+              logMiddleware(`🚫 Access denied - user role '${adminUserData?.role}' is not admin`);
               return NextResponse.redirect(new URL('/error-auth', req.url));
             }
             
-            logMiddleware(`✅ Admin access granted for user role: ${userData?.role}`);
+            logMiddleware(`✅ Admin access granted for user role: ${adminUserData?.role}`);
           } catch (adminError) {
             logMiddleware(`💥 Unexpected admin check error:`, adminError);
             return NextResponse.redirect(new URL('/error-auth', req.url));
           }
         }
       }
-    } catch (verificationError) {
-      logMiddleware(`💥 Unexpected verification error:`, verificationError);
+    } catch (unexpectedError) {
+      logMiddleware(`💥 Unexpected error during user status check:`, unexpectedError);
       // On unexpected errors, redirect to pending verification for safety
       if (!isPendingVerification) {
         logMiddleware(`🛡️ Safety redirect to pending verification due to unexpected error`);

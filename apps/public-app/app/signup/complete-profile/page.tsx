@@ -18,23 +18,88 @@ function CompleteProfileContent() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<'retailer' | 'distributor'>('retailer');
+  const [authCheckComplete, setAuthCheckComplete] = useState(false);
+  const [fromDashboard, setFromDashboard] = useState(false);
 
   const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Check if this is a cross-app redirect from dashboard (client-side only)
+    if (typeof window !== 'undefined') {
+      const fromDash = new URLSearchParams(window.location.search).get('from') === 'dashboard';
+      setFromDashboard(fromDash);
+    }
+    
+    // Give more time for cross-app authentication to establish if coming from dashboard
+    const authCheckDelay = fromDashboard ? 3000 : 1000; // 3 seconds for cross-app, 1 second for normal
+    
+    console.log('🔍 Setting up auth check...', { fromDashboard, delay: authCheckDelay });
+    
+    const authCheckTimer = setTimeout(() => {
+      console.log('🔍 Auth check timer completed, user state:', user);
+      setAuthCheckComplete(true);
+    }, authCheckDelay);
+
+    return () => clearTimeout(authCheckTimer);
+  }, [user, fromDashboard]);
+
+  useEffect(() => {
+    // Only run redirect logic after auth check is complete
+    if (!authCheckComplete) {
+      return;
+    }
+
     // Check if user is authenticated and get their role
     if (user) {
       console.log('✅ User authenticated:', user.id);
+      
+      // Check if user has already completed onboarding
+      const checkOnboardingStatus = async () => {
+        try {
+          const supabase = createSupabaseBrowserClient();
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('role, onboarding_completed')
+            .eq('id', user.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching user data:', error);
+            return;
+          }
+
+          // If user has already completed onboarding, redirect to dashboard
+          if (userData?.onboarding_completed) {
+            console.log('✅ User has already completed onboarding, redirecting to dashboard...');
+            const dashboardUrl = getDashboardUrl();
+            window.location.href = dashboardUrl;
+            return;
+          }
+
+          // Set user role from database
+          if (userData?.role) {
+            setUserRole(userData.role);
+          }
+        } catch (error) {
+          console.error('Error checking onboarding status:', error);
+        }
+      };
+
       if (user.user_metadata?.role) {
         setUserRole(user.user_metadata.role);
+        // Still check onboarding status even if we have role in metadata
+        checkOnboardingStatus();
+      } else {
+        // If no role in metadata, get it from database and check onboarding
+        checkOnboardingStatus();
       }
     } else {
-      // No authenticated user, redirect to signup
-      console.log('❌ No authenticated user, redirecting to signup...');
+      // No authenticated user found after waiting
+      console.log('❌ No authenticated user after auth check delay, redirecting to signup...');
       router.push('/signup');
     }
-  }, [user, router]);
+  }, [user, router, authCheckComplete]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -105,6 +170,7 @@ function CompleteProfileContent() {
           business_address: businessAddress,
           phone: businessPhone,
           business_type: businessType,
+          onboarding_completed: true,
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id);
@@ -150,7 +216,11 @@ function CompleteProfileContent() {
         console.log('✅ Distributor information updated successfully');
       }
 
-      console.log('🎉 Profile completion successful, redirecting to dashboard...');
+      console.log('🎉 Profile completion successful, cleaning up and redirecting to dashboard...');
+      
+      // Clear sessionStorage only after successful completion
+      sessionStorage.removeItem('signupData');
+      sessionStorage.removeItem('selectedRole');
       
       // Redirect to the appropriate dashboard
       window.location.href = getDashboardUrl();
@@ -163,6 +233,37 @@ function CompleteProfileContent() {
       setLoading(false);
     }
   };
+
+  // Show loading while checking authentication from cross-app redirect
+  if (!authCheckComplete || (!user && authCheckComplete === true)) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 md:p-12">
+          <div className="flex justify-center mb-8">
+            <Image 
+              src="/default-monochrome-black.svg" 
+              alt="Kitions" 
+              width={180} 
+              height={60}
+            />
+          </div>
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8982cf]"></div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {fromDashboard ? 'Redirecting from Dashboard' : 'Loading Your Profile'}
+            </h2>
+            <p className="text-gray-600">
+              {fromDashboard 
+                ? 'Please wait while we transfer your session...' 
+                : 'Please wait while we verify your authentication...'}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
@@ -310,7 +411,7 @@ function CompleteProfileContent() {
           <button
             type="submit"
             disabled={!businessName || !businessAddress || !businessPhone || !businessType || loading}
-            className="w-full bg-[#8982cf] text-white py-4 rounded-lg hover:bg-[#7873b3] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+            className="w-full bg-[#8982cf] text-white py-4 rounded-lg hover:bg-[#7873b3] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
           >
             {loading ? 'Completing Profile...' : 'Complete Profile & Continue'}
           </button>

@@ -1,12 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Store, Building2 } from 'lucide-react';
-import { createSupabaseBrowserClient } from '@/app/utils/supabase';
 
 interface SignupData {
   firstName: string;
@@ -17,8 +15,6 @@ interface SignupData {
 
 export default function SignupRole() {
   const [signupData, setSignupData] = useState<SignupData | null>(null);
-  const [role, setRole] = useState<'retailer' | 'distributor'>('retailer');
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [checkingVerification, setCheckingVerification] = useState(true);
@@ -29,12 +25,6 @@ export default function SignupRole() {
   // Load signup data from sessionStorage and check verification status
   useEffect(() => {
     const checkUserAndLoadData = async () => {
-      // If we're already showing email verification, don't do any checks
-      if (showEmailVerification) {
-        console.log('📧 Already showing email verification screen, skipping checks');
-        return;
-      }
-      
       setCheckingVerification(true);
       
       if (user) {
@@ -55,10 +45,22 @@ export default function SignupRole() {
             return;
           }
         } else {
-          console.log('📧 Email not yet confirmed, staying on email verification screen');
-          setCheckingVerification(false);
-          // Don't redirect authenticated users - they should see the email verification screen
-          return;
+          // If user exists but not verified, check if they already have a role
+          // If they do, redirect to verification. If not, let them select role first
+          console.log('📧 Email not yet confirmed, checking if role was already selected...');
+          
+          const storedRole = sessionStorage.getItem('selectedRole');
+          if (storedRole && user.user_metadata?.role) {
+            // Role already selected, go to verification
+            console.log('✅ Role already selected, redirecting to verification page');
+            router.push('/signup/verification');
+            return;
+          } else {
+            // No role selected yet, stay on this page to complete role selection
+            console.log('📋 No role selected yet, allowing role selection');
+            setCheckingVerification(false);
+            return;
+          }
         }
       } else {
         console.log('👤 No authenticated user found');
@@ -85,49 +87,7 @@ export default function SignupRole() {
     };
 
     checkUserAndLoadData();
-  }, [user, router, completeUserProfile, showEmailVerification]);
-
-  // Add polling for email verification status
-  useEffect(() => {
-    let pollInterval: NodeJS.Timeout;
-    
-    // Only poll if we're showing email verification screen and user exists but isn't verified
-    if ((showEmailVerification || (user && !user.email_confirmed_at)) && user) {
-      console.log('🔄 Starting email verification polling...');
-      
-      pollInterval = setInterval(async () => {
-        try {
-          const { data: { user: currentUser } } = await createSupabaseBrowserClient().auth.getUser();
-          
-          if (currentUser?.email_confirmed_at) {
-            console.log('✅ Email verification detected via polling!');
-            // Clear the interval
-            clearInterval(pollInterval);
-            
-            // Instead of reloading, trigger the completion flow directly
-            try {
-              await completeUserProfile();
-              router.push('/signup/complete-profile');
-            } catch (error) {
-              console.error('Error completing profile after verification:', error);
-              setError('Failed to complete profile setup. Please try again.');
-            }
-          } else {
-            console.log('⏳ Email not yet verified, continuing to poll...');
-          }
-        } catch (error) {
-          console.error('❌ Error during verification polling:', error);
-        }
-      }, 3000); // Check every 3 seconds
-    }
-    
-    return () => {
-      if (pollInterval) {
-        console.log('🛑 Stopping email verification polling');
-        clearInterval(pollInterval);
-      }
-    };
-  }, [showEmailVerification, user, completeUserProfile, router]);
+  }, [user, router, completeUserProfile]);
 
   // Show loading while checking verification status
   if (checkingVerification) {
@@ -159,47 +119,59 @@ export default function SignupRole() {
   }
 
   const handleRoleSelect = async (selectedRole: 'retailer' | 'distributor') => {
-    if (!signupData) {
+    // If user is already authenticated, we don't need signupData
+    if (!user && !signupData) {
       setError('Signup data not found. Please start over.');
       router.push('/signup');
       return;
     }
 
-    setRole(selectedRole);
     setLoading(true);
     setError(null);
 
     try {
-      // Create user account with basic info
-      const userData = {
-        firstName: signupData.firstName,
-        lastName: signupData.lastName,
-        businessName: '', // Will be filled later
-        businessAddress: '',
-        businessType: '',
-        phone: '', // Will be filled later
-        role: selectedRole,
-      };
-      
-      const { error: signUpError, data: signUpData } = await signUp(signupData.email, signupData.password, userData);
+      // If user is not authenticated, create account first
+      if (!user) {
+        if (!signupData) {
+          setError('Signup data not found. Please start over.');
+          setLoading(false);
+          return;
+        }
 
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
+        // Create user account with basic info
+        const userData = {
+          firstName: signupData.firstName,
+          lastName: signupData.lastName,
+          businessName: '', // Will be filled later
+          businessAddress: '',
+          businessType: '',
+          phone: '', // Will be filled later
+          role: selectedRole,
+        };
+        
+        const { error: signUpError, data: signUpData } = await signUp(signupData.email, signupData.password, userData);
+
+        if (signUpError) {
+          setError(signUpError.message);
+          setLoading(false);
+          return;
+        }
+        
+        if (!signUpData?.user) {
+          setError('Account creation failed. Please try again.');
+          setLoading(false);
+          return;
+        }
       }
       
-      if (!signUpData?.user) {
-        setError('Account creation failed. Please try again.');
-        setLoading(false);
-        return;
-      }
+      // Store the selected role in sessionStorage for the verification page
+      sessionStorage.setItem('selectedRole', selectedRole);
       
-      // Clear signup data from sessionStorage since account is created
-      sessionStorage.removeItem('signupData');
+      // DON'T clear signup data yet - keep it for potential use in verification page
+      // We'll clear it only after successful profile completion
       
-      // Show email verification screen
-      setShowEmailVerification(true);
+      // Redirect to verification page
+      router.push('/signup/verification');
     } catch (err) {
       console.error('Account creation error:', err);
       setError('An unexpected error occurred. Please try again.');
@@ -211,82 +183,12 @@ export default function SignupRole() {
   const handleBackToSignup = () => {
     // Clear sessionStorage and go back to signup
     sessionStorage.removeItem('signupData');
+    sessionStorage.removeItem('selectedRole');
     router.push('/signup');
   };
 
-  // Email verification layout (full width, no image)
-  if (showEmailVerification || (user && !user.email_confirmed_at)) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-12 md:p-16">
-          <div className="flex justify-center mb-12">
-            <Image 
-              src="/default-monochrome-black.svg" 
-              alt="Kitions" 
-              width={180} 
-              height={60}
-            />
-          </div>
-
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-6">
-              <div className="bg-green-100 rounded-full p-4">
-                <svg className="w-16 h-16 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              Account Created Successfully!
-            </h2>
-            <p className="text-base text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
-              We&apos;ve created your {role} account and sent a verification email to <strong>{signupData?.email || user?.email}</strong>. Please check your email and click the verification link, then return to this page to complete your registration.
-            </p>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-            <div className="flex items-start">
-              <svg className="w-6 h-6 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 className="text-lg font-semibold text-blue-900 mb-2">What happens next?</h3>
-                <div className="text-blue-800 text-sm leading-relaxed space-y-1">
-                  <p>1. Check your email inbox (including spam/junk folder)</p>
-                  <p>2. Click the verification link in the email</p>
-                  <p>3. Return to this page (it will detect your verification)</p>
-                  <p>4. Complete your business information</p>
-                  <p>5. Start using your Kitions account</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-center space-y-4">
-            <Link
-              href="/login"
-              className="w-full bg-[#8982cf] text-white py-4 rounded-lg hover:bg-[#7873b3] transition-colors font-medium text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 inline-block text-center"
-            >
-              Go to Login Page
-            </Link>
-          </div>
-
-          <div className="text-center pt-6">
-            <p className="text-sm text-gray-600">
-              Didn&apos;t receive the email? Check your spam folder or contact{' '}
-              <Link href="/contact" className="text-[#8982cf] hover:underline font-medium">
-                our support team
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Role selection layout (full width, no image) - only show if user is not authenticated and has signup data
-  if (!user && signupData) {
+  // Role selection layout (full width, no image) - show if user is not authenticated and has signup data, OR if user is authenticated but not verified
+  if ((!user && signupData) || (user && !user.email_confirmed_at)) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="w-full max-w-5xl bg-white rounded-2xl shadow-xl p-12 md:p-16">

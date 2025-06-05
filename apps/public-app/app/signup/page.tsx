@@ -140,7 +140,7 @@ export default function Signup() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="John"
                     />
                   </div>
@@ -154,7 +154,7 @@ export default function Signup() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="Doe"
                     />
                   </div>
@@ -170,7 +170,7 @@ export default function Signup() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-md"
                     placeholder="business@company.com"
                   />
                 </div>
@@ -190,7 +190,7 @@ export default function Signup() {
                       }}
                       required
                       minLength={8}
-                      className={`w-full px-3 py-2 border rounded-md ${
+                      className={`text-black w-full px-3 py-2 border rounded-md ${
                         password && confirmPassword && password !== confirmPassword
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                           : 'border-gray-300 focus:border-[#8982cf] focus:ring-[#8982cf]'
@@ -212,7 +212,7 @@ export default function Signup() {
                       }}
                       required
                       minLength={8}
-                      className={`w-full px-3 py-2 border rounded-md ${
+                      className={`text-black w-full px-3 py-2 border rounded-md ${
                         password && confirmPassword && password !== confirmPassword
                           ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                           : 'border-gray-300 focus:border-[#8982cf] focus:ring-[#8982cf]'
