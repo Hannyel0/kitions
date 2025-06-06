@@ -7,7 +7,7 @@ type ProfileAvatarProps = {
   profilePictureUrl: string | null;
   firstName: string;
   lastName: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 };
 
@@ -37,6 +37,11 @@ export default function ProfileAvatar({
         return {
           container: 'h-12 w-12',
           text: 'text-lg'
+        };
+      case 'xl':
+        return {
+          container: 'h-32 w-32',
+          text: 'text-3xl'
         };
       case 'md':
       default:
