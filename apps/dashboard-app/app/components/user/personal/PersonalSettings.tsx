@@ -7,9 +7,7 @@ import {
   CameraIcon, 
   UserIcon, 
   MailIcon, 
-  PhoneIcon, 
   BuildingIcon,
-  MapPinIcon,
   CalendarIcon,
   ShieldCheckIcon,
   TrashIcon,
@@ -130,7 +128,6 @@ export function PersonalSettings() {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -143,7 +140,6 @@ export function PersonalSettings() {
     const timestamp = new Date().toLocaleTimeString();
     const logMessage = `[${timestamp}] ${message}`;
     console.log(logMessage);
-    setDebugLogs(prev => [...prev.slice(-9), logMessage]); // Keep last 10 logs
   };
   
   // Show error function
@@ -272,7 +268,7 @@ export function PersonalSettings() {
   };
   
   // Handle crop complete from react-easy-crop
-  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: CropArea) => {
+  const onCropComplete = useCallback((croppedArea: CropArea, croppedAreaPixels: CropArea) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
   
