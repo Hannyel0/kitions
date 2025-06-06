@@ -218,6 +218,39 @@ export default function Inventory() {
               </button>
             </div>
           </div>
+          
+          {/* Empty State */}
+          {products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                <PackageIcon size={48} className="text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No products in inventory</h3>
+              <p className="text-gray-500 text-center mb-8 max-w-md">
+                Get started by adding your first product to your inventory. You can manually add products or scan their barcodes.
+              </p>
+              <div className="flex space-x-3">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium flex items-center hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  <PlusIcon size={16} className="mr-2" />
+                  Add Your First Product
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setIsScannerOpen(true)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm font-medium flex items-center hover:bg-gray-50 transition-colors"
+                >
+                  <ScanLineIcon size={16} className="mr-2" />
+                  Scan Barcode
+                </motion.button>
+              </div>
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead>
@@ -324,6 +357,7 @@ export default function Inventory() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
         )}
         <AddProductModal
