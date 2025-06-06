@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Cropper from 'react-easy-crop'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeftIcon, 
   CameraIcon, 
@@ -14,7 +15,8 @@ import {
   TrashIcon,
   EditIcon,
   SaveIcon,
-  XIcon
+  XIcon,
+  UploadIcon
 } from 'lucide-react'
 import { useAuth } from '@/app/providers/auth-provider'
 import useUserProfile from '@/app/hooks/useUserProfile'
@@ -126,8 +128,30 @@ export function PersonalSettings() {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Profile menu state
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [removingPhoto, setRemovingPhoto] = useState(false);
+  
+  // Add debug log function
+  const addDebugLog = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const logMessage = `[${timestamp}] ${message}`;
+    console.log(logMessage);
+    setDebugLogs(prev => [...prev.slice(-9), logMessage]); // Keep last 10 logs
+  };
+  
+  // Show error function
+  const showError = (message: string) => {
+    setErrorMessage(message);
+    setShowErrorToast(true);
+    addDebugLog(`ERROR: ${message}`);
+  };
   
   // Handle input changes
   const handleInputChange = (field: string, value: string) => {
@@ -156,36 +180,95 @@ export function PersonalSettings() {
   
   // Handle profile picture click
   const handleProfilePictureClick = () => {
+    setShowProfileMenu(!showProfileMenu);
+  };
+  
+  // Handle upload photo from menu
+  const handleUploadPhoto = () => {
+    setShowProfileMenu(false);
     fileInputRef.current?.click();
+  };
+  
+  // Handle remove photo
+  const handleRemovePhoto = async () => {
+    if (!profilePictureUrl) {
+      showError('No profile picture to remove');
+      return;
+    }
+    
+    try {
+      setRemovingPhoto(true);
+      setShowProfileMenu(false);
+      addDebugLog('Starting profile picture removal...');
+      
+      // Call API to remove profile picture
+      const response = await fetch('/api/remove-profile-picture', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id,
+          imageUrl: profilePictureUrl
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        addDebugLog('Profile picture removed successfully');
+        setShowSuccessToast(true);
+        // Refresh to show changes
+        setTimeout(() => window.location.reload(), 1000);
+      } else {
+        showError(result.error || 'Failed to remove profile picture');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError(`Failed to remove photo: ${errorMessage}`);
+    } finally {
+      setRemovingPhoto(false);
+    }
   };
   
   // Handle file selection
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    addDebugLog('File selection started');
     const file = event.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size must be less than 5MB');
-        return;
-      }
-      
-      setSelectedImage(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setShowImageModal(true);
-      
-      // Reset crop settings
-      setCrop({ x: 0, y: 0 });
-      setZoom(1);
-      setRotation(0);
-      setCroppedAreaPixels(null);
+    
+    if (!file) {
+      addDebugLog('No file selected');
+      return;
     }
+    
+    addDebugLog(`File selected: ${file.name}, size: ${file.size}, type: ${file.type}`);
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showError('Please select an image file');
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showError('Image size must be less than 5MB');
+      return;
+    }
+    
+    addDebugLog('File validation passed');
+    
+    setSelectedImage(file);
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    setShowImageModal(true);
+    
+    // Reset crop settings
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setRotation(0);
+    setCroppedAreaPixels(null);
+    
+    addDebugLog('Modal opened with image preview');
   };
   
   // Handle crop complete from react-easy-crop
@@ -195,18 +278,32 @@ export function PersonalSettings() {
   
   // Handle image upload
   const handleImageUpload = async () => {
-    if (!selectedImage || !croppedAreaPixels) return;
+    if (!selectedImage || !croppedAreaPixels) {
+      showError('No image or crop area selected');
+      return;
+    }
     
     try {
       setUploading(true);
+      addDebugLog('Starting image upload process');
+      
+      addDebugLog(`Selected image: ${selectedImage.name}, size: ${selectedImage.size} bytes, type: ${selectedImage.type}`);
+      addDebugLog(`Crop area: x=${croppedAreaPixels.x}, y=${croppedAreaPixels.y}, width=${croppedAreaPixels.width}, height=${croppedAreaPixels.height}`);
+      addDebugLog(`User ID: ${user?.id}`);
+      addDebugLog(`Rotation: ${rotation}, Zoom: ${zoom}`);
       
       // Get cropped image using react-easy-crop helper
+      addDebugLog('Creating cropped image blob...');
       const croppedBlob = await getCroppedImg(previewUrl, croppedAreaPixels, rotation);
+      addDebugLog(`Cropped blob created: size=${croppedBlob.size} bytes, type=${croppedBlob.type}`);
       
       // Create FormData for upload
+      addDebugLog('Creating FormData for upload...');
       const formData = new FormData();
       formData.append('file', croppedBlob, 'profile-picture.jpg');
       formData.append('userId', user?.id || '');
+      
+      addDebugLog('FormData created, sending upload request...');
       
       // Upload to your backend/storage service
       const response = await fetch('/api/upload-profile-picture', {
@@ -214,9 +311,23 @@ export function PersonalSettings() {
         body: formData,
       });
       
+      addDebugLog(`Upload response received: status=${response.status}, statusText=${response.statusText}, ok=${response.ok}`);
+      
+      const responseText = await response.text();
+      addDebugLog(`Response body: ${responseText}`);
+      
+      let result;
+      try {
+        result = JSON.parse(responseText);
+        addDebugLog(`Parsed response data: ${JSON.stringify(result)}`);
+      } catch (parseError) {
+        addDebugLog(`Failed to parse response as JSON: ${parseError}`);
+        showError(`Server returned invalid response: ${responseText.slice(0, 100)}...`);
+        return;
+      }
+      
       if (response.ok) {
-        const result = await response.json();
-        console.log('Profile picture uploaded successfully:', result);
+        addDebugLog('Profile picture uploaded successfully');
         
         // Close modal and refresh profile
         setShowImageModal(false);
@@ -225,17 +336,28 @@ export function PersonalSettings() {
         
         // Show success toast
         setShowSuccessToast(true);
+        addDebugLog('Success toast displayed');
         
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Upload failed');
+        addDebugLog(`Upload failed with status ${response.status}`);
+        const errorMsg = result.error || `Upload failed with status ${response.status}`;
+        showError(errorMsg);
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload image. Please try again.';
-      alert(errorMessage);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      addDebugLog(`Upload error caught: ${errorMessage}`);
+      addDebugLog(`Error details: ${JSON.stringify(error)}`);
+      
+      if (errorMessage.includes('Failed to fetch')) {
+        showError('Network error: Could not connect to server. Please check your internet connection.');
+      } else if (errorMessage.includes('NetworkError')) {
+        showError('Network error: Request failed. Please try again.');
+      } else {
+        showError(`Upload failed: ${errorMessage}`);
+      }
     } finally {
       setUploading(false);
+      addDebugLog('Upload process completed');
     }
   };
   
@@ -260,6 +382,31 @@ export function PersonalSettings() {
       return () => clearTimeout(timer);
     }
   }, [showSuccessToast]);
+  
+  // Hide error toast after 5 seconds
+  React.useEffect(() => {
+    if (showErrorToast) {
+      const timer = setTimeout(() => {
+        setShowErrorToast(false);
+        setErrorMessage('');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showErrorToast]);
+  
+  // Close profile menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showProfileMenu && !(event.target as Element).closest('.profile-menu-container')) {
+        setShowProfileMenu(false);
+      }
+    };
+    
+    if (showProfileMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showProfileMenu]);
   
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -320,7 +467,7 @@ export function PersonalSettings() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
             <div className="text-center">
-              <div className="relative inline-block mb-6">
+              <div className="relative inline-block mb-6 profile-menu-container">
                 <div 
                   className="cursor-pointer hover:opacity-90 transition-opacity group relative"
                   onClick={handleProfilePictureClick}
@@ -331,17 +478,73 @@ export function PersonalSettings() {
                     lastName={userLastName}
                     size="xl"
                   />
-                  <div className="absolute inset- bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center rounded-full pointer-events-none">
+                  <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center rounded-full pointer-events-none">
                     <CameraIcon size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
                 
-                <button 
+                {/* Animated Edit Button */}
+                <motion.button 
                   onClick={handleProfilePictureClick}
                   className="absolute bottom-2 right-2 p-2 bg-white rounded-full shadow-lg border-2 border-white hover:bg-gray-50 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <CameraIcon size={16} className="text-gray-600" />
-                </button>
+                  <EditIcon size={16} className="text-gray-600" />
+                </motion.button>
+
+                {/* Animated Profile Menu */}
+                <AnimatePresence>
+                  {showProfileMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 300, 
+                        damping: 20,
+                        duration: 0.2 
+                      }}
+                      className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 min-w-[200px]"
+                    >
+                      {/* Menu Items */}
+                      <div className="py-1">
+                        <motion.button
+                          onClick={handleUploadPhoto}
+                          className="w-full px-4 py-3 text-left text-gray-900 hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                          whileHover={{ backgroundColor: "rgba(249, 250, 251, 1)" }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <UploadIcon size={18} className="text-gray-600" />
+                          <span className="font-medium">Upload a photo...</span>
+                        </motion.button>
+                        
+                        {profilePictureUrl && (
+                          <motion.button
+                            onClick={handleRemovePhoto}
+                            disabled={removingPhoto}
+                            className="w-full px-4 py-3 text-left text-red-600 hover:bg-gray-50 transition-colors flex items-center space-x-3 disabled:opacity-50"
+                            whileHover={{ backgroundColor: "rgba(249, 250, 251, 1)" }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {removingPhoto ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                <span className="font-medium">Removing...</span>
+                              </>
+                            ) : (
+                              <>
+                                <TrashIcon size={18} className="text-red-600" />
+                                <span className="font-medium">Remove photo</span>
+                              </>
+                            )}
+                          </motion.button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
               
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -433,18 +636,13 @@ export function PersonalSettings() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
                 </label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter your email address"
-                  />
-                ) : (
-                  <div className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-900">
-                    {formData.email || 'Not provided'}
-                  </div>
+                <div className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-900 border border-gray-200">
+                  {formData.email || 'Not provided'}
+                </div>
+                {isEditing && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Email address cannot be changed here. Contact support if you need to update your email.
+                  </p>
                 )}
               </div>
               
@@ -616,7 +814,30 @@ export function PersonalSettings() {
           <div className="h-5 w-5 bg-white rounded-full flex items-center justify-center">
             <div className="h-2 w-2 bg-green-600 rounded-full"></div>
           </div>
-          <span className="font-medium">Profile picture updated successfully!</span>
+          <span className="font-medium">
+            {removingPhoto ? 'Profile picture removed successfully!' : 'Profile picture updated successfully!'}
+          </span>
+        </div>
+      )}
+      
+      {/* Error Toast */}
+      {showErrorToast && (
+        <div className="fixed top-4 right-4 z-50 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3 transform transition-all duration-300 ease-in-out max-w-md">
+          <div className="h-5 w-5 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+            <XIcon size={12} className="text-red-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="font-medium block truncate">{errorMessage}</span>
+          </div>
+          <button
+            onClick={() => {
+              setShowErrorToast(false);
+              setErrorMessage('');
+            }}
+            className="text-white hover:text-gray-200 flex-shrink-0"
+          >
+            <XIcon size={16} />
+          </button>
         </div>
       )}
     </div>
