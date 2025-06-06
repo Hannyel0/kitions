@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { DashboardLayout } from '@/app/components/layout';
+import DashboardLayout from '@/app/components/layout/DashboardLayout';
 import { createBrowserClient } from '@supabase/ssr';
 import {
   Search as SearchIcon,
