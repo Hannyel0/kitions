@@ -1,12 +1,12 @@
 import ComingSoon from '../components/ComingSoon';
+import { generateMetadata as createMetadata, pageMetadata } from '@/app/lib/metadata';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = createMetadata(
+  pageMetadata.forRetailers.title,
+  pageMetadata.forRetailers.description
+);
 
 export default function ForRetailersPage() {
   return <ComingSoon pageName="For Retailers" />;
-}
-
-export function generateMetadata() {
-  return {
-    title: 'For Retailers - Kitions',
-    description: 'Discover how Kitions can help retailers streamline inventory management and product ordering.',
-  };
 } 

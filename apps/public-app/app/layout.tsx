@@ -35,6 +35,37 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// JSON-LD structured data for SEO
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Kitions",
+  "description": "The leading B2B marketplace connecting food distributors and retailers. Streamline your supply chain, discover new products, and grow your business with Kitions.",
+  "url": "https://www.kitions.com",
+  "logo": "https://www.kitions.com/default.svg",
+  "foundingDate": "2024",
+  "industry": "Food Distribution",
+  "serviceType": "B2B Marketplace",
+  "areaServed": {
+    "@type": "Country",
+    "name": "United States"
+  },
+  "offers": {
+    "@type": "Offer",
+    "name": "B2B Marketplace Platform",
+    "description": "Connect distributors with retailers, manage inventory, and streamline orders"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "url": "https://www.kitions.com"
+  },
+  "sameAs": [
+    "https://twitter.com/kitions",
+    "https://linkedin.com/company/kitions"
+  ]
+};
+
 /**
  * Export metadata for the root layout
  */
@@ -48,6 +79,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Script
+          id="json-ld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Script
           src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
           integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
