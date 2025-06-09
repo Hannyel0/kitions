@@ -22,7 +22,7 @@ The configuration is optimized for Kitions' B2B marketplace:
 
 ```javascript
 module.exports = {
-  siteUrl: 'https://kitions.com',
+  siteUrl: 'https://www.kitions.com',
   generateRobotsTxt: true,
   changefreq: 'weekly',
   priority: 0.7,
@@ -50,7 +50,7 @@ The sitemap generation is integrated into the build process:
 
 ### Main Sitemap Index (`sitemap.xml`)
 - References all individual sitemaps
-- Located at: `https://kitions.com/sitemap.xml`
+- Located at: `https://www.kitions.com/sitemap.xml`
 
 ### Individual Sitemap (`sitemap-0.xml`)
 Contains the following pages with optimized SEO settings:
@@ -104,8 +104,8 @@ npm run sitemap
 
 ### Verification
 - Check generated files in `/public/` directory
-- Verify sitemap at: `https://kitions.com/sitemap.xml`
-- Test robots.txt at: `https://kitions.com/robots.txt`
+- Verify sitemap at: `https://www.kitions.com/sitemap.xml`
+- Test robots.txt at: `https://www.kitions.com/robots.txt`
 
 ## Customization
 
@@ -134,7 +134,7 @@ transform: async (config, path) => {
 ### Environment Configuration
 Set custom site URL via environment variable:
 ```bash
-SITE_URL=https://kitions.com
+SITE_URL=https://www.kitions.com
 ```
 
 ## Monitoring & Maintenance

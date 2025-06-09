@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.SITE_URL || 'https://kitions.com',
+  siteUrl: process.env.SITE_URL || 'https://www.kitions.com',
   generateRobotsTxt: true,
   changefreq: 'weekly',
   priority: 0.7,
@@ -111,7 +111,7 @@ module.exports = {
     ],
     additionalSitemaps: [
       // Add any additional custom sitemaps here if needed
-      // 'https://kitions.com/server-sitemap.xml',
+      // 'https://www.kitions.com/server-sitemap.xml',
     ],
   },
 }; 
