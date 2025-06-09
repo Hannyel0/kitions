@@ -2,10 +2,10 @@ import { generateMetadata as createMetadata, pageMetadata } from '../lib/metadat
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = createMetadata(
-  pageMetadata.login.title,
-  pageMetadata.login.description
+  pageMetadata.signup.title,
+  pageMetadata.signup.description
 );
 
-export default function LoginLayout({ children }: { children: React.ReactNode }) {
+export default function SignupLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 } 
