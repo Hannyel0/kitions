@@ -230,7 +230,6 @@ export default function Hero() {
                   fill
                   className="object-cover rounded-2xl border-4 border-white shadow-2xl"
                 />
-                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-br from-[#06b6d4] to-[#0891b2] rounded-full shadow-lg"></div>
               </div>
             </motion.div>
 
@@ -248,7 +247,6 @@ export default function Hero() {
                   fill
                   className="object-cover rounded-2xl border-4 border-white shadow-2xl"
                 />
-                <div className="absolute -top-2 -left-2 w-4 h-4 bg-gradient-to-br from-[#ABD4AB] to-[#9BC49B] rounded-full shadow-lg"></div>
               </div>
             </motion.div>
 
@@ -266,7 +264,6 @@ export default function Hero() {
                   fill
                   className="object-cover rounded-2xl border-4 border-white shadow-2xl"
                 />
-                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-full shadow-lg"></div>
               </div>
             </motion.div>
 
