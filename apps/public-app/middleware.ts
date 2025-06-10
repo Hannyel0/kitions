@@ -1,6 +1,5 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { sharedCookieOptions } from './app/utils/cookies'
 
 export async function middleware(req: NextRequest) {
   let res = NextResponse.next({
@@ -19,33 +18,20 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Override httpOnly in development to help with debugging
-          if (process.env.NODE_ENV === 'development') {
-            options = {
-              ...options,
-              httpOnly: false, // Make cookies visible to JavaScript in dev
-              sameSite: 'lax',
-              secure: false,
-              domain: undefined, // Use default domain in dev
-              path: '/',
-            };
-          } else {
-            // For production, use shared cookie config
-            options = { 
-              ...options, 
-              domain: sharedCookieOptions.domain,
-              path: sharedCookieOptions.path,
-              sameSite: sharedCookieOptions.sameSite,
-              secure: sharedCookieOptions.secure,
-              httpOnly: false, // Make cookies accessible to JavaScript in all environments
-            };
-          }
+          // Use simple cookie options for edge runtime compatibility
+          const cookieOptions: CookieOptions = {
+            ...options,
+            path: '/',
+            sameSite: 'lax',
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+          };
           
           // Set cookie in both request and response
           req.cookies.set({
             name,
             value,
-            ...options,
+            ...cookieOptions,
           });
           
           res = NextResponse.next({
@@ -57,29 +43,17 @@ export async function middleware(req: NextRequest) {
           res.cookies.set({
             name,
             value,
-            ...options,
+            ...cookieOptions,
           });
         },
         remove(name: string, options: CookieOptions) {
-          if (process.env.NODE_ENV === 'development') {
-            options = {
-              ...options,
-              httpOnly: false,
-              sameSite: 'lax',
-              secure: false,
-              domain: undefined,
-              path: '/',
-            };
-          } else {
-            options = { 
-              ...options, 
-              domain: sharedCookieOptions.domain,
-              path: sharedCookieOptions.path,
-              sameSite: sharedCookieOptions.sameSite,
-              secure: sharedCookieOptions.secure,
-              httpOnly: false,
-            };
-          }
+          const cookieOptions: CookieOptions = {
+            ...options,
+            path: '/',
+            sameSite: 'lax',
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+          };
           
           req.cookies.delete(name);
           res = NextResponse.next({
