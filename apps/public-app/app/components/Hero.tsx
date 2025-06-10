@@ -27,7 +27,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3ff] border border-[#8982cf]/20 rounded-full text-[#8982cf] font-medium text-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#f5f3ff] to-[#f4fff4d8] border border-[#ABD4AB]/20 rounded-full text-[#8982cf] font-medium text-sm"
           >
             <Zap className="w-4 h-4" />
             B2B Food Marketplace
@@ -41,7 +41,7 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight"
             >
-              <span className="bg-gradient-to-r from-[#8982cf] to-[#7873b3] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] bg-clip-text text-transparent">
                 Order Smarter.
               </span>
               <br />
@@ -68,20 +68,20 @@ export default function Hero() {
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6"
           >
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-[#f5f3ff] rounded-lg">
-                <Store className="w-5 h-5 text-[#8982cf]" />
+              <div className="p-2 bg-gradient-to-br from-[#06b6d4]/10 to-[#06b6d4]/5 rounded-lg border border-[#06b6d4]/20">
+                <Store className="w-5 h-5 text-[#06b6d4]" />
               </div>
               <span className="font-medium">10,000+ Retailers</span>
             </div>
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-[#f5f3ff] rounded-lg">
-                <Package className="w-5 h-5 text-[#8982cf]" />
+              <div className="p-2 bg-gradient-to-br from-[#ABD4AB]/10 to-[#ABD4AB]/5 rounded-lg border border-[#ABD4AB]/20">
+                <Package className="w-5 h-5 text-[#ABD4AB]" />
               </div>
               <span className="font-medium">Instant Ordering</span>
             </div>
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-[#f5f3ff] rounded-lg">
-                <TrendingUp className="w-5 h-5 text-[#8982cf]" />
+              <div className="p-2 bg-gradient-to-br from-[#10b981]/10 to-[#10b981]/5 rounded-lg border border-[#10b981]/20">
+                <TrendingUp className="w-5 h-5 text-[#10b981]" />
               </div>
               <span className="font-medium">Boost Sales</span>
             </div>
@@ -98,7 +98,7 @@ export default function Hero() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group bg-[#8982cf] hover:bg-[#7873b3] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
+                className="group bg-gradient-to-r from-[#ABD4AB] to-[#9BC49B] hover:from-[#95C295] hover:to-[#ABD4AB] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
               >
                 Start Selling Today
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -137,7 +137,7 @@ export default function Hero() {
                     ease: "easeInOut",
                     repeatType: "loop"
                   }}
-                  className="w-2.5 h-2.5 bg-green-500 rounded-full relative z-10"
+                  className="w-2.5 h-2.5 bg-[#10b981] rounded-full relative z-10"
                 />
                 
                 {/* First pulse ring */}
@@ -152,7 +152,7 @@ export default function Hero() {
                     ease: "easeOut",
                     repeatType: "loop"
                   }}
-                  className="absolute inset-0 w-2.5 h-2.5 bg-green-500 rounded-full"
+                  className="absolute inset-0 w-2.5 h-2.5 bg-[#10b981] rounded-full"
                 />
                 
                 {/* Second pulse ring */}
@@ -168,7 +168,7 @@ export default function Hero() {
                     delay: 0.8,
                     repeatType: "loop"
                   }}
-                  className="absolute inset-0 w-2.5 h-2.5 bg-green-400 rounded-full"
+                  className="absolute inset-0 w-2.5 h-2.5 bg-[#059669] rounded-full"
                 />
                 
                 {/* Third pulse ring */}
@@ -184,12 +184,12 @@ export default function Hero() {
                     delay: 1.5,
                     repeatType: "loop"
                   }}
-                  className="absolute inset-0 w-2.5 h-2.5 bg-green-300 rounded-full"
+                  className="absolute inset-0 w-2.5 h-2.5 bg-[#34d399] rounded-full"
                 />
               </div>
               <motion.span
                 animate={{ 
-                  color: ["#6b7280", "#059669", "#6b7280"]
+                  color: ["#6b7280", "#10b981", "#6b7280"]
                 }}
                 transition={{ 
                   duration: 3, 
@@ -230,6 +230,7 @@ export default function Hero() {
                   fill
                   className="object-cover rounded-2xl border-4 border-white shadow-2xl"
                 />
+                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-br from-[#06b6d4] to-[#0891b2] rounded-full shadow-lg"></div>
               </div>
             </motion.div>
 
@@ -247,6 +248,7 @@ export default function Hero() {
                   fill
                   className="object-cover rounded-2xl border-4 border-white shadow-2xl"
                 />
+                <div className="absolute -top-2 -left-2 w-4 h-4 bg-gradient-to-br from-[#ABD4AB] to-[#9BC49B] rounded-full shadow-lg"></div>
               </div>
             </motion.div>
 
@@ -264,6 +266,7 @@ export default function Hero() {
                   fill
                   className="object-cover rounded-2xl border-4 border-white shadow-2xl"
                 />
+                <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-br from-[#10b981] to-[#059669] rounded-full shadow-lg"></div>
               </div>
             </motion.div>
 
@@ -272,7 +275,7 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 1.2 }}
-              className="absolute -bottom-4 right-8 z-40 bg-[#8982cf] text-white px-6 py-3 rounded-full shadow-lg"
+              className="absolute -bottom-4 right-8 z-40 bg-gradient-to-r from-[#8982cf] to-[#7873b3] text-white px-6 py-3 rounded-full shadow-lg border-2 border-[#ABD4AB]/20"
             >
               <div className="flex items-center gap-2">
                 <Store className="w-5 h-5" />
@@ -285,21 +288,27 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.0 }}
-              className="absolute -top-8 left-12 w-16 h-16 bg-gradient-to-br from-[#8982cf]/20 to-[#7873b3]/20 rounded-full blur-xl z-0"
+              className="absolute -top-8 left-12 w-16 h-16 bg-gradient-to-br from-[#ABD4AB]/20 to-[#9BC49B]/20 rounded-full blur-xl z-0"
             />
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.1 }}
-              className="absolute -bottom-12 right-20 w-20 h-20 bg-gradient-to-br from-[#7873b3]/20 to-[#8982cf]/20 rounded-full blur-xl z-0"
+              className="absolute -bottom-12 right-20 w-20 h-20 bg-gradient-to-br from-[#06b6d4]/20 to-[#0891b2]/20 rounded-full blur-xl z-0"
+            />
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.2 }}
+              className="absolute top-1/2 -left-4 w-12 h-12 bg-gradient-to-br from-[#10b981]/20 to-[#059669]/20 rounded-full blur-xl z-0"
             />
           </div>
         </motion.div>
       </div>
 
       {/* Background Decorative Elements */}
-      <div className="absolute top-20 right-20 w-72 h-72 bg-[#8982cf]/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-20 w-96 h-96 bg-[#7873b3]/5 rounded-full blur-3xl" />
+      <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-[#8982cf]/5 to-[#ABD4AB]/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-[#06b6d4]/5 to-[#10b981]/5 rounded-full blur-3xl" />
     </section>
   );
 } 

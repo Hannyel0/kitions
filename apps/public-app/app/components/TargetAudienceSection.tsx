@@ -35,7 +35,7 @@ export default function TargetAudienceSection() {
           >
             Built for Your
             <br />
-            <span className="bg-gradient-to-r from-[#8982cf] to-[#7873b3] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] bg-clip-text text-transparent">
               Business Success
             </span>
           </motion.h2>
@@ -132,14 +132,14 @@ export default function TargetAudienceSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="group"
           >
-            <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-[#8982cf]/30 h-full">
+            <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-[#ABD4AB]/30 h-full">
               {/* Icon Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-4 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-2xl group-hover:from-[#8982cf]/20 group-hover:to-[#7873b3]/20 transition-all duration-300">
-                  <Truck className="w-8 h-8 text-[#8982cf]" />
+                <div className="p-4 bg-gradient-to-br from-[#ABD4AB]/10 to-[#9BC49B]/10 rounded-2xl group-hover:from-[#ABD4AB]/20 group-hover:to-[#9BC49B]/20 transition-all duration-300">
+                  <Truck className="w-8 h-8 text-[#ABD4AB]" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#8982cf] transition-colors duration-300">
+                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#ABD4AB] transition-colors duration-300">
                     For Suppliers
                   </h3>
                   <p className="text-gray-600">Sell faster, reach more</p>
@@ -163,20 +163,20 @@ export default function TargetAudienceSection() {
                     transition={{ duration: 0.5, delay: 0.1 * index }}
                     className="flex items-center gap-3"
                   >
-                    <div className="w-2 h-2 bg-[#8982cf] rounded-full"></div>
+                    <div className="w-2 h-2 bg-[#ABD4AB] rounded-full"></div>
                     <span className="text-gray-700">{benefit}</span>
                   </motion.div>
                 ))}
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 gap-4 mb-8 p-6 bg-gradient-to-br from-[#f5f3ff] to-white rounded-2xl border border-[#8982cf]/10">
+              <div className="grid grid-cols-2 gap-4 mb-8 p-6 bg-gradient-to-br from-[#f0f9f0] to-white rounded-2xl border border-[#ABD4AB]/10">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#8982cf] mb-1">1,000+</div>
+                  <div className="text-2xl font-bold text-[#ABD4AB] mb-1">1,000+</div>
                   <div className="text-sm text-gray-600">Active Suppliers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-[#8982cf] mb-1">40%</div>
+                  <div className="text-2xl font-bold text-[#ABD4AB] mb-1">40%</div>
                   <div className="text-sm text-gray-600">Avg. Sales Increase</div>
                 </div>
               </div>
@@ -186,7 +186,7 @@ export default function TargetAudienceSection() {
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full border-2 border-[#8982cf] text-[#8982cf] hover:bg-[#8982cf] hover:text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full border-2 border-[#ABD4AB] text-[#ABD4AB] hover:bg-[#ABD4AB] hover:text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Learn More
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

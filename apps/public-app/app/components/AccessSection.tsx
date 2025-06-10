@@ -47,6 +47,7 @@ export default function AccessSection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
+          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -67,7 +68,7 @@ export default function AccessSection() {
           >
             Everything You Need to
             <br />
-            <span className="bg-gradient-to-r from-[#8982cf] to-[#7873b3] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] bg-clip-text text-transparent">
               Grow Your Business
             </span>
           </motion.h2>
@@ -85,31 +86,41 @@ export default function AccessSection() {
 
         {/* Benefits Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {benefits.map((benefit, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ y: -5, scale: 1.02 }}
-              className="group p-8 bg-white rounded-2xl border border-gray-100 hover:border-[#8982cf]/30 hover:shadow-xl transition-all duration-300 cursor-pointer"
-            >
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-xl group-hover:from-[#8982cf]/20 group-hover:to-[#7873b3]/20 transition-all duration-300">
-                  <benefit.icon className="w-6 h-6 text-[#8982cf]" />
+          {benefits.map((benefit, index) => {
+            // Alternate between purple and sage green for some variety
+            const isAccentCard = index === 1 || index === 4; // "Instant Order Processing" and "Secure Payment Processing"
+            const iconColor = isAccentCard ? '#ABD4AB' : '#8982cf';
+            const bgColor = isAccentCard ? 'from-[#ABD4AB]/10 to-[#9BC49B]/10' : 'from-[#8982cf]/10 to-[#7873b3]/10';
+            const hoverBgColor = isAccentCard ? 'group-hover:from-[#ABD4AB]/20 group-hover:to-[#9BC49B]/20' : 'group-hover:from-[#8982cf]/20 group-hover:to-[#7873b3]/20';
+            const hoverTextColor = isAccentCard ? 'group-hover:text-[#ABD4AB]' : 'group-hover:text-[#8982cf]';
+            const hoverBorderColor = isAccentCard ? 'hover:border-[#ABD4AB]/30' : 'hover:border-[#8982cf]/30';
+            
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`group p-8 bg-white rounded-2xl border border-gray-100 ${hoverBorderColor} hover:shadow-xl transition-all duration-300 cursor-pointer`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`p-3 bg-gradient-to-br ${bgColor} ${hoverBorderColor} rounded-xl ${hoverBgColor} transition-all duration-300`}>
+                    <benefit.icon className="w-6 h-6" style={{ color: iconColor }} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`text-xl font-bold text-gray-900 mb-2 ${hoverTextColor} transition-colors duration-300`}>
+                      {benefit.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {benefit.description}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#8982cf] transition-colors duration-300">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {benefit.description}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Bottom CTA Section */}
@@ -135,7 +146,7 @@ export default function AccessSection() {
                 <div className="text-gray-600">Active Retailers</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#8982cf] mb-2">1,000+</div>
+                <div className="text-3xl font-bold text-[#ABD4AB] mb-2">1,000+</div>
                 <div className="text-gray-600">Verified Suppliers</div>
               </div>
               <div className="text-center">
@@ -151,7 +162,7 @@ export default function AccessSection() {
             >
               <a
                 href="/signup"
-                className="group bg-[#8982cf] hover:bg-[#7873b3] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                className="group bg-gradient-to-r from-[#ABD4AB] to-[#9BC49B] hover:from-[#95C295] hover:to-[#ABD4AB] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
               >
                 Get Started Today
                 <motion.div
