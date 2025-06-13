@@ -69,7 +69,7 @@ export default function DistributorsFeatures() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6"
           >
-            <span className="bg-gradient-to-r from-[#8982cf] to-[#7873b3] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] bg-clip-text text-transparent">
               Features
             </span>{' '}
             for Distributors
@@ -89,6 +89,16 @@ export default function DistributorsFeatures() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => {
             const IconComponent = feature.icon;
+            // Alternate between purple and green for visual rhythm
+            const isAccentCard = index === 1 || index === 3 || index === 5; // Dynamic Pricing, Customer Relationship Tools, Analytics
+            const iconBgColor = isAccentCard ? 'from-[#ABD4AB]/10 to-[#9BC49B]/10' : 'from-[#8982cf]/10 to-[#7873b3]/10';
+            const iconBorderColor = isAccentCard ? 'border-[#ABD4AB]/20' : 'border-[#8982cf]/20';
+            const iconColor = isAccentCard ? 'text-[#ABD4AB]' : 'text-[#8982cf]';
+            const hoverBorderColor = isAccentCard ? 'hover:border-[#ABD4AB]/30' : 'hover:border-[#8982cf]/30';
+            const hoverTextColor = isAccentCard ? 'group-hover:text-[#ABD4AB]' : 'group-hover:text-[#8982cf]';
+            const descriptionColor = isAccentCard ? 'text-[#ABD4AB]' : 'text-[#8982cf]';
+            const hoverBarColor = isAccentCard ? 'from-[#ABD4AB] to-[#9BC49B]' : 'from-[#8982cf] to-[#7873b3]';
+            
             return (
               <motion.div
                 key={index}
@@ -98,22 +108,22 @@ export default function DistributorsFeatures() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="group"
               >
-                <div className="relative bg-white rounded-2xl p-8 h-full border-2 border-gray-100 hover:border-[#8982cf]/30 transition-all duration-300 hover:shadow-lg">
+                <div className={`relative bg-white rounded-2xl p-8 h-full border-2 border-gray-100 ${hoverBorderColor} transition-all duration-300 hover:shadow-lg`}>
                   {/* Icon */}
                   <motion.div
                     whileHover={{ scale: 1.05, rotate: 2 }}
                     transition={{ duration: 0.2 }}
-                    className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-xl mb-6 border border-[#8982cf]/20"
+                    className={`inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br ${iconBgColor} rounded-xl mb-6 border ${iconBorderColor}`}
                   >
-                    <IconComponent className="w-7 h-7 text-[#8982cf]" />
+                    <IconComponent className={`w-7 h-7 ${iconColor}`} />
                   </motion.div>
 
                   {/* Content */}
                   <div className="space-y-4">
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#8982cf] transition-colors duration-200">
+                    <h3 className={`text-xl font-bold text-gray-900 ${hoverTextColor} transition-colors duration-200`}>
                       {feature.title}
                     </h3>
-                    <p className="text-[#8982cf] font-medium text-sm">
+                    <p className={`${descriptionColor} font-medium text-sm`}>
                       {feature.description}
                     </p>
                     <p className="text-gray-600 leading-relaxed text-sm">
@@ -123,7 +133,7 @@ export default function DistributorsFeatures() {
 
                   {/* Check mark indicator */}
                   <div className="absolute top-4 right-4">
-                    <CheckCircle className="w-5 h-5 text-green-500 opacity-60" />
+                    <CheckCircle className={`w-5 h-5 ${isAccentCard ? 'text-[#ABD4AB]' : 'text-[#8982cf]'} opacity-60`} />
                   </div>
 
                   {/* Hover indicator */}
@@ -131,7 +141,7 @@ export default function DistributorsFeatures() {
                     initial={{ width: 0 }}
                     whileHover={{ width: "100%" }}
                     transition={{ duration: 0.3 }}
-                    className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-[#8982cf] to-[#7873b3] rounded-b-2xl"
+                    className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${hoverBarColor} rounded-b-2xl`}
                   />
                 </div>
               </motion.div>
@@ -145,9 +155,13 @@ export default function DistributorsFeatures() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="bg-gradient-to-r from-[#8982cf]/5 to-[#7873b3]/5 rounded-3xl p-8 md:p-12 border border-[#8982cf]/10"
+          className="bg-gradient-to-r from-[#8982cf]/5 to-[#ABD4AB]/5 rounded-3xl p-8 md:p-12 border border-[#8982cf]/10 relative overflow-hidden"
         >
-          <div className="text-center">
+          {/* Background decorative elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-[#ABD4AB]/10 to-[#9BC49B]/10 rounded-full blur-3xl -translate-y-48 translate-x-48"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-full blur-3xl translate-y-48 -translate-x-48"></div>
+          
+          <div className="relative z-10 text-center">
             <motion.h3
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -176,14 +190,14 @@ export default function DistributorsFeatures() {
               className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8"
             >
               {[
-                "Bulk Import",
-                "Real-time Sync", 
-                "Advanced Reports",
-                "24/7 Support"
+                { text: "Bulk Import", color: "#8982cf" },
+                { text: "Real-time Sync", color: "#ABD4AB" }, 
+                { text: "Advanced Reports", color: "#8982cf" },
+                { text: "24/7 Support", color: "#ABD4AB" }
               ].map((highlight, index) => (
                 <div key={index} className="flex items-center gap-2 justify-center">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700 font-medium">{highlight}</span>
+                  <CheckCircle className="w-5 h-5" style={{ color: highlight.color }} />
+                  <span className="text-gray-700 font-medium">{highlight.text}</span>
                 </div>
               ))}
             </motion.div>
@@ -194,7 +208,7 @@ export default function DistributorsFeatures() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 1.1 }}
             >
-              <button className="group bg-[#8982cf] hover:bg-[#7873b3] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 mx-auto">
+              <button className="group bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] hover:from-[#ABD4AB] hover:to-[#8982cf] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 mx-auto">
                 Explore All Features
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>

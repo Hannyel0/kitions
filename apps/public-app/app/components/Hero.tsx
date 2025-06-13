@@ -27,10 +27,18 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#f5f3ff] to-[#f4fff4d8] border border-[#ABD4AB]/20 rounded-full text-[#8982cf] font-medium text-sm"
+            className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#8982cf] font-medium text-sm bg-gradient-to-r from-[#f5f3ff] to-[#f4fff4d8] overflow-hidden group"
           >
-            <Zap className="w-4 h-4" />
-            B2B Food Marketplace
+            <Zap className="w-4 h-4 z-10 relative" />
+            <span className="z-10 relative">B2B Food Marketplace</span>
+
+            {/* Glowing animated border */}
+            <span
+              className="absolute inset-0 rounded-full bg-[conic-gradient(at_top_left,_#ABD4AB,_#9BC49B,_#ABD4AB,_#8982cf,_#ABD4AB)] opacity-40 blur-sm animate-[spin_4s_linear_infinite] group-hover:opacity-60"
+            ></span>
+
+            {/* Inner fill mask to hide center */}
+            <span className="absolute inset-[1px] bg-gradient-to-r from-[#f5f3ff] to-[#f4fff4d8] rounded-full z-0"></span>
           </motion.div>
 
           {/* Main Headline */}

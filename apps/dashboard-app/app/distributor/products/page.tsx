@@ -250,15 +250,15 @@ export default function ProductsPage() {
                   /* Filter products based on search term and selected category */
                   (() => {
                     const filteredProducts = products
-                      .filter(product => 
-                        searchTerm === '' || 
-                        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        product.description.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .filter(product => 
-                        selectedCategory === 'all' || 
-                        product.category.toLowerCase() === selectedCategory.toLowerCase()
-                      );
+                    .filter(product => 
+                      searchTerm === '' || 
+                      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      product.description.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .filter(product => 
+                      selectedCategory === 'all' || 
+                      product.category.toLowerCase() === selectedCategory.toLowerCase()
+                    );
                     
                     if (filteredProducts.length === 0) {
                       return (
@@ -280,26 +280,26 @@ export default function ProductsPage() {
                         </div>
                       );
                     }
-                      
-                    return viewType === 'grid' ? (
-                      // Grid view
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredProducts.map((product) => (
-                          <ProductCard 
-                            key={product.id} 
-                            product={product} 
-                            onEdit={handleEditProduct}
-                            onDelete={handleDeleteProduct}
-                            onRefresh={handleRefresh}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      // List view with sorting capability
-                      <ProductList 
-                        products={filteredProducts} 
-                      />
-                    );
+                    
+                  return viewType === 'grid' ? (
+                    // Grid view
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {filteredProducts.map((product) => (
+                        <ProductCard 
+                          key={product.id} 
+                          product={product} 
+                          onEdit={handleEditProduct}
+                          onDelete={handleDeleteProduct}
+                          onRefresh={handleRefresh}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    // List view with sorting capability
+                    <ProductList 
+                      products={filteredProducts} 
+                    />
+                  );
                   })()
                 )}
               </div>

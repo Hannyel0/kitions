@@ -53,8 +53,8 @@ export default function SignupRole() {
           if (storedRole && user.user_metadata?.role) {
             // Role already selected, go to verification
             console.log('✅ Role already selected, redirecting to verification page');
-            router.push('/signup/verification');
-            return;
+          router.push('/signup/verification');
+          return;
           } else {
             // No role selected yet, stay on this page to complete role selection
             console.log('📋 No role selected yet, allowing role selection');
@@ -138,29 +138,29 @@ export default function SignupRole() {
           return;
         }
 
-        // Create user account with basic info
-        const userData = {
-          firstName: signupData.firstName,
-          lastName: signupData.lastName,
-          businessName: '', // Will be filled later
-          businessAddress: '',
-          businessType: '',
-          phone: '', // Will be filled later
-          role: selectedRole,
-        };
-        
-        const { error: signUpError, data: signUpData } = await signUp(signupData.email, signupData.password, userData);
+      // Create user account with basic info
+      const userData = {
+        firstName: signupData.firstName,
+        lastName: signupData.lastName,
+        businessName: '', // Will be filled later
+        businessAddress: '',
+        businessType: '',
+        phone: '', // Will be filled later
+        role: selectedRole,
+      };
+      
+      const { error: signUpError, data: signUpData } = await signUp(signupData.email, signupData.password, userData);
 
-        if (signUpError) {
-          setError(signUpError.message);
-          setLoading(false);
-          return;
-        }
-        
-        if (!signUpData?.user) {
-          setError('Account creation failed. Please try again.');
-          setLoading(false);
-          return;
+      if (signUpError) {
+        setError(signUpError.message);
+        setLoading(false);
+        return;
+      }
+      
+      if (!signUpData?.user) {
+        setError('Account creation failed. Please try again.');
+        setLoading(false);
+        return;
         }
       }
       
