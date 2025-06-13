@@ -18,7 +18,7 @@ import {
 const dropdownVariants = {
   hidden: { 
     opacity: 0, 
-    y: -20,
+    y: -10,
     scale: 0.95,
     transition: { 
       duration: 0.2,
@@ -36,7 +36,7 @@ const dropdownVariants = {
   },
   exit: { 
     opacity: 0, 
-    y: -10,
+    y: -5,
     scale: 0.95,
     transition: { 
       duration: 0.2,
@@ -150,7 +150,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full px-4 md:px-16 py-3 flex items-center justify-between bg-white/95 backdrop-blur-sm shadow-md fixed top-0 left-0 right-0 z-50">
+    <nav className="w-full px-4 md:px-16 py-3 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-gray-200/50 fixed top-0 left-0 right-0 z-50 shadow-sm">
+      {/* Logo Section */}
       <div className="flex items-center">
         <Link href="/" className="flex items-center">
           <svg 
@@ -172,68 +173,84 @@ export default function Navbar() {
             </g>
           </svg>
         </Link>
-        <div className="ml-12 hidden md:flex space-x-6">
-          <Link href="/for-retailers" className="text-gray-700 font-semibold hover:text-[#8982cf] flex items-center">
-            <FontAwesomeIcon icon={faStore} className="mr-2" />
-            For Retailers
+        
+        {/* Desktop Navigation Links */}
+        <div className="ml-12 hidden lg:flex items-center space-x-1">
+          <Link href="/for-retailers" className="relative group px-4 py-2 rounded-lg text-gray-700 font-medium hover:text-[#8982cf] transition-all duration-300">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faStore} className="w-4 h-4" />
+              <span>For Retailers</span>
+            </div>
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-[#8982cf]/5 to-[#ABD4AB]/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            />
           </Link>
-          <Link href="/for-distributors" className="text-gray-700 font-semibold hover:text-[#8982cf] flex items-center">
-            <FontAwesomeIcon icon={faBox} className="mr-2" />
-            For Distributors
+          
+          <Link href="/for-distributors" className="relative group px-4 py-2 rounded-lg text-gray-700 font-medium hover:text-[#ABD4AB] transition-all duration-300">
+            <div className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faBox} className="w-4 h-4" />
+              <span>For Distributors</span>
+            </div>
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-[#ABD4AB]/5 to-[#8982cf]/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            />
           </Link>
-          <div className="h-7 border-l border-gray-300 mx-3 self-center"></div>
-          <div className="relative pl-2" ref={resourcesDropdownRef}>
-            <button 
-              className="cursor-pointer text-gray-700 font-semibold hover:text-[#8982cf] flex items-center"
+          
+          {/* Elegant Separator */}
+          <div className="h-6 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent mx-3" />
+          
+          {/* Resources Dropdown */}
+          <div className="relative" ref={resourcesDropdownRef}>
+            <motion.button 
+              className="relative group px-4 py-2 rounded-lg text-gray-700 font-medium hover:text-[#8982cf] transition-all duration-300 flex items-center gap-2"
               onClick={() => setIsResourcesOpen(!isResourcesOpen)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Resources
+              <span>Resources</span>
               <FontAwesomeIcon 
                 icon={faChevronDown} 
-                className={`ml-1 h-4 w-4 transition-transform ${isResourcesOpen ? 'rotate-180' : ''}`}
+                className={`w-3 h-3 transition-transform duration-300 ${isResourcesOpen ? 'rotate-180' : ''}`}
               />
-            </button>
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-r from-[#8982cf]/5 to-[#ABD4AB]/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              />
+            </motion.button>
+            
             <AnimatePresence>
               {isResourcesOpen && (
                 <motion.div 
-                  className="fixed z-999 w-[450px] bg-white rounded-lg shadow-lg overflow-hidden p-4"
-                  style={{
-                    top: resourcesDropdownRef.current ? 
-                      resourcesDropdownRef.current.getBoundingClientRect().bottom + 10 : 0,
-                    left: resourcesDropdownRef.current ? 
-                      resourcesDropdownRef.current.getBoundingClientRect().left : 0
-                  }}
+                  className="absolute top-full mt-2 left-0 w-80 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden z-50"
                   initial="hidden"
                   animate="visible"
                   exit="exit"
                   variants={dropdownVariants}
                 >
-                  <div className="absolute -top-2 left-8 w-4 h-4 bg-white transform rotate-45 shadow-sm"></div>
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="p-6 space-y-4">
                     <Link 
                       href="/blog" 
-                      className="flex items-start p-4 rounded-lg hover:bg-gray-50"
+                      className="group flex items-start p-4 rounded-xl hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-[#ABD4AB]/5 transition-all duration-300"
                       onClick={() => setIsResourcesOpen(false)}
                     >
-                      <div className="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                        <FontAwesomeIcon icon={faBlog} className="h-6 w-6 text-purple-600" />
+                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                        <FontAwesomeIcon icon={faBlog} className="w-5 h-5 text-[#8982cf]" />
                       </div>
                       <div>
-                        <h3 className="text-base font-semibold text-gray-800 mb-1">Blog</h3>
-                        <p className="text-sm text-gray-600">Read our latest articles about retail industry trends and strategies.</p>
+                        <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-[#8982cf] transition-colors">Blog</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">Latest insights and trends in the food industry</p>
                       </div>
                     </Link>
                     
                     <a 
                       href={getWebsitesAppUrl()} 
-                      className="flex items-start p-4 rounded-lg hover:bg-gray-50"
+                      className="group flex items-start p-4 rounded-xl hover:bg-gradient-to-r hover:from-[#ABD4AB]/5 hover:to-[#9BC49B]/5 transition-all duration-300"
                     >
-                      <div className="flex-shrink-0 h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                        <FontAwesomeIcon icon={faGlobe} className="h-6 w-6 text-green-600" />
+                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[#ABD4AB]/10 to-[#9BC49B]/10 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                        <FontAwesomeIcon icon={faGlobe} className="w-5 h-5 text-[#ABD4AB]" />
                       </div>
                       <div>
-                        <h3 className="text-base font-semibold text-gray-800 mb-1">Website Creation Service</h3>
-                        <p className="text-sm text-gray-600">Connect your retail business with premium e-commerce solutions.</p>
+                        <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-[#ABD4AB] transition-colors">Website Builder</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">Create beautiful websites for your business</p>
                       </div>
                     </a>
                   </div>
@@ -244,38 +261,33 @@ export default function Navbar() {
         </div>
       </div>
       
-      {/* Desktop menu */}
-      <div className="hidden md:flex items-center space-x-4">
+      {/* Right Side - Auth & User Menu */}
+      <div className="flex items-center space-x-4">
         {loading ? (
-          // Loading state
-          <div className="animate-pulse h-10 w-32 bg-gray-200 rounded-full"></div>
+          <div className="animate-pulse flex space-x-2">
+            <div className="h-10 w-20 bg-gray-200 rounded-lg"></div>
+            <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+          </div>
         ) : user ? (
-          // User is logged in
           <>
-            <a
+            {/* Dashboard Button */}
+            <motion.a
               href={getDashboardUrl()}
-              className="hidden md:flex items-center px-4 py-2 text-sm font-medium text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-md transition-colors shadow-sm hover:shadow-md mr-2"
+              className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] hover:from-[#ABD4AB] hover:to-[#8982cf] text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Dashboard
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-4 w-4 ml-2" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M17 8l4 4m0 0l-4 4m4-4H3" 
-                />
-              </svg>
-            </a>
+              <span>Dashboard</span>
+              <FontAwesomeIcon icon={faHome} className="w-4 h-4" />
+            </motion.a>
+            
+            {/* User Menu */}
             <div className="relative" ref={userMenuRef}>
-              <button 
-                className="flex items-center space-x-2 focus:outline-none group rounded-full p-1 pr-2 hover:bg-gray-100 transition-colors cursor-pointer"
+              <motion.button 
+                className="flex items-center gap-3 p-2 pr-4 rounded-lg hover:bg-gray-50 border border-gray-200/50 transition-all duration-300 group"
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <ProfileAvatar 
                   firstName={userName?.split(' ')[0]}
@@ -284,55 +296,50 @@ export default function Navbar() {
                   profilePictureUrl={profilePicUrl}
                   size="sm"
                 />
-                <div className="flex items-center">
-                  <span className="text-gray-700 font-medium">
+                <div className="hidden md:flex items-center gap-2">
+                  <span className="text-gray-700 font-medium group-hover:text-[#8982cf] transition-colors">
                     {userName?.split(' ')[0]}
                   </span>
                   <FontAwesomeIcon 
                     icon={faChevronDown} 
-                    className={`ml-1 h-3 w-3 transition-transform text-gray-500 ${isUserMenuOpen ? 'rotate-180' : ''}`}
+                    className={`w-3 h-3 text-gray-500 transition-all duration-300 ${isUserMenuOpen ? 'rotate-180 text-[#8982cf]' : ''}`}
                   />
                 </div>
-              </button>
+              </motion.button>
             
               <AnimatePresence>
                 {isUserMenuOpen && (
                   <motion.div
-                    className="fixed z-999 w-60 bg-white rounded-lg shadow-lg overflow-hidden"
-                    style={{
-                      top: userMenuRef.current ? 
-                        userMenuRef.current.getBoundingClientRect().bottom + 10 : 0,
-                      right: 16 // Fixed right margin
-                    }}
+                    className="absolute top-full mt-2 right-0 w-56 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 overflow-hidden z-50"
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                     variants={dropdownVariants}
                   >
-                    <div className="absolute -top-2 right-8 w-4 h-4 bg-white transform rotate-45 shadow-sm"></div>
-                    <div className="relative">
+                    <div className="p-4 space-y-2">
                       <a 
                         href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/profile' : '/profile'} 
-                        className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100 cursor-pointer"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-[#8982cf] hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-transparent rounded-lg transition-all duration-300 group"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <FontAwesomeIcon icon={faUserCircle} className="mr-3 w-4 text-gray-500" />
-                        Profile
+                        <FontAwesomeIcon icon={faUserCircle} className="w-4 h-4 text-gray-500 group-hover:text-[#8982cf]" />
+                        <span>Profile</span>
                       </a>
                       <a 
                         href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/orders' : '/orders'} 
-                        className="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] border-b border-gray-100 cursor-pointer"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-[#ABD4AB] hover:bg-gradient-to-r hover:from-[#ABD4AB]/5 hover:to-transparent rounded-lg transition-all duration-300 group"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        <FontAwesomeIcon icon={faShoppingCart} className="mr-3 w-4 text-gray-500" />
-                        Orders
+                        <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4 text-gray-500 group-hover:text-[#ABD4AB]" />
+                        <span>Orders</span>
                       </a>
+                      <div className="border-t border-gray-200/50 my-2"></div>
                       <button
                         onClick={handleSignOut}
-                        className="flex items-center w-full text-left px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#8982cf] cursor-pointer"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300 w-full text-left group"
                       >
-                        <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 w-4 text-gray-500" />
-                        Sign out
+                        <FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4 text-gray-500 group-hover:text-red-500" />
+                        <span>Sign out</span>
                       </button>
                     </div>
                   </motion.div>
@@ -341,228 +348,162 @@ export default function Navbar() {
             </div>
           </>
         ) : (
-          // User is not logged in
           <>
-            <Link href="/login/" className="text-gray-700 hover:text-[#8982cf] flex items-center">
-              <FontAwesomeIcon icon={faSignIn} className="mr-2" />
-              Login
+            <Link href="/login/" className="hidden md:flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-[#8982cf] font-medium rounded-lg transition-all duration-300">
+              <FontAwesomeIcon icon={faSignIn} className="w-4 h-4" />
+              <span>Login</span>
             </Link>
             <Link 
               href="/signup/" 
               className="bg-[#8982cf] text-white font-medium px-5 py-2.5 rounded-full hover:bg-[#7873b3] transition-colors shadow-sm border border-[#7873b3] flex items-center"
             >
-              
               Sell now
             </Link>
           </>
         )}
-      </div>
-      
-      {/* Mobile menu button */}
-      <div className="md:hidden flex items-center">
-        <button
+        
+        {/* Mobile menu button */}
+        <motion.button
           type="button"
-          className="text-gray-700 hover:text-[#8982cf] focus:outline-none"
+          className="lg:hidden p-2 text-gray-700 hover:text-[#8982cf] hover:bg-gray-50 rounded-lg transition-all duration-300"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="h-6 w-6" />
-        </button>
+          <FontAwesomeIcon icon={isMenuOpen ? faTimes : faBars} className="h-5 w-5" />
+        </motion.button>
       </div>
       
-      {/* Mobile menu dropdown */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div 
-            className="absolute top-full left-0 right-0 bg-white shadow-md py-4 px-4 md:hidden z-50"
+            className="absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl shadow-xl border-b border-gray-200/50 lg:hidden z-40"
             initial="hidden"
             animate="visible"
             exit="exit"
             variants={dropdownVariants}
           >
-            <div className="flex flex-col space-y-3">
-              <Link 
-                href="/about" 
-                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 ml-2 flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                About Us
-              </Link>
-              <Link 
-                href="/products" 
-                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 ml-2 flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Products
-              </Link>
+            <div className="px-6 py-6 space-y-4">
               <Link 
                 href="/for-retailers" 
-                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 ml-2 flex items-center"
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-[#8982cf] hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-transparent rounded-lg transition-all duration-300 group"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <FontAwesomeIcon icon={faStore} className="mr-2" />
-                For Retailers
+                <FontAwesomeIcon icon={faStore} className="w-5 h-5 text-gray-500 group-hover:text-[#8982cf]" />
+                <span className="font-medium">For Retailers</span>
               </Link>
               <Link 
-                href="/for-brands" 
-                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 flex items-center"
+                href="/for-distributors" 
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-[#ABD4AB] hover:bg-gradient-to-r hover:from-[#ABD4AB]/5 hover:to-transparent rounded-lg transition-all duration-300 group"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <FontAwesomeIcon icon={faBox} className="mr-2" />
-                For Brands
-              </Link>
-              <Link 
-                href="/partnership" 
-                className="text-gray-700 font-semibold hover:text-[#8982cf] py-2 flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Partnership
+                <FontAwesomeIcon icon={faBox} className="w-5 h-5 text-gray-500 group-hover:text-[#ABD4AB]" />
+                <span className="font-medium">For Distributors</span>
               </Link>
               
-              <div className="py-2">
+              <div className="border-t border-gray-200/50 my-4"></div>
+              
+              {/* Mobile Resources */}
+              <div>
                 <button 
-                  className="text-gray-700 font-semibold hover:text-[#8982cf] flex items-center w-full text-left"
+                  className="flex items-center justify-between w-full px-4 py-3 text-gray-700 hover:text-[#8982cf] hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-transparent rounded-lg transition-all duration-300"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsResourcesOpen(!isResourcesOpen);
                   }}
                 >
-                  Resources
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium">Resources</span>
+                  </div>
                   <FontAwesomeIcon 
                     icon={faChevronDown} 
-                    className={`ml-1 h-4 w-4 transition-transform ${isResourcesOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 transition-transform ${isResourcesOpen ? 'rotate-180' : ''}`}
                   />
                 </button>
                 <AnimatePresence>
                   {isResourcesOpen && (
                     <motion.div 
-                      className="mt-2 ml-4 bg-white rounded-lg shadow-md overflow-hidden"
+                      className="mt-2 ml-4 space-y-2"
                       initial="hidden"
                       animate="visible"
                       exit="exit"
                       variants={dropdownVariants}
                     >
-                      <div className="p-3">
-                        <Link 
-                          href="/blog" 
-                          className="flex items-start p-2 rounded-lg hover:bg-gray-50 mb-3"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex-shrink-0 h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                            <FontAwesomeIcon icon={faBlog} className="h-5 w-5 text-purple-600" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-semibold text-gray-800">Blog</h3>
-                            <p className="text-xs text-gray-600">Latest retail industry insights</p>
-                          </div>
-                        </Link>
-                        
-                        <a 
-                          href={getWebsiteCreationServiceUrl()} 
-                          className="flex items-start p-2 rounded-lg hover:bg-gray-50 mb-3"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                            <FontAwesomeIcon icon={faGlobe} className="h-5 w-5 text-green-600" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-semibold text-gray-800">Website Creation Service</h3>
-                            <p className="text-xs text-gray-600">Connect your retail business with premium e-commerce solutions.</p>
-                          </div>
-                        </a>
-
-                        <a 
-                          href={getWebsitesAppUrl()}
-                          className="flex items-start p-2 rounded-lg hover:bg-gray-50"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                            <FontAwesomeIcon icon={faLaptopCode} className="h-5 w-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-semibold text-gray-800">Website Builder</h3>
-                            <p className="text-xs text-gray-600">Create your own custom website</p>
-                          </div>
-                        </a>
-                      </div>
+                      <Link 
+                        href="/blog" 
+                        className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-[#8982cf] hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-transparent rounded-lg transition-all duration-300"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faBlog} className="w-4 h-4 text-[#8982cf]" />
+                        <span>Blog</span>
+                      </Link>
+                      <a 
+                        href={getWebsitesAppUrl()} 
+                        className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-[#ABD4AB] hover:bg-gradient-to-r hover:from-[#ABD4AB]/5 hover:to-transparent rounded-lg transition-all duration-300"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <FontAwesomeIcon icon={faGlobe} className="w-4 h-4 text-[#ABD4AB]" />
+                        <span>Website Builder</span>
+                      </a>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
               
               {user ? (
-                // User is logged in (mobile view)
                 <>
-                  <div className="flex items-center py-3 border-t border-gray-200">
-                    <div className="relative h-10 w-10 rounded-full overflow-hidden border border-gray-200 mr-3">
-                      <Image 
-                        src={profilePicUrl || '/no-pfp.jpg'} 
-                        alt={userName || 'User profile'} 
-                        width={40} 
-                        height={40}
-                        className="object-cover"
-                      />
-                    </div>
+                  <div className="border-t border-gray-200/50 my-4"></div>
+                  <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#8982cf]/5 to-[#ABD4AB]/5 rounded-lg">
+                    <ProfileAvatar 
+                      firstName={userName?.split(' ')[0]}
+                      lastName={userName?.split(' ')[1]}
+                      email={user?.email}
+                      profilePictureUrl={profilePicUrl}
+                      size="sm"
+                    />
                     <div>
-                      <p className="font-medium text-gray-800">{userName}</p>
+                      <p className="font-semibold text-gray-900">{userName}</p>
+                      <p className="text-sm text-gray-600">{user.email}</p>
                     </div>
                   </div>
                   
-                  {userRole && (
-                    <a 
-                      href={getDashboardUrl()} 
-                      className="text-gray-700 hover:text-[#8982cf] py-2 pl-2 flex items-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      <FontAwesomeIcon icon={faHome} className="mr-3 w-4 text-gray-500" />
-                      Dashboard
-                    </a>
-                  )}
-                  <a 
-                    href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/profile' : '/profile'} 
-                    className="text-gray-700 hover:text-[#8982cf] py-2 pl-2 flex items-center"
+                  <Link 
+                    href={getDashboardUrl()} 
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-[#8982cf] hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-transparent rounded-lg transition-all duration-300"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <FontAwesomeIcon icon={faUserCircle} className="mr-3 w-4 text-gray-500" />
-                    Profile
-                  </a>
-                  <a 
-                    href={process.env.NODE_ENV === 'development' ? 'http://localhost:3001/orders' : '/orders'} 
-                    className="text-gray-700 hover:text-[#8982cf] py-2 pl-2 flex items-center"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <FontAwesomeIcon icon={faShoppingCart} className="mr-3 w-4 text-gray-500" />
-                    Orders
-                  </a>
+                    <FontAwesomeIcon icon={faHome} className="w-5 h-5 text-gray-500" />
+                    <span className="font-medium">Dashboard</span>
+                  </Link>
+                  
                   <button
                     onClick={handleSignOut}
-                    className="text-gray-700 hover:text-[#8982cf] py-2 pl-2 text-left flex items-center"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300 w-full text-left"
                   >
-                    <FontAwesomeIcon icon={faSignOutAlt} className="mr-3 w-4 text-gray-500" />
-                    Sign out
+                    <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5 text-gray-500" />
+                    <span className="font-medium">Sign out</span>
                   </button>
                 </>
               ) : (
-                // User is not logged in (mobile view)
                 <>
+                  <div className="border-t border-gray-200/50 my-4"></div>
                   <Link 
                     href="/login/" 
-                    className="text-gray-700 hover:text-[#8982cf] py-2 flex items-center"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-[#8982cf] hover:bg-gradient-to-r hover:from-[#8982cf]/5 hover:to-transparent rounded-lg transition-all duration-300"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <FontAwesomeIcon icon={faSignIn} className="mr-2" />
-                    Login
+                    <FontAwesomeIcon icon={faSignIn} className="w-5 h-5 text-gray-500" />
+                    <span className="font-medium">Login</span>
                   </Link>
                   <Link 
                     href="/signup/" 
-                    className="bg-[#8982cf] text-white font-medium px-5 py-2.5 rounded-full hover:bg-[#7873b3] transition-colors shadow-sm border border-[#7873b3] text-center flex items-center justify-center"
+                    className="flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] text-white font-semibold rounded-lg shadow-lg transition-all duration-300 mt-4"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <FontAwesomeIcon icon={faStore} className="mr-2" />
-                    Sell now
+                    <FontAwesomeIcon icon={faStore} className="w-5 h-5" />
+                    <span>Start Selling Now</span>
                   </Link>
-                  <div className="mt-2 bg-amber-50 border border-amber-200 rounded-md py-2 px-3 text-xs text-amber-700 shadow-sm">
-                    Login currently unavailable to the public
-                  </div>
                 </>
               )}
             </div>
