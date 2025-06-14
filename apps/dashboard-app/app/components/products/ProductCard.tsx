@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { MoreVertical as MoreVerticalIcon, Edit as EditIcon, Trash as TrashIcon } from 'lucide-react'
+import { MoreVertical as MoreVerticalIcon, Edit as EditIcon, Trash as TrashIcon, Package, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
 import { DeleteConfirmationModal } from './DeleteConfirmationModal'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Product } from './types'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface ProductCardProps {
   product: Product
@@ -162,94 +163,190 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
         setIsDeleteModalOpen(false)
       }
     }
+
+  // Get stock status with enhanced styling
+  const getStockStatus = () => {
+    if (product.stock_quantity <= 0) {
+      return {
+        label: 'Out of Stock',
+        color: 'bg-red-50 text-red-600 border-red-200',
+        icon: <AlertTriangle size={12} className="text-red-500" />,
+        dotColor: 'bg-red-500'
+      }
+    }
+    
+    if (product.stock_quantity <= 10) {
+      return {
+        label: 'Low Stock',
+        color: 'bg-amber-50 text-amber-600 border-amber-200',
+        icon: <AlertTriangle size={12} className="text-amber-500" />,
+        dotColor: 'bg-amber-500'
+      }
+    }
+    
+    return {
+      label: 'In Stock',
+      color: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+      icon: <CheckCircle size={12} className="text-emerald-500" />,
+      dotColor: 'bg-emerald-500'
+    }
+  }
+
+  const stockStatus = getStockStatus()
   
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200 relative">
-      <Link href={`/distributor/products/${product.id}`} className="block">
-        <div className="relative h-48 bg-gray-100">
+    <motion.div 
+      className="group relative bg-white/80 backdrop-blur-sm border border-white/50 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+      whileHover={{ y: -8, scale: 1.02 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      <Link href={`/distributor/products/${product.id}`} className="block relative z-10">
+        {/* Image Section */}
+        <div className="relative h-56 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
           {product.image ? (
-            <Image
-              src={product.image}
-              alt={product.name}
-              width={400}
-              height={192}
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={product.image}
+                alt={product.name}
+                width={400}
+                height={224}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              {/* Image overlay gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-gray-200">
-              <Image src="/package-open.svg" alt="Package icon" width={64} height={64} className="h-16 w-16" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50"></div>
+              <div className="relative p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-white/50">
+                <Package className="h-12 w-12 text-gray-400" />
+              </div>
             </div>
           )}
-        </div>
-        
-        <div className="p-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="font-medium text-gray-900">{product.name}</h3>
-              <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                {product.description}
-              </p>
+          
+          {/* Stock Status Badge */}
+          <div className="absolute top-4 left-4">
+            <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full border backdrop-blur-sm ${stockStatus.color}`}>
+              <div className={`w-2 h-2 rounded-full ${stockStatus.dotColor} animate-pulse`}></div>
+              <span className="text-xs font-medium">{stockStatus.label}</span>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <div>
-              <span className="text-gray-800 text-lg font-semibold">${product.price}</span>
-              <span className="text-gray-500 ml-2">
+          
+          {/* Category Badge */}
+          <div className="absolute top-4 right-4">
+            <div className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/50 shadow-sm">
+              {product.category}
+            </div>
+          </div>
+        </div>
+        
+        {/* Content Section */}
+        <div className="p-6 relative">
+          {/* Product Name & Description */}
+          <div className="mb-4">
+            <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors duration-300">
+              {product.name}
+            </h3>
+            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+              {product.description || 'No description available'}
+            </p>
+          </div>
+          
+          {/* Price Section */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-baseline space-x-2">
+              <span className="text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+                ${product.price.toFixed(2)}
+              </span>
+              <span className="text-sm text-gray-500">
                 / case of {product.case_size}
               </span>
             </div>
-            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-full">
-              {product.category}
-            </span>
+            <div className="flex items-center space-x-1 text-gray-500">
+              <TrendingUp size={14} />
+              <span className="text-xs font-medium">{product.stock_quantity} units</span>
+            </div>
+          </div>
+          
+          {/* SKU */}
+          <div className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-lg inline-block">
+            SKU: {product.sku}
           </div>
         </div>
       </Link>
       
-      {/* Menu button positioned outside the link to avoid navigation when clicking menu */}
-      <div className="absolute top-2 right-2" ref={menuRef}>
-        <button 
-          className="cursor-pointer p-1 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 z-10"
+      {/* Action Menu */}
+      <div className="absolute top-4 right-16 z-20" ref={menuRef}>
+        <motion.button 
+          className="p-2 bg-white/90 backdrop-blur-sm border border-white/50 rounded-full shadow-lg hover:bg-white hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             setIsMenuOpen(!isMenuOpen);
           }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           <MoreVerticalIcon size={16} className="text-gray-600" />
-        </button>
+        </motion.button>
         
-        {isMenuOpen && (
-          <div className="absolute top-10 right-0 w-36 bg-white rounded-md shadow-lg z-20 py-1 border border-gray-200">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditClick();
-              }}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div 
+              className="absolute top-12 right-0 w-40 bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/50 py-2 z-30"
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.2 }}
             >
-              <EditIcon size={14} className="mr-2" />
-              Edit
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteClick();
-              }}
-              disabled={isDeleting}
-              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-            >
-              <TrashIcon size={14} className="mr-2" />
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
-        )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleEditClick();
+                }}
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 flex items-center space-x-3 transition-colors duration-200"
+              >
+                <EditIcon size={14} />
+                <span>Edit Product</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleDeleteClick();
+                }}
+                disabled={isDeleting}
+                className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center space-x-3 transition-colors duration-200 disabled:opacity-50"
+              >
+                <TrashIcon size={14} />
+                <span>{isDeleting ? 'Deleting...' : 'Delete Product'}</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
-      {deleteError && (
-        <div className="m-2 p-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
-          {deleteError}
-        </div>
-      )}
+      {/* Error Message */}
+      <AnimatePresence>
+        {deleteError && (
+          <motion.div 
+            className="absolute bottom-4 left-4 right-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl backdrop-blur-sm"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+          >
+            {deleteError}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
+      {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         productName={product.name}
@@ -257,6 +354,6 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
         onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
       />
-    </div>
+    </motion.div>
   )
 }
