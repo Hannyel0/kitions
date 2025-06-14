@@ -273,7 +273,7 @@ export default function Navbar() {
             {/* Dashboard Button */}
             <motion.a
               href={getDashboardUrl()}
-              className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] hover:from-[#ABD4AB] hover:to-[#8982cf] text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="hidden md:flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8982cf] via-[#8982cf] to-[#8982cf]/90  text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
