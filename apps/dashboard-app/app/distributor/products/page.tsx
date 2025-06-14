@@ -8,6 +8,7 @@ import { ProductCard } from '@/app/components/products/ProductCard'
 import { ProductList } from '@/app/components/products/ProductList'
 import { AddProductModal } from '@/app/components/products/AddProductModal'
 import { EditProductModal } from '@/app/components/products/EditProductModal'
+import { ProductsSkeleton } from '@/app/components/products/ProductsSkeleton'
 import { useCallback } from 'react'
 import { Product } from '@/app/components/products/types'
 import { createBrowserClient } from '@supabase/ssr'
@@ -171,138 +172,11 @@ export default function ProductsPage() {
   
   return (
     <DashboardLayout userType="distributor">
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
-        {/* Compact Hero Header Section */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 px-4 py-6 mx-4 mt-4 rounded-3xl">
-          <div className="absolute inset-0 bg-black/10"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/90 to-purple-600/90"></div>
-          
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-            <div className="absolute -top-2 -left-2 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
-            <div className="absolute top-10 right-10 w-20 h-20 bg-white/5 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-5 left-1/3 w-12 h-12 bg-white/10 rounded-full blur-xl"></div>
-          </div>
-          
-          <div className="relative z-10 max-w-7xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
-                    <Package className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-white mb-1">Product Catalog</h1>
-                    <p className="text-indigo-100 text-sm">Manage and showcase your product inventory</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-3">
-                <motion.button
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="group relative px-4 py-2 bg-white/20 backdrop-blur-sm text-white font-medium rounded-lg border border-white/30 hover:bg-white/30 transition-all duration-300 flex items-center space-x-2 text-sm"
-                  whileHover={{ scale: 1.05, y: -1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Plus size={16} />
-                  <span>Add Product</span>
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </motion.button>
-                
-                <Link
-                  href="/distributor/orders/create"
-                  className="group relative px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl text-sm"
-                >
-                  <ShoppingCart size={16} />
-                  <span>Create Order</span>
-                </Link>
-              </div>
-            </div>
-            
-            {/* Compact Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-              <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-indigo-100 text-xs font-medium">Total Products</p>
-                    <p className="text-white text-xl font-bold">{totalProducts}</p>
-                  </div>
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <Package className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-indigo-100 text-xs font-medium">In Stock</p>
-                    <p className="text-white text-xl font-bold">{inStockProducts}</p>
-                  </div>
-                  <div className="p-2 bg-emerald-500/30 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-emerald-200" />
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-indigo-100 text-xs font-medium">Low Stock</p>
-                    <p className="text-white text-xl font-bold">{lowStockProducts}</p>
-                  </div>
-                  <div className="p-2 bg-amber-500/30 rounded-lg">
-                    <Eye className="h-4 w-4 text-amber-200" />
-                  </div>
-                </div>
-              </motion.div>
-              
-              <motion.div 
-                className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-indigo-100 text-xs font-medium">Total Value</p>
-                    <p className="text-white text-xl font-bold">${totalValue.toLocaleString()}</p>
-                  </div>
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-48">
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-200"></div>
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent absolute top-0 left-0"></div>
-              </div>
-            </div>
-          ) : error ? (
+      {isLoading ? (
+        <ProductsSkeleton viewType={viewType} />
+      ) : error ? (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+          <div className="max-w-7xl mx-auto px-4 py-6">
             <motion.div 
               className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-sm"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -318,7 +192,133 @@ export default function ProductsPage() {
                 </div>
               </div>
             </motion.div>
-          ) : (
+          </div>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+          {/* Compact Hero Header Section */}
+          <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 px-4 py-6 mx-4 mt-4 rounded-3xl">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/90 to-purple-600/90"></div>
+            
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+              <div className="absolute -top-2 -left-2 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
+              <div className="absolute top-10 right-10 w-20 h-20 bg-white/5 rounded-full blur-2xl"></div>
+              <div className="absolute bottom-5 left-1/3 w-12 h-12 bg-white/10 rounded-full blur-xl"></div>
+            </div>
+            
+            <div className="relative z-10 max-w-7xl mx-auto">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-white/20 backdrop-blur-sm rounded-xl">
+                      <Package className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-white mb-1">Product Catalog</h1>
+                      <p className="text-indigo-100 text-sm">Manage and showcase your product inventory</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-3">
+                  <motion.button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="group relative px-4 py-2 bg-white/20 backdrop-blur-sm text-white font-medium rounded-lg border border-white/30 hover:bg-white/30 transition-all duration-300 flex items-center space-x-2 text-sm"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Plus size={16} />
+                    <span>Add Product</span>
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </motion.button>
+                  
+                  <Link
+                    href="/distributor/orders/create"
+                    className="group relative px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl text-sm"
+                  >
+                    <ShoppingCart size={16} />
+                    <span>Create Order</span>
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Compact Stats Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <motion.div 
+                  className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-indigo-100 text-xs font-medium">Total Products</p>
+                      <p className="text-white text-xl font-bold">{totalProducts}</p>
+                    </div>
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Package className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-indigo-100 text-xs font-medium">In Stock</p>
+                      <p className="text-white text-xl font-bold">{inStockProducts}</p>
+                    </div>
+                    <div className="p-2 bg-emerald-500/30 rounded-lg">
+                      <TrendingUp className="h-4 w-4 text-emerald-200" />
+                    </div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-indigo-100 text-xs font-medium">Low Stock</p>
+                      <p className="text-white text-xl font-bold">{lowStockProducts}</p>
+                    </div>
+                    <div className="p-2 bg-amber-500/30 rounded-lg">
+                      <Eye className="h-4 w-4 text-amber-200" />
+                    </div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-indigo-100 text-xs font-medium">Total Value</p>
+                      <p className="text-white text-xl font-bold">${totalValue.toLocaleString()}</p>
+                    </div>
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="space-y-6">
               {/* Compact Search and Filter Section */}
               <motion.div 
@@ -500,30 +500,30 @@ export default function ProductsPage() {
                 )}
               </AnimatePresence>
             </div>
-          )}
+          </div>
         </div>
-        
-        {/* Modals */}
-        <AddProductModal
-          isOpen={isAddModalOpen}
-          onClose={() => {
-            setIsAddModalOpen(false)
-            setRefreshTrigger(prev => prev + 1)
-          }}
-          categories={displayCategories.filter((c) => c !== 'all')}
-        />
-        
-        <EditProductModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false)
-            setSelectedProduct(null)
-            setRefreshTrigger(prev => prev + 1)
-          }}
-          categories={displayCategories.filter((c) => c !== 'all')}
-          product={selectedProduct}
-        />
-      </div>
+      )}
+      
+      {/* Modals */}
+      <AddProductModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false)
+          setRefreshTrigger(prev => prev + 1)
+        }}
+        categories={displayCategories.filter((c) => c !== 'all')}
+      />
+      
+      <EditProductModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false)
+          setSelectedProduct(null)
+          setRefreshTrigger(prev => prev + 1)
+        }}
+        categories={displayCategories.filter((c) => c !== 'all')}
+        product={selectedProduct}
+      />
     </DashboardLayout>
   )
 }
