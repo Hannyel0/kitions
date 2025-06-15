@@ -1,0 +1,29 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /secret-email-panel
+Disallow: /verification/
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /login
+Disallow: /signup/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /secret-email-panel
+Disallow: /verification/
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /login
+Disallow: /signup/
+
+# Host
+Host: https://www.kitions.com
+
+# Sitemaps
+Sitemap: https://www.kitions.com/sitemap.xml
