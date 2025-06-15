@@ -413,16 +413,16 @@ export function CreateOrder() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50/30 to-purple-50/20">
       {/* Hero Header */}
       <div className="relative overflow-hidden bg-white/40 backdrop-blur-md border border-white/20 px-4 py-6 mx-4 mt-4 rounded-2xl shadow-lg">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#8982cf]/3 to-purple-500/3"></div>
         
         {/* Subtle decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-          <div className="absolute -top-2 -left-2 w-12 h-12 bg-blue-500/5 rounded-full blur-xl"></div>
-          <div className="absolute top-4 right-4 w-16 h-16 bg-indigo-500/5 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-2 left-1/4 w-8 h-8 bg-blue-500/5 rounded-full blur-lg"></div>
+          <div className="absolute -top-2 -left-2 w-12 h-12 bg-[#8982cf]/5 rounded-full blur-xl"></div>
+          <div className="absolute top-4 right-4 w-16 h-16 bg-purple-500/5 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-2 left-1/4 w-8 h-8 bg-[#8982cf]/5 rounded-full blur-lg"></div>
         </div>
         
         <div className="relative z-10 max-w-6xl mx-auto">
@@ -437,8 +437,8 @@ export function CreateOrder() {
               </motion.button>
             </Link>
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30">
-                <ShoppingCart className="h-5 w-5 text-gray-700" />
+              <div className="p-2 bg-[#8982cf]/10 backdrop-blur-sm rounded-xl border border-[#8982cf]/20">
+                <ShoppingCart className="h-5 w-5 text-[#8982cf]" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Create New Order</h1>
@@ -468,8 +468,8 @@ export function CreateOrder() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30">
-                      <Users className="h-5 w-5 text-gray-700" />
+                    <div className="p-2 bg-[#8982cf]/10 backdrop-blur-sm rounded-xl border border-[#8982cf]/20">
+                      <Users className="h-5 w-5 text-[#8982cf]" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">Retailer Information</h2>
@@ -569,7 +569,7 @@ export function CreateOrder() {
                       <input
                         type="text"
                         required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-sm"
+                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
                         placeholder="Enter business name"
                         value={orderForm.retailerInfo.name}
                         onChange={(e) =>
@@ -590,7 +590,7 @@ export function CreateOrder() {
                       <input
                         type="email"
                         required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-sm"
+                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
                         placeholder="Enter email address"
                         value={orderForm.retailerInfo.email}
                         onChange={(e) =>
@@ -611,7 +611,7 @@ export function CreateOrder() {
                       <input
                         type="tel"
                         required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-sm"
+                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
                         placeholder="Enter phone number"
                         value={orderForm.retailerInfo.phone}
                         onChange={(e) =>
@@ -632,7 +632,7 @@ export function CreateOrder() {
                       <input
                         type="text"
                         required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-sm"
+                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
                         placeholder="Enter store address"
                         value={orderForm.retailerInfo.address}
                         onChange={(e) =>
@@ -661,8 +661,8 @@ export function CreateOrder() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30">
-                      <Package className="h-5 w-5 text-gray-700" />
+                    <div className="p-2 bg-[#8982cf]/10 backdrop-blur-sm rounded-xl border border-[#8982cf]/20">
+                      <Package className="h-5 w-5 text-[#8982cf]" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">Order Products</h2>
@@ -673,7 +673,7 @@ export function CreateOrder() {
                     <motion.button
                       type="button"
                       onClick={() => setIsProductModalOpen(true)}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-500/80 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-blue-500 transition-all duration-300 shadow-lg text-sm"
+                      className="flex items-center space-x-2 px-4 py-2 bg-[#8982cf]/80 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-[#8982cf] transition-all duration-300 shadow-lg text-sm"
                       whileHover={{ scale: 1.05, y: -1 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -713,7 +713,7 @@ export function CreateOrder() {
                               <h3 className="text-base font-bold text-gray-900 mb-1">{product.name}</h3>
                               <p className="text-gray-600 text-sm mb-2 line-clamp-1">{product.description}</p>
                               <div className="flex items-center space-x-3">
-                                <span className="inline-flex items-center px-2 py-1 bg-blue-100/80 backdrop-blur-sm text-blue-700 text-xs font-medium rounded-lg border border-blue-200/50">
+                                <span className="inline-flex items-center px-2 py-1 bg-[#8982cf]/10 backdrop-blur-sm text-[#8982cf] text-xs font-medium rounded-lg border border-[#8982cf]/20">
                                   {product.category}
                                 </span>
                                 <span className="text-sm text-gray-600">
@@ -732,7 +732,7 @@ export function CreateOrder() {
                               </div>
                               <div className="text-center">
                                 <p className="text-xs font-medium text-gray-600 mb-1">Total</p>
-                                <div className="bg-blue-500/80 backdrop-blur-sm text-white rounded-lg px-3 py-1 border border-blue-400/50">
+                                <div className="bg-[#8982cf]/80 backdrop-blur-sm text-white rounded-lg px-3 py-1 border border-[#8982cf]/50">
                                   <span className="text-base font-bold">
                                     ${(product.price * orderProduct.quantity).toFixed(2)}
                                   </span>
@@ -744,11 +744,11 @@ export function CreateOrder() {
                                   setOrderForm((prev) => ({
                                     ...prev,
                                     products: prev.products.filter(
-                                      (p) => p.product_id !== orderProduct.product_id
+                                      (p) => p.product_id !== orderProduct.product_id,
                                     ),
                                   }));
                                 }}
-                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/80 backdrop-blur-sm rounded-lg transition-all duration-200 border border-transparent hover:border-red-200/50"
+                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50/80 rounded-lg transition-all duration-300"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                               >
@@ -763,7 +763,7 @@ export function CreateOrder() {
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 px-6">
                     <div className="relative mx-auto w-20 h-20 mb-6">
-                      <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-lg"></div>
+                      <div className="absolute inset-0 bg-[#8982cf]/10 rounded-full blur-lg"></div>
                       <div className="relative bg-white/60 backdrop-blur-sm rounded-full flex items-center justify-center w-full h-full border border-white/30">
                         <PackageXIcon className="h-10 w-10 text-gray-500" />
                       </div>
@@ -775,7 +775,7 @@ export function CreateOrder() {
                     <motion.button
                       type="button"
                       onClick={() => setIsProductModalOpen(true)}
-                      className="inline-flex items-center px-6 py-3 bg-blue-500/80 backdrop-blur-sm text-white font-medium rounded-xl shadow-lg hover:bg-blue-500 transition-all duration-300 space-x-2 text-sm"
+                      className="inline-flex items-center px-6 py-3 bg-[#8982cf]/80 backdrop-blur-sm text-white font-medium rounded-xl shadow-lg hover:bg-[#8982cf] transition-all duration-300 space-x-2 text-sm"
                       whileHover={{ scale: 1.05, y: -1 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -797,8 +797,8 @@ export function CreateOrder() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30">
-                      <Calculator className="h-5 w-5 text-gray-700" />
+                    <div className="p-2 bg-[#8982cf]/10 backdrop-blur-sm rounded-xl border border-[#8982cf]/20">
+                      <Calculator className="h-5 w-5 text-[#8982cf]" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">Order Summary</h2>
@@ -846,7 +846,7 @@ export function CreateOrder() {
                             }));
                           }
                         }}
-                        className="w-20 px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 text-center font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all duration-300 text-sm"
+                        className="w-20 px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 text-center font-medium focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
                         placeholder="0"
                       />
                       <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs font-medium">
@@ -878,8 +878,8 @@ export function CreateOrder() {
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-gray-900">Total Payment</span>
                       <div className="flex items-center space-x-1">
-                        <DollarSign className="h-5 w-5 text-blue-600" />
-                        <span className="text-2xl font-bold text-blue-600">
+                        <DollarSign className="h-5 w-5 text-[#8982cf]" />
+                        <span className="text-2xl font-bold text-[#8982cf]">
                           {calculateTotal().toFixed(2)}
                         </span>
                       </div>
@@ -914,7 +914,7 @@ export function CreateOrder() {
                   (!orderForm.retailer_id && !orderForm.newRetailer) ||
                   !!successMessage
                 }
-                className="px-6 py-2.5 bg-blue-500/80 backdrop-blur-sm text-white font-medium rounded-xl shadow-lg hover:bg-blue-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm"
+                className="px-6 py-2.5 bg-[#8982cf]/80 backdrop-blur-sm text-white font-medium rounded-xl shadow-lg hover:bg-[#8982cf] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm"
                 whileHover={{ scale: isLoading || successMessage ? 1 : 1.05, y: isLoading || successMessage ? 0 : -1 }}
                 whileTap={{ scale: isLoading || successMessage ? 1 : 0.95 }}
               >

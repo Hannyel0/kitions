@@ -1,5 +1,5 @@
 import React, { useState, FormEvent, useEffect, useRef, useCallback } from 'react'
-import { X as CloseIcon, Upload as UploadIcon, Loader2, DollarSign, Barcode as BarcodeIcon } from 'lucide-react'
+import { X as CloseIcon, Upload as UploadIcon, Loader2, DollarSign, Barcode as BarcodeIcon, Package, Tag, FileText, Camera, Sparkles } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createBrowserClient } from '@supabase/ssr'
 import { useAuth } from '@/app/providers/auth-provider'
@@ -190,6 +190,11 @@ export function AddProductModal({
   const formatPriceForDisplay = (value: string): string => {
     if (!value) return ''
     
+    // If it's already a decimal number, return as is
+    if (value.includes('.')) {
+      return value
+    }
+    
     // Convert to number and format as dollars and cents
     const numericValue = parseInt(value, 10)
     if (isNaN(numericValue)) return ''
@@ -199,37 +204,46 @@ export function AddProductModal({
   }
   
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Get the raw input value
-    const inputValue = e.target.value
-    
-    // Remove all non-digit characters
-    const numericValue = inputValue.replace(/\D/g, '')
-    
-    // Store the raw numeric value
-    setPrice(numericValue)
+    const raw = e.target.value.replace(/\D/g, '') // Remove non-digit characters
+
+    if (raw === '') {
+      setPrice('')
+      return
+    }
+
+    const value = (parseInt(raw, 10) / 100).toFixed(2) // Convert cents to dollars
+    setPrice(value) // Set properly formatted price
+  }
+  
+  // Handle price paste to prevent non-numeric values
+  const handlePricePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('Text')
+    if (!/^\d+$/.test(pasted.replace(/\D/g, ''))) {
+      e.preventDefault()
+    }
   }
   
   // Handle UPC input to ensure it's only digits and maximum 12 characters
   const handleUpcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
+    // Get the input value
+    const inputValue = e.target.value
     
     // Remove any non-digit characters
-    const cleanValue = newValue.replace(/\D/g, '')
+    const cleanValue = inputValue.replace(/\D/g, '')
     
-    // Ensure maximum 12 digits
-    const trimmedValue = cleanValue.slice(0, 12)
+    // Limit to 12 digits
+    const truncatedValue = cleanValue.slice(0, 12)
     
-    setUpc(trimmedValue)
+    setUpc(truncatedValue)
   }
   
   // Dedicated paste handler to ensure we capture the full pasted value
   const handleUpcPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedText = e.clipboardData.getData('text')
-    setUpc(pastedText.replace(/\D/g, '').slice(0, 12))
-    e.preventDefault() // Prevent default paste behavior
+    e.preventDefault()
+    const pasted = e.clipboardData.getData('Text')
+    const cleanValue = pasted.replace(/\D/g, '').slice(0, 12)
+    setUpc(cleanValue)
   }
-  
-  // Price formatting is handled by the UI display logic
   
   const resetForm = () => {
     setProductName('')
@@ -238,21 +252,16 @@ export function AddProductModal({
     setCaseSize('')
     setCategory('')
     setSku('')
-    // Don't reset UPC if initialUpc is provided
-    if (!initialUpc) {
-      setUpc('')
-    } else {
-      setUpc(initialUpc)
-    }
+    setUpc('')
     setImageFile(null)
     setImagePreview(null)
     setError(null)
     setSuccess(false)
     setIsSubmitting(false)
     setIsDragging(false)
+    setShowInitialBatchModal(false)
     setCreatedProductId('')
     setCreatedProductName('')
-    setShowInitialBatchModal(false)
   }
   
   const handleSubmit = async (e: FormEvent) => {
@@ -385,253 +394,332 @@ export function AddProductModal({
       <AnimatePresence>
         {isOpen && !showInitialBatchModal && (
           <motion.div 
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
             <motion.div 
-              className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -50, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl border border-gray-100 w-full max-w-3xl max-h-[90vh] overflow-hidden"
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -50, opacity: 0, scale: 0.95 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             >
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-gray-800 text-xl font-semibold">Add New Product</h2>
-                <button
-                  onClick={onClose}
-                  className="cursor-pointer text-gray-400 hover:text-gray-600"
-                >
-                  <CloseIcon size={20} />
-                </button>
+              {/* Header */}
+              <div className="bg-gray-50/50 border-b border-gray-100 p-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2.5 bg-[#8982cf]/10 rounded-xl">
+                      <Sparkles className="w-5 h-5 text-[#8982cf]" />
+                    </div>
+                    <div>
+                      <h2 className="text-gray-900 text-xl font-semibold">Add New Product</h2>
+                      <p className="text-gray-500 text-sm">Create a new product for your catalog</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={onClose}
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all duration-200"
+                  >
+                    <CloseIcon size={20} />
+                  </button>
+                </div>
               </div>
               
-              <form className="p-6" onSubmit={handleSubmit}>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Image
-                    </label>
-                    <div 
-                      className={`border-2 border-dashed rounded-lg p-4 transition-colors ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
-                      onDragEnter={handleDragEnter}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      onClick={() => fileInputRef.current?.click()}
+              {/* Scrollable content */}
+              <div className="overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+                <form className="p-6" onSubmit={handleSubmit}>
+                  <div className="space-y-6">
+                    {/* Image Upload Section */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="space-y-3"
                     >
-                      {imagePreview ? (
-                        <div className="relative w-full h-48">
-                          <Image
-                            src={imagePreview}
-                            alt="Preview"
-                            width={400}
-                            height={192}
-                            className="w-full h-full object-cover rounded-lg"
+                      <div className="flex items-center space-x-2">
+                        <Camera className="w-4 h-4 text-[#8982cf]" />
+                        <label className="text-sm font-medium text-gray-700">Product Image</label>
+                      </div>
+                      <div 
+                        className={`relative border-2 border-dashed rounded-xl p-6 transition-all duration-300 cursor-pointer group ${
+                          isDragging 
+                            ? 'border-[#8982cf] bg-[#8982cf]/5 scale-[1.01]' 
+                            : 'border-gray-200 hover:border-[#8982cf]/50 hover:bg-gray-50/50'
+                        }`}
+                        onDragEnter={handleDragEnter}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        {imagePreview ? (
+                          <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                            <Image
+                              src={imagePreview}
+                              alt="Preview"
+                              fill
+                              className="object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setImagePreview(null)
+                                setImageFile(null)
+                              }}
+                              className="absolute top-3 right-3 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200"
+                            >
+                              <CloseIcon size={16} className="text-gray-600" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <div className={`mx-auto mb-4 p-4 rounded-xl transition-all duration-300 ${
+                              isDragging 
+                                ? 'bg-[#8982cf]/20 text-[#8982cf] scale-105' 
+                                : 'bg-gray-100 text-gray-400 group-hover:bg-[#8982cf]/10 group-hover:text-[#8982cf]'
+                            }`}>
+                              <UploadIcon size={28} />
+                            </div>
+                            <div className="space-y-2">
+                              <div className={`text-base font-medium transition-colors ${
+                                isDragging ? 'text-[#8982cf]' : 'text-gray-700 group-hover:text-[#8982cf]'
+                              }`}>
+                                {isDragging ? 'Drop your image here' : 'Upload Product Image'}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                Drag and drop your image here, or{' '}
+                                <span className="text-[#8982cf] font-medium">browse files</span>
+                              </div>
+                              <div className="text-xs text-gray-400">
+                                Supports JPG, PNG, GIF up to 10MB
+                              </div>
+                            </div>
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={handleImageChange}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                    
+                    {/* Basic Information */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Package className="w-4 h-4 text-[#8982cf]" />
+                        <h3 className="text-sm font-medium text-gray-700">Basic Information</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-gray-600">Product Name *</label>
+                          <input
+                            type="text"
+                            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/20 focus:border-[#8982cf] transition-all duration-200"
+                            placeholder="Enter product name"
+                            value={productName}
+                            onChange={(e) => setProductName(e.target.value)}
+                            required
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-gray-600">Category *</label>
+                          <select
+                            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/20 focus:border-[#8982cf] transition-all duration-200"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            required
+                          >
+                            <option value="">Select a category</option>
+                            {categories.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="w-4 h-4 text-gray-400" />
+                          <label className="text-xs font-medium text-gray-600">Description</label>
+                        </div>
+                        <textarea
+                          rows={3}
+                          className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/20 focus:border-[#8982cf] transition-all duration-200 resize-none"
+                          placeholder="Enter product description (max 70 characters)"
+                          value={productDescription}
+                          onChange={(e) => setProductDescription(e.target.value.slice(0, 70))}
+                          maxLength={70}
+                        />
+                        <div className="flex justify-end">
+                          <span className={`text-xs transition-colors ${
+                            productDescription.length >= 70 
+                              ? 'text-red-500 font-medium' 
+                              : productDescription.length >= 60 
+                                ? 'text-amber-500' 
+                                : 'text-gray-400'
+                          }`}>
+                            {productDescription.length}/70 characters
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
+                    
+                    {/* Product Details */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="space-y-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Tag className="w-4 h-4 text-[#8982cf]" />
+                        <h3 className="text-sm font-medium text-gray-700">Product Details</h3>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-gray-600">UPC Code *</label>
+                        <div className="flex rounded-lg overflow-hidden border border-gray-200 focus-within:ring-2 focus-within:ring-[#8982cf]/20 focus-within:border-[#8982cf] transition-all duration-200">
+                          <input
+                            type="text"
+                            className="flex-1 px-3 py-2.5 bg-white text-gray-900 placeholder-gray-400 focus:outline-none"
+                            placeholder="Enter 12-digit UPC"
+                            value={upc}
+                            onChange={handleUpcChange}
+                            onPaste={handleUpcPaste}
+                            maxLength={12}
+                            inputMode="numeric"
+                            pattern="\d{12}"
+                            required
                           />
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setImagePreview(null)
-                              setImageFile(null)
-                            }}
-                            className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-sm hover:bg-gray-100"
+                            className="px-3 py-2.5 bg-gray-50 text-gray-500 hover:bg-[#8982cf]/10 hover:text-[#8982cf] transition-all duration-200"
+                            onClick={() => setIsScannerOpen(true)}
+                            title="Scan Barcode"
                           >
-                            <CloseIcon size={16} />
+                            <BarcodeIcon size={18} />
                           </button>
                         </div>
-                      ) : (
-                        <div className="text-center py-6">
-                          <UploadIcon
-                            size={32}
-                            className={`mx-auto mb-3 ${isDragging ? 'text-blue-500' : 'text-gray-400'}`}
-                          />
-                          <div className="text-sm text-gray-600 font-medium mb-1">
-                            {isDragging ? 'Drop your image here' : 'Drag and drop your image here'}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            or{' '}
-                            <label className="text-blue-600 hover:text-blue-500 cursor-pointer">
-                              browse files
-                              <input
-                                ref={fileInputRef}
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                              />
-                            </label>
-                          </div>
-                          <div className="mt-2 text-xs text-gray-400">
-                            Supported formats: JPG, PNG, GIF
+                        <p className="text-xs text-gray-400">Must be exactly 12 digits or scan using the barcode scanner</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-gray-600">Price per Case *</label>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                              <DollarSign size={16} />
+                            </div>
+                            <input
+                              type="text"
+                              id="price-input"
+                              name="price"
+                              inputMode="numeric"
+                              placeholder="0.00"
+                              value={price}
+                              onChange={handlePriceChange}
+                              onPaste={handlePricePaste}
+                              className="w-full pl-9 pr-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/20 focus:border-[#8982cf] transition-all duration-200"
+                              required
+                            />
                           </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Product Name and Category side by side */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Product Name
-                      </label>
-                      <input
-                        type="text"
-                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
-                        placeholder="Enter product name"
-                        value={productName}
-                        onChange={(e) => setProductName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Category
-                      </label>
-                      <select
-                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        required
-                      >
-                        <option value="">Select a category</option>
-                        {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <textarea
-                      rows={3}
-                      className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
-                      placeholder="Enter product description (max 70 characters)"
-                      value={productDescription}
-                      onChange={(e) => setProductDescription(e.target.value.slice(0, 70))}
-                      maxLength={70}
-                    />
-                    <div className="flex justify-end mt-1">
-                      <span className={`text-xs ${productDescription.length >= 70 ? 'text-red-500 font-medium' : 'text-gray-500'}`}>
-                        {productDescription.length}/70 characters
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      UPC
-                    </label>
-                    <div className="flex">
-                      <input
-                        type="text"
-                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-l-md placeholder-gray-400"
-                        placeholder="Enter 12-digit UPC"
-                        value={upc}
-                        onChange={handleUpcChange}
-                        onPaste={handleUpcPaste}
-                        maxLength={12}
-                        inputMode="numeric"
-                        pattern="\d{12}"
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="flex items-center justify-center px-3 py-2 bg-gray-100 text-gray-600 rounded-r-md hover:bg-gray-200 border border-l-0 border-gray-300 transition-colors cursor-pointer"
-                        onClick={() => setIsScannerOpen(true)}
-                        title="Scan Barcode"
-                      >
-                        <BarcodeIcon size={18} />
-                      </button>
-                    </div>
-                    <p className="mt-1 text-xs text-gray-500">Must be exactly 12 digits or scan using the barcode scanner</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price per Case
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                          <DollarSign size={16} />
-                        </span>
-                        <input
-                          type="text"
-                          id="price-input"
-                          name="price"
-                          placeholder="0.00"
-                          value={price ? formatPriceForDisplay(price) : ''}
-                          onChange={handlePriceChange}
-                          className="text-gray-700 w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
-                          required
-                        />
+                        
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-gray-600">Case Size *</label>
+                          <input
+                            type="number"
+                            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/20 focus:border-[#8982cf] transition-all duration-200"
+                            placeholder="Enter quantity per case"
+                            value={caseSize}
+                            onChange={(e) => setCaseSize(e.target.value)}
+                            required
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </motion.div>
                     
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Case Size
-                      </label>
-                      <input
-                        type="number"
-                        className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
-                        placeholder="Enter quantity per case"
-                        value={caseSize}
-                        onChange={(e) => setCaseSize(e.target.value)}
-                        required
-                      />
-                    </div>
+                    {/* Status Messages */}
+                    <AnimatePresence>
+                      {error && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <span className="text-sm">{error}</span>
+                          </div>
+                        </motion.div>
+                      )}
+                      
+                      {success && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span className="text-sm">Product added successfully!</span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                </div>
-                
-                {error && (
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-                    {error}
-                  </div>
-                )}
-                
-                {success && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-md text-sm">
-                    Product added successfully!
-                  </div>
-                )}
-                
-                <div className="mt-6 flex justify-end space-x-3">
+                </form>
+              </div>
+              
+              {/* Footer with actions - Fixed at bottom */}
+              <div className="p-5 bg-gray-50/30 border-t border-gray-100 flex-shrink-0">
+                <div className="flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={onClose}
                     disabled={isSubmitting}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                    className="px-5 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 transition-all duration-200"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                    onClick={handleSubmit}
+                    className="px-6 py-2.5 bg-[#8982cf] text-white rounded-lg text-sm font-medium hover:bg-[#8982cf]/90 disabled:opacity-50 flex items-center space-x-2 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     {isSubmitting ? (
                       <>
-                        <Loader2 size={16} className="mr-2 animate-spin" />
-                        Adding...
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Adding...</span>
                       </>
                     ) : (
-                      'Add Product'
+                      <>
+                        <Sparkles size={16} />
+                        <span>Add Product</span>
+                      </>
                     )}
                   </button>
                 </div>
-              </form>
+              </div>
             </motion.div>
           </motion.div>
         )}
