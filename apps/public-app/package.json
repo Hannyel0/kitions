@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "PORT=3000 next dev --turbopack",
+    "dev": "cross-env PORT=3000 next dev --turbopack",
     "build": "next build",
     "postbuild": "next-sitemap",
     "sitemap": "next-sitemap",
     "start": "next start",
-    "start:prod": "NODE_ENV=production next start",
+    "start:prod": "cross-env NODE_ENV=production next start",
     "lint": "next lint"
   },
   "dependencies": {
@@ -34,6 +34,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^7.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",

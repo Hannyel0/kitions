@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { DashboardLayout } from '@/app/components/layout';
 import useUserProfile from '@/app/hooks/useUserProfile';
 import { ProfileAvatar } from '@/app/components/user';
+import { Statistics, QuickActions } from '@/app/components/dashboard';
+import { RecentOrders } from '@/app/components/dashboard/RecentOrders';
 
 export default function RetailerHomeContent() {
   const { user, loading: authLoading } = useAuth();
@@ -15,101 +17,79 @@ export default function RetailerHomeContent() {
   const loading = authLoading || profileLoading;
 
   useEffect(() => {
-    console.log('Retailer Home - Auth state on initial render:', { user, loading, authLoading, profileLoading });
+    console.log('Retailer Home - Auth state:', { user, loading });
     
-    // With cookie-based authentication, this is much simpler
-    // We just check if we're in a loading state or missing a user
-    if (!loading && !user) { 
-      console.log('Retailer Home: No user found after loading is complete, redirecting to login');
-      const loginUrl = process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3000/login'
-        : '/login';
-      router.replace(loginUrl);
-    }
-    
-    // No need for timeout with cookie-based auth - middleware handles initial session validation
+    // Set a timeout to check for authentication after a short delay
+    const timeoutId = setTimeout(() => {
+      // Check again inside the timeout
+      if (!loading && user === null) { 
+        console.log('Retailer Home: No user found after delay. Redirecting...');
+        const loginUrl = process.env.NODE_ENV === 'development'
+          ? 'http://localhost:3000/login'
+          : '/login'; // In production, assume it's on the same domain
+        // Re-enable the redirect, but delayed
+        router.replace(loginUrl); 
+      }
+    }, 300); // Wait 300ms
 
-    // No cleanup needed since we don't use a timeout anymore
-    return () => {};
-  }, [user, loading, authLoading, profileLoading, router]);
+    // Cleanup function to clear the timeout if the component unmounts
+    // or if dependencies change before the timeout executes
+    return () => clearTimeout(timeoutId);
 
-  // Show loading state while checking authentication
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8982cf]"></div>
-      </div>
-    );
-  }
+  }, [user, loading, router]); // Dependencies remain the same
 
-  // If user is null after loading, return null because redirect is happening
-  if (user === null) {
+  // If user is null after loading, return null
+  if (user === null && !loading) {
     return null;
   }
 
   // --- Get user's name (fallback to email if name not in metadata) ---
-  const userName = firstName || user.email;
+  const userName = loading ? '' : (firstName || user?.email || '');
 
-  // If loading is done and we have a user, render the content
-  // (Implicitly handles the case where user is defined)
+  // Always render the layout, regardless of loading state
   return (
     <DashboardLayout userType="retailer">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center mb-8">
-          <ProfileAvatar 
-            profilePictureUrl={profilePictureUrl}
-            firstName={firstName}
-            lastName={lastName}
-            size="lg"
-            className="mr-4"
-          />
-          <div>
-            <h1 className="text-2xl font-bold">Welcome, {userName}!</h1>
-            <p className="text-gray-600">This is your retailer dashboard.</p>
-          </div>
+      {loading ? (
+        <div className="container mx-auto px-4 py-6 flex items-center justify-center" style={{ minHeight: '600px' }}>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8982cf]"></div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">My Orders</h2>
-            <p className="text-gray-600">You have no active orders.</p>
-            <button className="mt-4 px-4 py-2 bg-[#8982cf] text-white rounded-md">Place New Order</button>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">My Suppliers</h2>
-            <p className="text-gray-600">You haven&apos;t added any suppliers yet.</p>
-            <button className="mt-4 px-4 py-2 bg-[#8982cf] text-white rounded-md">Browse Suppliers</button>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-            <ul className="space-y-2">
-              <li><button className="text-[#8982cf] hover:underline">Browse Products</button></li>
-              <li><button className="text-[#8982cf] hover:underline">View Order History</button></li>
-              <li><button className="text-[#8982cf] hover:underline">Edit My Profile</button></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold mb-4">Verification Status</h2>
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-yellow-700">
-                  Your account is pending verification. Some features may be limited until verification is complete.
-                </p>
-              </div>
+      ) : (
+        <div className="container mx-auto px-4 py-6">
+        {/* Header with welcome message and profile */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+          <div className="flex items-center">
+            <ProfileAvatar 
+              profilePictureUrl={profilePictureUrl}
+              firstName={firstName}
+              lastName={lastName}
+              size="lg"
+              className="mr-4"
+            />
+            <div>
+              <h1 className="text-2xl text-gray-800 font-bold mb-1">Welcome back, {userName}!</h1>
+              <p className="text-gray-600">Here&apos;s what&apos;s happening with your business today.</p>
             </div>
           </div>
+          <div className="flex space-x-2">
+            <button className="px-4 py-2 bg-[#8982cf] text-white rounded-md hover:bg-[#7a73c0] transition-colors">
+              View Products
+            </button>
+          </div>
         </div>
+        
+        {/* Quick Actions Section */}
+        <QuickActions />
+        
+        {/* Statistics Section */}
+        <Statistics />
+        
+        {/* Recent Orders */}
+        <section className="mb-8">
+          <h2 className="text-gray-800 text-xl font-semibold mb-4">Recent Orders</h2>
+          <RecentOrders userType="retailer" />
+        </section>
       </div>
+      )}
     </DashboardLayout>
   );
 } 

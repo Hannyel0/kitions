@@ -54,24 +54,24 @@ export default function DistributorHomeContent() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8982cf]"></div>
         </div>
       ) : (
-        <div className="container mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto">
         {/* Header with welcome message and profile */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-          <div className="flex items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <ProfileAvatar 
               profilePictureUrl={profilePictureUrl}
               firstName={firstName}
               lastName={lastName}
               size="lg"
-              className="mr-4"
+              className="self-center sm:self-auto"
             />
-            <div>
-              <h1 className="text-2xl text-gray-800 font-bold mb-1">Welcome back, {userName}!</h1>
-              <p className="text-gray-600">Here&apos;s what&apos;s happening with your business today.</p>
+            <div className="text-center sm:text-left">
+              <h1 className="text-xl sm:text-2xl text-gray-800 font-bold mb-1">Welcome back, {userName}!</h1>
+              <p className="text-sm sm:text-base text-gray-600">Here&apos;s what&apos;s happening with your business today.</p>
             </div>
           </div>
-          <div className="flex space-x-2">
-            <button className="px-4 py-2 bg-[#8982cf] text-white rounded-md hover:bg-[#7a73c0] transition-colors">
+          <div className="flex justify-center sm:justify-end">
+            <button className="w-full sm:w-auto px-4 py-2 bg-[#8982cf] text-white rounded-md hover:bg-[#7a73c0] transition-colors text-sm sm:text-base">
               Add New Product
             </button>
           </div>
@@ -86,7 +86,7 @@ export default function DistributorHomeContent() {
         {/* Recent Orders */}
         <section className="mb-8">
           <h2 className="text-gray-800 text-xl font-semibold mb-4">Recent Orders</h2>
-          <RecentOrders />
+          <RecentOrders userType="distributor" />
         </section>
       </div>
       )}

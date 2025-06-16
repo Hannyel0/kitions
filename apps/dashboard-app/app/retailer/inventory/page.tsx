@@ -27,7 +27,7 @@ import Image from 'next/image'
 import { BarcodeScanner } from '@/app/components/barcode/BarcodeScanner'
 import { InventorySkeleton } from '@/app/components/inventory'
 
-export default function Inventory() {
+export default function RetailerInventory() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -166,13 +166,13 @@ export default function Inventory() {
     )
   
   return (
-    <DashboardLayout userType="distributor">
+    <DashboardLayout userType="retailer">
         {isLoading ? (
         <InventorySkeleton />
       ) : (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+        <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 -m-6 p-6 min-h-full">
           {/* Modern Hero Header Section */}
-          <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-4 py-6 mx-4 mt-4 rounded-3xl">
+                      <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-6 py-8 rounded-3xl mb-6">
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/90 to-teal-600/90"></div>
             
@@ -191,8 +191,8 @@ export default function Inventory() {
                       <Package2 className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-white mb-1">Inventory Management</h1>
-                      <p className="text-emerald-100 text-sm">Track and manage your product inventory</p>
+                                              <h1 className="text-2xl font-bold text-white mb-1">Available Products</h1>
+                        <p className="text-emerald-100 text-sm">Browse products from your distributors</p>
                     </div>
                   </div>
                 </div>

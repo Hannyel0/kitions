@@ -26,10 +26,18 @@ export default function DistributorsHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3ff] border border-[#8982cf]/20 rounded-full text-[#8982cf] font-medium text-sm"
+            className="relative inline-flex items-center gap-2 px-4 py-2 rounded-full text-[#8982cf] font-medium text-sm bg-gradient-to-r from-[#f5f3ff] to-[#f4fff4d8] overflow-hidden group"
           >
-            <Zap className="w-4 h-4" />
-            Built for Food Distributors
+            <Zap className="w-4 h-4 z-10 relative" />
+            <span className="z-10 relative">Built for Food Distributors</span>
+
+            {/* Glowing animated border */}
+            <span
+              className="absolute inset-0 rounded-full bg-[conic-gradient(at_top_left,_#8982cf,_#7873b3,_#8982cf,_#ABD4AB,_#8982cf)] opacity-40 blur-sm animate-[spin_4s_linear_infinite] group-hover:opacity-60"
+            ></span>
+
+            {/* Inner fill mask to hide center */}
+            <span className="absolute inset-[1px] bg-gradient-to-r from-[#f5f3ff] to-[#f4fff4d8] rounded-full z-0"></span>
           </motion.div>
 
           {/* Main Headline */}
@@ -40,7 +48,7 @@ export default function DistributorsHero() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight"
             >
-              <span className="bg-gradient-to-r from-[#8982cf] to-[#7873b3] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#8982cf] to-[#ABD4AB] bg-clip-text text-transparent">
                 Expand Your Reach,
               </span>
               <br />
@@ -67,19 +75,19 @@ export default function DistributorsHero() {
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 py-6"
           >
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-[#f5f3ff] rounded-lg">
+              <div className="p-2 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-lg border border-[#8982cf]/20">
                 <Users className="w-5 h-5 text-[#8982cf]" />
               </div>
               <span className="font-medium">10,000+ Retailers</span>
             </div>
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-[#f5f3ff] rounded-lg">
-                <Package className="w-5 h-5 text-[#8982cf]" />
+              <div className="p-2 bg-gradient-to-br from-[#ABD4AB]/10 to-[#9BC49B]/10 rounded-lg border border-[#ABD4AB]/20">
+                <Package className="w-5 h-5 text-[#ABD4AB]" />
               </div>
               <span className="font-medium">Easy Inventory</span>
             </div>
             <div className="flex items-center gap-3 text-gray-700">
-              <div className="p-2 bg-[#f5f3ff] rounded-lg">
+              <div className="p-2 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-lg border border-[#8982cf]/20">
                 <TrendingUp className="w-5 h-5 text-[#8982cf]" />
               </div>
               <span className="font-medium">Grow Revenue</span>
@@ -97,15 +105,20 @@ export default function DistributorsHero() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group bg-[#8982cf] hover:bg-[#7873b3] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
+                className="group bg-gradient-to-r from-[#8982cf] to-[#7873b3] hover:from-[#7873b3] hover:to-[#8982cf] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl cursor-pointer"
               >
                 Join as a Distributor
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </motion.div>
             </Link>
-            <button className="px-8 py-4 rounded-lg font-semibold border-2 border-[#8982cf] text-[#8982cf] hover:bg-[#8982cf] hover:text-white transition-all duration-300 hover:scale-105">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 rounded-lg font-semibold border-2 border-[#ABD4AB] text-[#ABD4AB] hover:bg-[#ABD4AB] hover:text-white transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Package className="w-5 h-5" />
               View Live Demo
-            </button>
+            </motion.div>
           </motion.div>
 
           {/* Trust Indicators */}

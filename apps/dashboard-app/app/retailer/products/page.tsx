@@ -171,12 +171,12 @@ export default function ProductsPage() {
   const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock_quantity), 0)
   
   return (
-    <DashboardLayout userType="distributor">
+    <DashboardLayout userType="retailer">
       {isLoading ? (
         <ProductsSkeleton viewType={viewType} />
       ) : error ? (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
-          <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 -m-6 p-6 min-h-full">
+          <div className="max-w-7xl mx-auto">
             <motion.div 
               className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-sm"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -195,9 +195,9 @@ export default function ProductsPage() {
           </div>
         </div>
       ) : (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40">
+        <div className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 -m-6 p-6 min-h-full">
           {/* Compact Hero Header Section */}
-          <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 px-4 py-6 mx-4 mt-4 rounded-3xl">
+          <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 px-6 py-8 rounded-3xl mb-6">
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/90 to-purple-600/90"></div>
             
@@ -318,7 +318,7 @@ export default function ProductsPage() {
           </div>
 
           {/* Main Content */}
-          <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="max-w-7xl mx-auto">
             <div className="space-y-6">
               {/* Compact Search and Filter Section */}
               <motion.div 

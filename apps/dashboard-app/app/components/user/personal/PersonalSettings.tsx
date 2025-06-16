@@ -418,16 +418,16 @@ export function PersonalSettings() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link
-            href="/distributor/settings"
+        <Link
+          href="/distributor/settings"
             className="flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeftIcon size={16} className="mr-2" />
-            Back to Settings
-          </Link>
+        >
+          <ArrowLeftIcon size={16} className="mr-2" />
+          Back to Settings
+        </Link>
           <div className="h-6 w-px bg-gray-300" />
           <h1 className="text-3xl font-bold text-gray-900">Personal Settings</h1>
-        </div>
+      </div>
         
         {!isEditing ? (
           <button 
@@ -446,13 +446,13 @@ export function PersonalSettings() {
               <XIcon size={16} className="mr-2" />
               Cancel
             </button>
-            <button 
-              onClick={handleSaveChanges}
+        <button 
+          onClick={handleSaveChanges}
               className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm"
-            >
+        >
               <SaveIcon size={16} className="mr-2" />
-              Save Changes
-            </button>
+          Save Changes
+        </button>
           </div>
         )}
       </div>
@@ -468,8 +468,8 @@ export function PersonalSettings() {
                   className="cursor-pointer hover:opacity-90 transition-opacity group relative"
                   onClick={handleProfilePictureClick}
                 >
-                  <ProfileAvatar
-                    profilePictureUrl={profilePictureUrl}
+                <ProfileAvatar
+                  profilePictureUrl={profilePictureUrl}
                     firstName={userFirstName}
                     lastName={userLastName}
                     size="xl"
@@ -555,7 +555,7 @@ export function PersonalSettings() {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center justify-center text-gray-600">
                   <MailIcon size={16} className="mr-2" />
-                  {user?.email || 'No email available'}
+                {user?.email || 'No email available'}
                 </div>
                 <div className="flex items-center justify-center text-gray-600">
                   <CalendarIcon size={16} className="mr-2" />
@@ -597,10 +597,10 @@ export function PersonalSettings() {
                 )}
               </div>
               
-              <div>
+                <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Last Name
-                </label>
+                  </label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -673,10 +673,10 @@ export function PersonalSettings() {
             </div>
             
             <div className="space-y-6">
-              <div>
+                <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Company Name
-                </label>
+                  </label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -707,7 +707,7 @@ export function PersonalSettings() {
                 ) : (
                   <div className="w-full px-4 py-3 bg-gray-50 rounded-xl text-gray-900">
                     {formData.address || 'Not provided'}
-                  </div>
+                </div>
                 )}
               </div>
             </div>
