@@ -139,44 +139,44 @@ export default function DistributorsValueProp() {
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-[#8982cf]/10 to-[#7873b3]/10 rounded-full blur-3xl translate-y-32 -translate-x-32"></div>
             
             <div className="relative z-10">
-              <motion.h3
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="text-2xl md:text-3xl font-bold text-gray-900 mb-4"
-              >
-                Ready to Transform Your Distribution Business?
-              </motion.h3>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto"
-              >
-                Join the growing network of successful distributors who trust Kitions to power their business growth.
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.9 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              >
+            <motion.h3
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="text-2xl md:text-3xl font-bold text-gray-900 mb-4"
+            >
+              Ready to Transform Your Distribution Business?
+            </motion.h3>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto"
+            >
+              Join the growing network of successful distributors who trust Kitions to power their business growth.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
                 <button className="group bg-gradient-to-r from-[#8982cf] to-[#7873b3] hover:from-[#7873b3] hover:to-[#8982cf] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105">
-                  Get Started Today
-                  <motion.div
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
-                    →
-                  </motion.div>
-                </button>
+                Get Started Today
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  →
+                </motion.div>
+              </button>
                 <button className="px-8 py-4 rounded-lg font-semibold border-2 border-[#ABD4AB] text-[#ABD4AB] hover:bg-[#ABD4AB] hover:text-white transition-all duration-300 underline-none hover:underline-none">
-                  Schedule a Demo
-                </button>
-              </motion.div>
+                Schedule a Demo
+              </button>
+            </motion.div>
             </div>
           </div>
         </motion.div>

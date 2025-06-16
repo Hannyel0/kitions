@@ -31,7 +31,7 @@ export default function DashboardLayout({ children, userType }: DashboardLayoutP
       <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
         {/* Fixed header */}
         <div className="sticky top-0 z-10">
-          <Header />
+          <Header userType={userType} />
         </div>
         
         {/* Scrollable main content */}

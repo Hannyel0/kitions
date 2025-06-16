@@ -29,7 +29,7 @@ export function Sidebar({ userType = 'distributor' }: SidebarProps) {
   return (
     <div className="w-60 h-screen bg-white border-r border-gray-200 flex flex-col overflow-hidden">
       <div className="p-3 border-b border-gray-200">
-        <Link href="/distributor/home" className="block">
+        <Link href={`/${userType}/home`} className="block">
           <div className="relative h-10 w-32">
             <Image 
               src="/default-monochrome-black.svg" 

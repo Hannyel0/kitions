@@ -8,7 +8,11 @@ import useUserProfile from '@/app/hooks/useUserProfile'
 import ProfileAvatar from '@/app/components/user/ProfileAvatar'
 import Link from 'next/link'
 
-export function Header() {
+type HeaderProps = {
+  userType?: 'retailer' | 'distributor' | 'admin';
+};
+
+export function Header({ userType = 'distributor' }: HeaderProps) {
   const { user, signOut } = useAuth();
   const { firstName, lastName, profilePictureUrl } = useUserProfile();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -97,7 +101,11 @@ export function Header() {
         </div>
         <span className="mx-2 text-gray-400">/</span>
         <div className="flex items-center">
-          <span className="text-gray-800 text-sm font-medium">Dashboard</span>
+          <span className="text-gray-800 text-sm font-medium">
+            {userType === 'retailer' ? 'Retailer Dashboard' : 
+             userType === 'admin' ? 'Admin Dashboard' : 
+             'Distributor Dashboard'}
+          </span>
         </div>
       </div>
       <div className="flex items-center">
@@ -224,7 +232,7 @@ export function Header() {
               </div>
               <div className="py-2">
                 <Link
-                  href="/distributor/profile"
+                  href={`/${userType}/profile`}
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                   onClick={() => setIsDropdownOpen(false)}
                 >
@@ -232,7 +240,7 @@ export function Header() {
                   My Profile
                 </Link>
                 <Link
-                  href="/distributor/settings"
+                  href={`/${userType}/settings`}
                   className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
                   onClick={() => setIsDropdownOpen(false)}
                 >

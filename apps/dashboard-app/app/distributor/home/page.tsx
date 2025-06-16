@@ -86,7 +86,7 @@ export default function DistributorHomeContent() {
         {/* Recent Orders */}
         <section className="mb-8">
           <h2 className="text-gray-800 text-xl font-semibold mb-4">Recent Orders</h2>
-          <RecentOrders />
+          <RecentOrders userType="distributor" />
         </section>
       </div>
       )}

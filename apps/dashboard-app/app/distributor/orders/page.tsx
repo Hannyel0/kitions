@@ -284,7 +284,7 @@ export default function Orders() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
                   <div>
                     <p className="text-violet-100 text-xs font-medium">Pending</p>
                     <p className="text-white text-2xl font-bold">{pendingOrders}</p>
@@ -313,8 +313,8 @@ export default function Orders() {
               </motion.div>
             </div>
           </div>
-        </div>
-
+            </div>
+  
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
           {error ? (
@@ -349,55 +349,55 @@ export default function Orders() {
                       {/* Search */}
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-                        <div className="relative">
-                          <input
-                            type="text"
+                  <div className="relative">
+                    <input
+                      type="text"
                             placeholder="Search orders, clients..."
                             className="w-72 pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-transparent transition-all duration-300 shadow-lg text-sm"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                          />
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                           <SearchIcon
                             size={18}
                             className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-violet-500 transition-colors duration-300"
                           />
-                        </div>
-                      </div>
+                    </div>
+                  </div>
                       
                       {/* Status Filter */}
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
                         <div className="relative flex items-center space-x-3 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl px-4 py-3 shadow-lg">
                           <FilterIcon size={16} className="text-gray-500 group-hover:text-purple-500 transition-colors duration-300" />
-                          <select
-                            value={selectedStatus}
-                            onChange={(e) => setSelectedStatus(e.target.value)}
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => setSelectedStatus(e.target.value)}
                             className="bg-transparent text-gray-700 text-sm focus:outline-none cursor-pointer min-w-[120px]"
-                          >
-                            <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                          </select>
-                        </div>
-                      </div>
+                    >
+                      <option value="all">All Status</option>
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                    </div>
+                  </div>
                       
                       {/* Payment Filter */}
                       <div className="relative group">
                         <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
                         <div className="relative flex items-center space-x-3 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl px-4 py-3 shadow-lg">
                           <BanknoteIcon size={16} className="text-gray-500 group-hover:text-fuchsia-500 transition-colors duration-300" />
-                          <select
-                            value={selectedPaymentStatus}
-                            onChange={(e) => setSelectedPaymentStatus(e.target.value)}
+                    <select
+                      value={selectedPaymentStatus}
+                      onChange={(e) => setSelectedPaymentStatus(e.target.value)}
                             className="bg-transparent text-gray-700 text-sm focus:outline-none cursor-pointer min-w-[120px]"
-                          >
-                            <option value="all">All Payments</option>
-                            <option value="paid">Paid</option>
-                            <option value="pending">Pending</option>
-                            <option value="failed">Failed</option>
-                          </select>
+                    >
+                      <option value="all">All Payments</option>
+                      <option value="paid">Paid</option>
+                      <option value="pending">Pending</option>
+                      <option value="failed">Failed</option>
+                    </select>
                         </div>
                       </div>
                     </div>
@@ -420,7 +420,7 @@ export default function Orders() {
                   </div>
                 </div>
               </motion.div>
-
+  
               {/* Orders Content */}
               {orders.length === 0 ? (
                 <motion.div 
@@ -536,7 +536,7 @@ export default function Orders() {
                               <span>View</span>
                               <ArrowUpRight size={14} />
                             </motion.button>
-                          </Link>
+                  </Link>
                         </div>
                       </div>
                     </motion.div>
@@ -549,9 +549,9 @@ export default function Orders() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
                         <tr className="bg-gradient-to-r from-violet-50 to-purple-50 border-b border-gray-200/50">
                           <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Order ID</th>
                           <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
@@ -560,8 +560,8 @@ export default function Orders() {
                           <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Payment</th>
                           <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
                           <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                        </tr>
-                      </thead>
+                      </tr>
+                    </thead>
                       <tbody className="bg-white/50 divide-y divide-gray-200/50">
                         {filteredOrders.map((order, index) => (
                           <motion.tr 
@@ -575,28 +575,28 @@ export default function Orders() {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                               #{order.order_number}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{order.retailer_name}</div>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{order.retailer_name}</div>
                               <div className="text-xs text-gray-500">{order.retailer_email}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {new Date(order.created_at).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
                               <div className={`inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl border text-xs font-medium ${getStatusStyle(order.status)}`}>
-                                {getStatusIcon(order.status)}
+                              {getStatusIcon(order.status)}
                                 <span className="capitalize">{order.status}</span>
                               </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
                               <div className={`inline-flex items-center px-3 py-1.5 rounded-xl border text-xs font-medium ${getPaymentStatusStyle(order.payment_status)}`}>
-                                <span className="capitalize">{order.payment_status}</span>
+                              <span className="capitalize">{order.payment_status}</span>
                               </div>
-                            </td>
+                          </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                              ${order.total.toFixed(2)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            ${order.total.toFixed(2)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <Link href={`/distributor/orders/${order.id}`}>
                                 <motion.button
                                   className="p-2 text-violet-600 hover:text-violet-800 hover:bg-violet-50 rounded-lg transition-colors duration-200"
@@ -606,18 +606,18 @@ export default function Orders() {
                                 >
                                   <EyeIcon size={16} />
                                 </motion.button>
-                              </Link>
-                            </td>
+                            </Link>
+                          </td>
                           </motion.tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 </motion.div>
               )}
             </div>
           )}
-        </div>
+          </div>
       </div>
     </DashboardLayout>
   );

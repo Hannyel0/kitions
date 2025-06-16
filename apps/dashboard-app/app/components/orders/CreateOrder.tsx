@@ -82,7 +82,9 @@ export function CreateOrder() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const [retailers, setRetailers] = useState<Retailer[]>([]);
+  const [availableRetailers, setAvailableRetailers] = useState<Retailer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -113,6 +115,7 @@ export function CreateOrder() {
       
       const distributorId = distributorData.id;
       
+      // Only fetch retailers that have an accepted relationship with this distributor
       const { data: retailersData, error: retailersError } = await supabase
         .from('retailers')
         .select(`
@@ -120,8 +123,15 @@ export function CreateOrder() {
           user_id,
           store_address,
           store_type,
-          users(id, email, first_name, last_name, phone, business_name)
-        `);
+          users(id, email, first_name, last_name, phone, business_name),
+          relationships!retailer_id(
+            id,
+            status,
+            distributor_id
+          )
+        `)
+        .eq('relationships.distributor_id', distributorId)
+        .eq('relationships.status', 'accepted');
       
       if (retailersError) throw retailersError;
       
@@ -174,6 +184,38 @@ export function CreateOrder() {
       console.log('Transformed products:', transformedProducts.length);
       
       setRetailers(transformedRetailers);
+      
+      // Fetch ALL retailers for discovery (no filtering by relationships)
+      const { data: availableData, error: availableError } = await supabase
+        .from('retailers')
+        .select(`
+          id,
+          user_id,
+          store_address,
+          store_type,
+          users!inner(id, email, first_name, last_name, phone, business_name)
+        `);
+      
+      console.log('Available retailers query error:', availableError);
+      console.log('Available retailers raw data:', availableData);
+      
+      if (availableError) {
+        console.error('Error fetching available retailers:', availableError);
+        // Don't throw error, just log it and continue with empty array
+        setAvailableRetailers([]);
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedAvailableRetailers = availableData?.map((retailer: any) => ({
+          id: retailer.id,
+          name: retailer.users?.business_name || 'Unknown Business',
+          email: retailer.users?.email || '',
+          phone: retailer.users?.phone || '',
+          address: retailer.store_address || '',
+        })) || [];
+
+        console.log('Transformed available retailers:', transformedAvailableRetailers);
+        setAvailableRetailers(transformedAvailableRetailers);
+      }
       setProducts(transformedProducts);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
@@ -216,6 +258,46 @@ export function CreateOrder() {
       });
     }
   };
+
+  const sendRelationshipRequest = async (retailerId: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user.id;
+      
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+
+      const { data: distributorData, error: distributorError } = await supabase
+        .from('distributors')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (distributorError) throw distributorError;
+
+      const { error: insertError } = await supabase
+        .from('relationships')
+        .insert({
+          distributor_id: distributorData.id,
+          retailer_id: retailerId,
+          status: 'pending'
+        });
+
+      if (insertError) throw insertError;
+
+      setSuccessMessage('Partnership request sent! You can create orders once they accept.');
+      setTimeout(() => setSuccessMessage(null), 5000);
+      
+      // Refresh data to update available retailers list
+      fetchData();
+
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to send request';
+      setFormError(errorMessage);
+      setTimeout(() => setFormError(null), 5000);
+    }
+  };
   
   const handleProductsSelect = (selectedProducts: OrderProduct[]) => {
     setOrderForm((prev) => ({
@@ -249,6 +331,34 @@ export function CreateOrder() {
     setSuccessMessage(null);
     
     try {
+      // Validate form data
+      if (!orderForm.retailer_id && !orderForm.newRetailer) {
+        throw new Error('Please select a retailer or add a new one');
+      }
+      
+      if (orderForm.newRetailer) {
+        if (!orderForm.retailerInfo.name.trim()) {
+          throw new Error('Retailer name is required');
+        }
+        if (!orderForm.retailerInfo.email.trim()) {
+          throw new Error('Retailer email is required');
+        }
+      }
+      
+      if (orderForm.products.length === 0) {
+        throw new Error('Please add at least one product to the order');
+      }
+      
+      // Validate all products exist
+      for (const orderProduct of orderForm.products) {
+        const product = products.find((p) => p.id === orderProduct.product_id);
+        if (!product) {
+          throw new Error(`Product with ID ${orderProduct.product_id} not found`);
+        }
+        if (orderProduct.quantity <= 0) {
+          throw new Error(`Invalid quantity for product ${product.name}`);
+        }
+      }
       const { data: { session } } = await supabase.auth.getSession();
       const userId = session?.user.id;
       
@@ -270,26 +380,29 @@ export function CreateOrder() {
       let retailerId = orderForm.retailer_id;
       
       if (orderForm.newRetailer) {
+        // Generate a temporary password for the new retailer
+        const tempPassword = `temp-${Math.random().toString(36).slice(-8)}`;
+        
         const { data: newUserData, error: newUserError } = await supabase.auth.signUp({
           email: orderForm.retailerInfo.email,
-          password: 'temp-password-123',
+          password: tempPassword,
           options: {
             data: {
               first_name: orderForm.retailerInfo.name.split(' ')[0] || '',
               last_name: orderForm.retailerInfo.name.split(' ').slice(1).join(' ') || '',
               phone: orderForm.retailerInfo.phone,
               business_name: orderForm.retailerInfo.name,
-              user_type: 'retailer',
+              role: 'retailer',
             },
           },
         });
         
         if (newUserError) {
-          throw new Error(`Failed to create user: ${newUserError.message}`);
+          throw new Error(`Failed to create user account: ${newUserError.message}`);
         }
         
         if (!newUserData.user) {
-          throw new Error('Failed to create user');
+          throw new Error('Failed to create user account - no user data returned');
         }
         
         const { data: newRetailerData, error: newRetailerError } = await supabase
@@ -303,19 +416,47 @@ export function CreateOrder() {
           .single();
         
         if (newRetailerError) {
-          throw new Error(`Failed to create retailer: ${newRetailerError.message}`);
+          throw new Error(`Failed to create retailer profile: ${newRetailerError.message}`);
         }
         
         retailerId = newRetailerData.id;
+        
+        // Create an accepted relationship between distributor and new retailer
+        const { error: relationshipError } = await supabase
+          .from('relationships')
+          .insert({
+            distributor_id: distributorId,
+            retailer_id: retailerId,
+            status: 'accepted'
+          });
+        
+        if (relationshipError) {
+          console.warn('Failed to create relationship:', relationshipError.message);
+          // Don't throw error here as the retailer and order creation should still proceed
+        }
       }
       
       if (!retailerId) {
         throw new Error('No retailer selected');
       }
       
-      const orderNumber = `ORD-${Date.now()}`;
+      const orderNumber = `ORD-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(new Date().getDate()).padStart(2, '0')}-${Date.now().toString().slice(-6)}`;
+      const subtotal = calculateSubtotal();
+      const discountAmount = calculateDiscount(subtotal);
       const total = calculateTotal();
       
+      console.log('Creating order with data:', {
+        order_number: orderNumber,
+        distributor_id: distributorId,
+        retailer_id: retailerId,
+        status: 'pending',
+        payment_status: 'pending',
+        subtotal: subtotal,
+        discount: discountAmount,
+        total: total,
+        notes: orderForm.notes,
+      });
+
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -324,35 +465,46 @@ export function CreateOrder() {
           retailer_id: retailerId,
           status: 'pending',
           payment_status: 'pending',
+          subtotal: subtotal,
+          discount: discountAmount,
           total: total,
-          discount_percentage: orderForm.discount,
           notes: orderForm.notes,
         })
         .select()
         .single();
       
       if (orderError) {
+        console.error('Order creation error:', orderError);
         throw new Error(`Failed to create order: ${orderError.message}`);
       }
       
+      console.log('Order created successfully:', orderData);
+      
       const orderItems = orderForm.products.map((orderProduct) => {
         const product = products.find((p) => p.id === orderProduct.product_id);
+        if (!product) {
+          throw new Error(`Product with ID ${orderProduct.product_id} not found`);
+        }
         return {
           order_id: orderData.id,
           product_id: orderProduct.product_id,
           quantity: orderProduct.quantity,
-          unit_price: product?.price || 0,
-          total_price: (product?.price || 0) * orderProduct.quantity,
+          price: product.price,
         };
       });
+      
+      console.log('Creating order items:', orderItems);
       
       const { error: orderItemsError } = await supabase
         .from('order_items')
         .insert(orderItems);
       
       if (orderItemsError) {
+        console.error('Order items creation error:', orderItemsError);
         throw new Error(`Failed to create order items: ${orderItemsError.message}`);
       }
+      
+      console.log('Order items created successfully');
       
       setSuccessMessage(`Order ${orderNumber} created successfully!`);
       
@@ -472,8 +624,8 @@ export function CreateOrder() {
                       <Users className="h-5 w-5 text-[#8982cf]" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900">Retailer Information</h2>
-                      <p className="text-gray-600 text-sm">Select an existing retailer or add a new one</p>
+                      <h2 className="text-lg font-bold text-gray-900">Customer Information</h2>
+                      <p className="text-gray-600 text-sm">Select an existing customer or discover new partners</p>
                     </div>
                   </div>
                   <motion.button
@@ -490,13 +642,13 @@ export function CreateOrder() {
                   >
                     {orderForm.newRetailer ? (
                       <>
-                        <SearchIcon size={14} />
+                        <Users size={14} />
                         <span>Select Existing</span>
                       </>
                     ) : (
                       <>
-                        <UserPlusIcon size={14} />
-                        <span>Add New Retailer</span>
+                        <SearchIcon size={14} />
+                        <span>Look Up Customers</span>
                       </>
                     )}
                   </motion.button>
@@ -504,147 +656,193 @@ export function CreateOrder() {
                 
                 {!orderForm.newRetailer ? (
                   <div className="space-y-4">
-                    <RetailerSelectionDropdown
-                      retailers={retailers}
-                      selectedRetailerId={orderForm.retailer_id}
-                      onSelect={handleRetailerSelect}
-                    />
-                    {orderForm.retailer_id && (
-                      <motion.div 
-                        className="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/30"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                      >
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <div className="flex items-center space-x-2">
-                              <div className="p-1.5 bg-white/60 rounded-lg">
-                                <Building size={14} className="text-gray-600" />
-                              </div>
-                              <div>
-                                <p className="text-xs font-medium text-gray-600">Business Name</p>
-                                <p className="text-gray-900 font-semibold text-sm">{orderForm.retailerInfo.name}</p>
-                              </div>
+                    {retailers.length > 0 ? (
+                      <>
+                        <div className="bg-green-50/60 backdrop-blur-sm border border-green-200/30 rounded-xl p-4 mb-4">
+                          <div className="flex items-start space-x-3">
+                            <div className="p-1.5 bg-green-100/60 rounded-lg">
+                              <Users className="h-4 w-4 text-green-600" />
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="p-1.5 bg-white/60 rounded-lg">
-                                <Mail size={14} className="text-gray-600" />
-                              </div>
-                              <div>
-                                <p className="text-xs font-medium text-gray-600">Email</p>
-                                <p className="text-gray-900 text-sm">{orderForm.retailerInfo.email}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="space-y-3">
-                            <div className="flex items-center space-x-2">
-                              <div className="p-1.5 bg-white/60 rounded-lg">
-                                <Phone size={14} className="text-gray-600" />
-                              </div>
-                              <div>
-                                <p className="text-xs font-medium text-gray-600">Phone</p>
-                                <p className="text-gray-900 text-sm">{orderForm.retailerInfo.phone}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="p-1.5 bg-white/60 rounded-lg">
-                                <MapPin size={14} className="text-gray-600" />
-                              </div>
-                              <div>
-                                <p className="text-xs font-medium text-gray-600">Address</p>
-                                <p className="text-gray-900 text-sm">{orderForm.retailerInfo.address}</p>
-                              </div>
+                            <div>
+                              <h4 className="font-medium text-green-900 text-sm">Your Partners</h4>
+                              <p className="text-green-700 text-xs mt-1">
+                                Select from your connected partners to create an order.
+                              </p>
                             </div>
                           </div>
                         </div>
-                      </motion.div>
+                        
+                        {/* Partners List */}
+                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                          {retailers.map((retailer, index) => (
+                            <motion.div
+                              key={retailer.id}
+                              className={`bg-white/40 backdrop-blur-sm rounded-xl p-4 border transition-all duration-300 cursor-pointer ${
+                                orderForm.retailer_id === retailer.id
+                                  ? 'border-[#8982cf]/50 bg-[#8982cf]/10'
+                                  : 'border-white/30 hover:bg-white/60'
+                              }`}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              onClick={() => handleRetailerSelect(retailer.id)}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 space-y-2">
+                                  <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-white/60 rounded-lg">
+                                      <Building size={16} className="text-gray-600" />
+                                    </div>
+                                    <div>
+                                      <h3 className="font-semibold text-gray-900">{retailer.name}</h3>
+                                      <p className="text-sm text-gray-600">{retailer.email}</p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-4 text-sm text-gray-600 ml-11">
+                                    <div className="flex items-center space-x-1">
+                                      <Phone size={12} />
+                                      <span>{retailer.phone || 'No phone'}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                      <MapPin size={12} />
+                                      <span>{retailer.address || 'No address'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                {orderForm.retailer_id === retailer.id && (
+                                  <div className="flex items-center space-x-2 px-3 py-1.5 bg-[#8982cf]/20 backdrop-blur-sm text-[#8982cf] font-medium rounded-lg text-sm">
+                                    <CheckCircle size={14} />
+                                    <span>Selected</span>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="p-4 bg-white/40 backdrop-blur-sm rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                          <Users className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Partners Yet</h3>
+                        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                          You haven't connected with any retailers yet. Start by discovering and connecting with potential partners.
+                        </p>
+                        <motion.button
+                          type="button"
+                          onClick={() =>
+                            setOrderForm((prev) => ({
+                              ...prev,
+                              newRetailer: true,
+                            }))
+                          }
+                          className="flex items-center space-x-2 px-6 py-3 bg-[#8982cf]/80 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-[#8982cf] transition-all duration-300 shadow-lg mx-auto"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <SearchIcon size={16} />
+                          <span>Look Up Customers</span>
+                        </motion.button>
+                      </div>
                     )}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Business Name *
-                      </label>
+                  <div className="space-y-4">
+                    <div className="bg-blue-50/60 backdrop-blur-sm border border-blue-200/30 rounded-xl p-4 mb-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="p-1.5 bg-blue-100/60 rounded-lg">
+                          <SearchIcon className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-blue-900 text-sm">Discover New Partners</h4>
+                          <p className="text-blue-700 text-xs mt-1">
+                            Search for retailers you'd like to partner with. Send them a partnership request to start creating orders together.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Search Bar */}
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <SearchIcon className="h-4 w-4 text-gray-400" />
+                      </div>
                       <input
                         type="text"
-                        required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
-                        placeholder="Enter business name"
-                        value={orderForm.retailerInfo.name}
-                        onChange={(e) =>
-                          setOrderForm((prev) => ({
-                            ...prev,
-                            retailerInfo: {
-                              ...prev.retailerInfo,
-                              name: e.target.value,
-                            },
-                          }))
-                        }
+                        placeholder="Search for retailers by business name, email, or location..."
+                        className="shadow-sm w-full pl-10 pr-4 py-3 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
-                        placeholder="Enter email address"
-                        value={orderForm.retailerInfo.email}
-                        onChange={(e) =>
-                          setOrderForm((prev) => ({
-                            ...prev,
-                            retailerInfo: {
-                              ...prev.retailerInfo,
-                              email: e.target.value,
-                            },
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
-                        placeholder="Enter phone number"
-                        value={orderForm.retailerInfo.phone}
-                        onChange={(e) =>
-                          setOrderForm((prev) => ({
-                            ...prev,
-                            retailerInfo: {
-                              ...prev.retailerInfo,
-                              phone: e.target.value,
-                            },
-                          }))
-                        }
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Store Address *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        className="w-full px-3 py-2 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 text-sm"
-                        placeholder="Enter store address"
-                        value={orderForm.retailerInfo.address}
-                        onChange={(e) =>
-                          setOrderForm((prev) => ({
-                            ...prev,
-                            retailerInfo: {
-                              ...prev.retailerInfo,
-                              address: e.target.value,
-                            },
-                          }))
-                        }
-                      />
+
+
+                    {/* Available Retailers List */}
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {availableRetailers
+                        .filter(retailer => 
+                          retailer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          retailer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          retailer.address.toLowerCase().includes(searchTerm.toLowerCase())
+                        )
+                        .map((retailer, index) => (
+                          <motion.div
+                            key={retailer.id}
+                            className="bg-white/40 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/60 transition-all duration-300"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 space-y-2">
+                                <div className="flex items-center space-x-3">
+                                  <div className="p-2 bg-white/60 rounded-lg">
+                                    <Building size={16} className="text-gray-600" />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-semibold text-gray-900">{retailer.name}</h3>
+                                    <p className="text-sm text-gray-600">{retailer.email}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-4 text-sm text-gray-600 ml-11">
+                                  <div className="flex items-center space-x-1">
+                                    <Phone size={12} />
+                                    <span>{retailer.phone || 'No phone'}</span>
+                                  </div>
+                                  <div className="flex items-center space-x-1">
+                                    <MapPin size={12} />
+                                    <span>{retailer.address || 'No address'}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <motion.button
+                                type="button"
+                                onClick={() => sendRelationshipRequest(retailer.id)}
+                                className="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-[#8982cf]/80 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-[#8982cf] transition-all duration-300 shadow-lg text-sm"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                <UserPlusIcon size={14} />
+                                <span>Send Request</span>
+                              </motion.button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      
+                      {availableRetailers.filter(retailer => 
+                        retailer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        retailer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        retailer.address.toLowerCase().includes(searchTerm.toLowerCase())
+                      ).length === 0 && (
+                        <div className="text-center py-8">
+                          <div className="p-3 bg-white/40 backdrop-blur-sm rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                            <SearchIcon className="h-6 w-6 text-gray-400" />
+                          </div>
+                          <p className="text-gray-600 font-medium">No retailers found</p>
+                          <p className="text-gray-500 text-sm">Try adjusting your search terms</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -885,6 +1083,21 @@ export function CreateOrder() {
                       </div>
                     </div>
                   </div>
+                </div>
+                
+                {/* Order Notes */}
+                <div className="mt-4">
+                  <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
+                    Order Notes (Optional)
+                  </label>
+                  <textarea
+                    id="notes"
+                    rows={3}
+                    value={orderForm.notes || ''}
+                    onChange={(e) => setOrderForm(prev => ({ ...prev, notes: e.target.value }))}
+                    className="w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-white/30 rounded-xl text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#8982cf]/30 focus:border-[#8982cf]/50 transition-all duration-300 resize-none"
+                    placeholder="Add any special instructions or notes for this order..."
+                  />
                 </div>
               </div>
             </motion.div>
