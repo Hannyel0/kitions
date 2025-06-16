@@ -107,8 +107,8 @@ export function Header({ userType = 'distributor', onMenuClick }: HeaderProps) {
           </button>
         )}
         
-        <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center">
-          <span className="text-white text-sm">K</span>
+        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
+          <span className="text-white text-sm font-bold">K</span>
         </div>
         <span className="mx-2 text-gray-400 hidden sm:inline">/</span>
         <div className="flex items-center">

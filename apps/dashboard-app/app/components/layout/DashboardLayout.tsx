@@ -27,7 +27,7 @@ export default function DashboardLayout({ children, userType }: DashboardLayoutP
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -44,7 +44,7 @@ export default function DashboardLayout({ children, userType }: DashboardLayoutP
         />
       </div>
       
-      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 lg:ml-0">
+      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
         {/* Header */}
         <div className="sticky top-0 z-30">
           <Header 
