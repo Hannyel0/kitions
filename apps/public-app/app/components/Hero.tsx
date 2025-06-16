@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { ArrowRight, Users, TrendingUp, Package, Zap, ShoppingCart, Store } from 'lucide-react';
+import { ArrowRight, TrendingUp, Package, Zap, ShoppingCart, Store } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 

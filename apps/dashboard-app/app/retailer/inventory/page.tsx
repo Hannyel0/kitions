@@ -6,7 +6,6 @@ import {
   SearchIcon,
   FilterIcon,
   EditIcon,
-  PackageIcon,
   AlertTriangleIcon,
   CheckCircleIcon,
   ScanLineIcon,
@@ -16,11 +15,7 @@ import {
   TrendingDown,
   BarChart3,
   Package2,
-  Zap,
-  Eye,
   MoreVertical,
-  Download,
-  Upload,
   RefreshCw
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'

@@ -89,7 +89,7 @@ const SearchFilterSkeleton = () => (
 )
 
 // Product card skeleton for grid view
-const ProductCardSkeleton = ({ index }: { index: number }) => (
+const ProductCardSkeleton = () => (
   <div className="group relative bg-white/80 backdrop-blur-sm border border-white/50 rounded-3xl overflow-hidden shadow-lg">
     {/* Image Skeleton */}
     <div className="relative h-56 bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
@@ -134,7 +134,7 @@ const ProductCardSkeleton = ({ index }: { index: number }) => (
 )
 
 // Product list item skeleton for list view
-const ProductListItemSkeleton = ({ index }: { index: number }) => (
+const ProductListItemSkeleton = () => (
   <div className="flex items-center p-4 border-b border-gray-100 last:border-b-0">
     {/* Image Skeleton */}
     <div className="w-16 h-16 bg-gray-300 rounded-xl animate-pulse mr-4"></div>
@@ -176,14 +176,14 @@ export function ProductsSkeleton({ viewType = 'grid' }: ProductsSkeletonProps) {
             {viewType === 'grid' ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, index) => (
-                  <ProductCardSkeleton key={index} index={index} />
+                  <ProductCardSkeleton key={index} />
                 ))}
               </div>
             ) : (
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 overflow-hidden">
                 <div className="divide-y divide-gray-100">
                   {[...Array(6)].map((_, index) => (
-                    <ProductListItemSkeleton key={index} index={index} />
+                    <ProductListItemSkeleton key={index} />
                   ))}
                 </div>
               </div>

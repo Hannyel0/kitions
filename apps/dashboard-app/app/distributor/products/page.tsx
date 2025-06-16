@@ -427,7 +427,7 @@ export default function ProductsPage() {
                       </div>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3">No products found</h3>
-                    <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">You haven't added any products yet. Start building your catalog to showcase your inventory!</p>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">You haven&apos;t added any products yet. Start building your catalog to showcase your inventory!</p>
                     <motion.button
                       onClick={() => setIsAddModalOpen(true)}
                       className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 space-x-2"
@@ -452,7 +452,7 @@ export default function ProductsPage() {
                       </div>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-3">No products match your search</h3>
-                    <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">Try adjusting your search terms or filters to find what you're looking for.</p>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">Try adjusting your search terms or filters to find what you&apos;re looking for.</p>
                     <motion.button
                       onClick={() => {
                         setSearchTerm('')
@@ -474,7 +474,7 @@ export default function ProductsPage() {
                     transition={{ duration: 0.3 }}
                   >
                     {viewType === 'grid' ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                         {filteredProducts.map((product, index) => (
                           <motion.div
                             key={product.id}

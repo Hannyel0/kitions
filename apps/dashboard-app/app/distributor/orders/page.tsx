@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardLayout } from '@/app/components/layout';
 import { createBrowserClient } from '@supabase/ssr';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Search as SearchIcon,
   Filter as FilterIcon,
@@ -16,9 +16,7 @@ import {
   AlertCircle as AlertCircleIcon,
   Banknote as BanknoteIcon,
   Plus as PlusIcon,
-  Package as PackageIcon,
   Calendar,
-  TrendingUp,
   Users,
   DollarSign,
   ShoppingCart,
@@ -26,9 +24,6 @@ import {
   MoreVertical,
   Download,
   FileText,
-  Star,
-  MapPin,
-  Phone,
   Mail
 } from 'lucide-react';
 
@@ -438,7 +433,7 @@ export default function Orders() {
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">No orders found</h3>
                     <p className="text-gray-600 mb-8 max-w-md mx-auto text-center">
-                      You haven't created any orders yet. Start by creating your first order to track customer purchases.
+                      You haven&apos;t created any orders yet. Start by creating your first order to track customer purchases.
                     </p>
                     <Link href="/distributor/orders/create">
                       <motion.button

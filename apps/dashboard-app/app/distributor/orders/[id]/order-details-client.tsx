@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { createBrowserClient } from '@supabase/ssr';
 import {
   ArrowLeft as ArrowLeftIcon,
@@ -151,6 +151,7 @@ export function OrderDetailsClient({ orderId }: { orderId: string }) {
             
           if (productsError) throw new Error(`Failed to fetch product details: ${productsError.message}`);
           
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           productDetails = (productsData || []).reduce((acc, product: any) => {
             acc[product.id] = { 
               name: product.name,

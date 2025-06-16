@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { ArrowRight, Store, Truck, Users, Package, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, Store, Truck, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TargetAudienceSection() {
@@ -47,7 +47,7 @@ export default function TargetAudienceSection() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0"
           >
-            Whether you're buying or selling, Kitions provides the tools and network you need to thrive
+            Whether you&apos;re buying or selling, Kitions provides the tools and network you need to thrive
           </motion.p>
         </motion.div>
 

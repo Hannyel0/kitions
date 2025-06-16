@@ -3,34 +3,31 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Package,
-  Users,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Search,
-  Filter,
+  Search as SearchIcon,
+  Filter as FilterIcon,
+  Eye as EyeIcon,
+  CheckCircle as CheckCircleIcon,
+  Clock as ClockIcon,
+  XCircle as XCircleIcon,
+  AlertCircle as AlertCircleIcon,
+  Check as CheckIcon,
+  X as XIcon,
   Calendar,
   DollarSign,
-  Building,
-  Mail,
-  Phone,
-  MapPin,
-  Eye,
-  UserCheck,
-  UserX,
+  Users,
   ShoppingCart,
+  Package,
   Truck,
   FileText,
   Download,
   ArrowUpRight,
   MoreVertical,
-  TrendingUp,
-  Star
+  Building,
+  Mail,
+  Phone,
+  MapPin
 } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
-import Link from 'next/link';
 import { DashboardLayout } from '@/app/components/layout';
 
 interface PartnershipRequest {
@@ -129,6 +126,7 @@ export default function RetailerOrdersPage() {
       if (requestsError) throw requestsError;
 
       // Transform partnership requests
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const transformedRequests = requestsData?.map((request: any) => ({
         id: request.id,
         distributor_id: request.distributor_id,
@@ -172,6 +170,7 @@ export default function RetailerOrdersPage() {
       if (ordersError) throw ordersError;
 
       // Transform orders
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const transformedOrders = ordersData?.map((order: any) => ({
         id: order.id,
         distributor_id: order.distributor_id,
@@ -185,6 +184,7 @@ export default function RetailerOrdersPage() {
           email: order.distributors.users.email || '',
           phone: order.distributors.users.phone || '',
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         order_items: order.order_items?.map((item: any) => ({
           id: item.id,
           product_name: item.distributor_products.name,
@@ -246,14 +246,14 @@ export default function RetailerOrdersPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock size={14} />;
-      case 'accepted': return <CheckCircle size={14} />;
-      case 'rejected': return <XCircle size={14} />;
-      case 'confirmed': return <CheckCircle size={14} />;
+      case 'pending': return <ClockIcon size={14} />;
+      case 'accepted': return <CheckCircleIcon size={14} />;
+      case 'rejected': return <XCircleIcon size={14} />;
+      case 'confirmed': return <CheckCircleIcon size={14} />;
       case 'shipped': return <Truck size={14} />;
-      case 'delivered': return <CheckCircle size={14} />;
-      case 'cancelled': return <XCircle size={14} />;
-      default: return <AlertCircle size={14} />;
+      case 'delivered': return <CheckCircleIcon size={14} />;
+      case 'cancelled': return <XCircleIcon size={14} />;
+      default: return <AlertCircleIcon size={14} />;
     }
   };
 
@@ -273,10 +273,8 @@ export default function RetailerOrdersPage() {
 
   // Calculate stats
   const totalOrders = orders.length;
-  const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
-  const pendingOrders = orders.filter(order => order.status === 'pending').length;
-  const deliveredOrders = orders.filter(order => order.status === 'delivered').length;
-  const pendingRequests = partnershipRequests.filter(r => r.status === 'pending').length;
+  const totalValue = orders.reduce((sum, order) => sum + order.total, 0);
+  const pendingRequests = partnershipRequests.filter(req => req.status === 'pending').length;
 
   if (isLoading) {
     return (
@@ -364,7 +362,7 @@ export default function RetailerOrdersPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-violet-100 text-xs font-medium">Total Spent</p>
-                  <p className="text-white text-2xl font-bold">${totalSpent.toLocaleString()}</p>
+                  <p className="text-white text-2xl font-bold">${totalValue.toLocaleString()}</p>
                 </div>
                 <div className="p-3 bg-emerald-500/30 rounded-xl">
                   <DollarSign className="h-5 w-5 text-emerald-200" />
@@ -381,10 +379,10 @@ export default function RetailerOrdersPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-violet-100 text-xs font-medium">Pending Orders</p>
-                  <p className="text-white text-2xl font-bold">{pendingOrders}</p>
+                  <p className="text-white text-2xl font-bold">{pendingRequests}</p>
                 </div>
                 <div className="p-3 bg-amber-500/30 rounded-xl">
-                  <Clock className="h-5 w-5 text-amber-200" />
+                  <ClockIcon size={16} className="text-amber-200" />
                 </div>
               </div>
             </motion.div>
@@ -420,7 +418,7 @@ export default function RetailerOrdersPage() {
               exit={{ opacity: 0, y: -20 }}
               className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center space-x-3 shadow-lg"
             >
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <CheckIcon className="h-5 w-5 text-emerald-600" />
               <p className="text-emerald-800 font-medium">{successMessage}</p>
             </motion.div>
           )}
@@ -431,7 +429,7 @@ export default function RetailerOrdersPage() {
               exit={{ opacity: 0, y: -20 }}
               className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center space-x-3 shadow-lg"
             >
-              <AlertCircle className="h-5 w-5 text-red-600" />
+              <AlertCircleIcon className="h-5 w-5 text-red-600" />
               <p className="text-red-800 font-medium">{error}</p>
             </motion.div>
           )}
@@ -504,7 +502,7 @@ export default function RetailerOrdersPage() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <Search
+                    <SearchIcon
                       size={18}
                       className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-[#8982cf] transition-colors duration-300"
                     />
@@ -515,7 +513,7 @@ export default function RetailerOrdersPage() {
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-fuchsia-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
                   <div className="relative flex items-center space-x-3 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl px-4 py-3 shadow-lg">
-                    <Filter size={16} className="text-gray-500 group-hover:text-purple-500 transition-colors duration-300" />
+                    <FilterIcon size={16} className="text-gray-500 group-hover:text-purple-500 transition-colors duration-300" />
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
@@ -664,7 +662,7 @@ export default function RetailerOrdersPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           >
-                            <Eye size={16} />
+                            <EyeIcon size={16} />
                             <span>View Details</span>
                             <ArrowUpRight size={16} />
                           </motion.button>
@@ -725,7 +723,7 @@ export default function RetailerOrdersPage() {
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                 >
-                                  <Eye size={16} />
+                                  <EyeIcon size={16} />
                                 </motion.button>
                               </td>
                             </motion.tr>
@@ -751,7 +749,7 @@ export default function RetailerOrdersPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">No Orders Yet</h3>
                     <p className="text-gray-600 mb-8 max-w-md mx-auto text-center">
-                      You don't have any orders yet. Once distributors place orders with you, they'll appear here.
+                      You don&apos;t have any orders yet. Once distributors place orders with you, they&apos;ll appear here.
                     </p>
                   </div>
                 </motion.div>
@@ -821,7 +819,7 @@ export default function RetailerOrdersPage() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                               >
-                                <UserCheck size={16} />
+                                <CheckIcon size={16} />
                                 <span>Accept</span>
                               </motion.button>
                               <motion.button
@@ -830,7 +828,7 @@ export default function RetailerOrdersPage() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                               >
-                                <UserX size={16} />
+                                <XIcon size={16} />
                                 <span>Reject</span>
                               </motion.button>
                             </div>
@@ -856,7 +854,7 @@ export default function RetailerOrdersPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">No Partnership Requests</h3>
                     <p className="text-gray-600 mb-8 max-w-md mx-auto text-center">
-                      You don't have any partnership requests at the moment. Distributors will send you requests to start working together.
+                      You don&apos;t have any partnership requests at the moment. Distributors will send you requests to start working together.
                     </p>
                   </div>
                 </motion.div>

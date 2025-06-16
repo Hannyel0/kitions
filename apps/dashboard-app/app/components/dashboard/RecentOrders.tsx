@@ -188,7 +188,7 @@ export function RecentOrders({ userType = 'distributor' }: RecentOrdersProps) {
     }
     
     fetchRecentOrders();
-  }, []);
+  }, [userType]);
 
   const getStatusIcon = (status: Order['status']) => {
     switch (status) {

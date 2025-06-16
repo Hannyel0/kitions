@@ -207,6 +207,7 @@ export function ProductSelectionModal({
       const currentQuantity = prev[productId] || 0;
       const newQuantity = Math.max(0, currentQuantity + change);
       if (newQuantity === 0) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [productId]: _, ...rest } = prev;
         return rest;
       }
@@ -345,7 +346,7 @@ export function ProductSelectionModal({
                   <span>{filteredProducts.length} products found</span>
                   {debouncedQuery && (
                     <span className="px-2 py-1 bg-blue-100/80 text-blue-700 rounded-lg border border-blue-200/50">
-                      "{debouncedQuery}"
+                      &quot;{debouncedQuery}&quot;
                     </span>
                   )}
                   {selectedCategory !== 'all' && (

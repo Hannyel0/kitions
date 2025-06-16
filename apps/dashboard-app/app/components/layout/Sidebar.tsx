@@ -10,8 +10,6 @@ import {
   Package,
   PackageCheck as Boxes,
   Settings,
-  ChevronLeft,
-  ChevronRight,
   X,
   Zap,
 } from 'lucide-react'

@@ -186,22 +186,7 @@ export function AddProductModal({
     }
   }
   
-  // Format price for display and input handling
-  const formatPriceForDisplay = (value: string): string => {
-    if (!value) return ''
-    
-    // If it's already a decimal number, return as is
-    if (value.includes('.')) {
-      return value
-    }
-    
-    // Convert to number and format as dollars and cents
-    const numericValue = parseInt(value, 10)
-    if (isNaN(numericValue)) return ''
-    
-    // Format as currency with 2 decimal places
-    return (numericValue / 100).toFixed(2)
-  }
+
   
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '') // Remove non-digit characters

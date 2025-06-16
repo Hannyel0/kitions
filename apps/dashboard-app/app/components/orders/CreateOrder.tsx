@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft as ArrowLeftIcon,
   Plus as PlusIcon,
@@ -20,16 +20,13 @@ import {
   AlertCircle,
   Percent,
   DollarSign,
-  Mail,
   Phone,
   MapPin,
   Building,
-  Edit3,
   Save,
-  X
 } from 'lucide-react';
 import { ProductSelectionModal } from '@/app/components/orders/ProductSelectionModal';
-import { RetailerSelectionDropdown } from '@/app/components/orders/RetailerSelectionDropdown';
+
 import { CreateOrderSkeleton } from '@/app/components/orders/CreateOrderSkeleton';
 import { createBrowserClient } from '@supabase/ssr';
 
@@ -727,7 +724,7 @@ export function CreateOrder() {
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">No Partners Yet</h3>
                         <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                          You haven't connected with any retailers yet. Start by discovering and connecting with potential partners.
+                          You haven&apos;t connected with any retailers yet. Start by discovering and connecting with potential partners.
                         </p>
                         <motion.button
                           type="button"
@@ -757,7 +754,7 @@ export function CreateOrder() {
                         <div>
                           <h4 className="font-medium text-blue-900 text-sm">Discover New Partners</h4>
                           <p className="text-blue-700 text-xs mt-1">
-                            Search for retailers you'd like to partner with. Send them a partnership request to start creating orders together.
+                            Search for retailers you&apos;d like to partner with. Send them a partnership request to start creating orders together.
                           </p>
                         </div>
                       </div>

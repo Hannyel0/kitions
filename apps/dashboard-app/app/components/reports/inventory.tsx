@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar,
   Download,
-  Filter,
+
   ArrowLeft as ArrowLeftIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,

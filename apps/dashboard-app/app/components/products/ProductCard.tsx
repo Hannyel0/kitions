@@ -196,8 +196,8 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
   
   return (
     <motion.div 
-      className="group relative bg-white/80 backdrop-blur-sm border border-white/50 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
-      whileHover={{ y: -8, scale: 1.02 }}
+      className="group relative bg-white/80 backdrop-blur-sm border border-white/50 rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+      whileHover={{ y: -4, scale: 1.01 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -207,7 +207,7 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
       
       <Link href={`/distributor/products/${product.id}`} className="block relative z-10">
         {/* Image Section */}
-        <div className="relative h-56 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        <div className="relative h-32 sm:h-40 md:h-48 lg:h-56 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
           {product.image ? (
             <div className="relative w-full h-full">
               <Image
@@ -230,60 +230,61 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
           )}
           
           {/* Stock Status Badge */}
-          <div className="absolute top-4 left-4">
-            <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full border backdrop-blur-sm ${stockStatus.color}`}>
-              <div className={`w-2 h-2 rounded-full ${stockStatus.dotColor} animate-pulse`}></div>
-              <span className="text-xs font-medium">{stockStatus.label}</span>
+          <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
+            <div className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border backdrop-blur-sm ${stockStatus.color}`}>
+              <div className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${stockStatus.dotColor} animate-pulse`}></div>
+              <span className="text-xs font-medium hidden sm:inline">{stockStatus.label}</span>
             </div>
           </div>
           
-          {/* Category Badge */}
-          <div className="absolute top-4 right-4">
-            <div className="px-3 py-1.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/50 shadow-sm">
+          {/* Category Badge - Hidden on mobile */}
+          <div className="absolute top-2 sm:top-4 right-2 sm:right-4 hidden sm:block">
+            <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-medium rounded-full border border-white/50 shadow-sm">
               {product.category}
             </div>
           </div>
         </div>
         
         {/* Content Section */}
-        <div className="p-6 relative">
+        <div className="p-3 sm:p-4 md:p-6 relative">
           {/* Product Name & Description */}
-          <div className="mb-4">
-            <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors duration-300">
+          <div className="mb-2 sm:mb-3 md:mb-4">
+            <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg mb-1 sm:mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors duration-300">
               {product.name}
             </h3>
-            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-gray-600 line-clamp-1 sm:line-clamp-2 leading-relaxed hidden sm:block">
               {product.description || 'No description available'}
             </p>
           </div>
           
           {/* Price Section */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
+          <div className="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-baseline sm:space-x-2">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300">
                 ${product.price.toFixed(2)}
               </span>
-              <span className="text-sm text-gray-500">
+              <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">
                 / case of {product.case_size}
               </span>
             </div>
             <div className="flex items-center space-x-1 text-gray-500">
-              <TrendingUp size={14} />
-              <span className="text-xs font-medium">{product.stock_quantity} units</span>
+              <TrendingUp size={12} className="sm:hidden" />
+              <TrendingUp size={14} className="hidden sm:block" />
+              <span className="text-xs font-medium">{product.stock_quantity}</span>
             </div>
           </div>
           
-          {/* SKU */}
-          <div className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-lg inline-block">
+          {/* SKU - Hidden on mobile */}
+          <div className="text-xs text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-lg inline-block hidden sm:block">
             SKU: {product.sku}
           </div>
         </div>
       </Link>
       
       {/* Action Menu */}
-      <div className="absolute top-4 right-16 z-20" ref={menuRef}>
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-16 z-20" ref={menuRef}>
         <motion.button 
-          className="p-2 bg-white/90 backdrop-blur-sm border border-white/50 rounded-full shadow-lg hover:bg-white hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100"
+          className="p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm border border-white/50 rounded-full shadow-lg hover:bg-white hover:shadow-xl transition-all duration-300 opacity-0 group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -292,7 +293,8 @@ export function ProductCard({ product, onEdit, onDelete, onRefresh }: ProductCar
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <MoreVerticalIcon size={16} className="text-gray-600" />
+          <MoreVerticalIcon size={14} className="sm:hidden text-gray-600" />
+          <MoreVerticalIcon size={16} className="hidden sm:block text-gray-600" />
         </motion.button>
         
         <AnimatePresence>

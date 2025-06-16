@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../providers/auth-provider';
 import { createSupabaseBrowserClient } from '../utils/supabase';
@@ -11,7 +11,7 @@ import {
   faHome, faChevronDown, faSignOutAlt, 
   faShoppingCart, faStore, faBox, faBlog, 
   faUserCircle, faSignIn, faBars, faTimes,
-  faGlobe, faLaptopCode
+  faGlobe
 } from '@fortawesome/free-solid-svg-icons';
 
 // Animation variants for dropdown menus
@@ -65,13 +65,7 @@ export default function Navbar() {
     return 'https://websites.kitions.com';
   };
 
-  // Helper function to get the Website Creation Service URL based on environment
-  const getWebsiteCreationServiceUrl = () => {
-    if (process.env.NODE_ENV === 'development') {
-      return 'http://localhost:3002/';
-    }
-    return 'https://websites.kitions.com/';
-  };
+
 
   // Fetch user details when user is authenticated
   useEffect(() => {
