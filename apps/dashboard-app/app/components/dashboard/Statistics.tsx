@@ -2,18 +2,18 @@ import React from 'react'
 
 export function Statistics() {
   return (
-    <section className="mb-8">
-      <h2 className="text-gray-800 text-xl font-semibold mb-4">Statistics</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <section className="mb-6 sm:mb-8">
+      <h2 className="text-gray-800 text-lg sm:text-xl font-semibold mb-4">Statistics</h2>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Sales Chart */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
             <h3 className="text-gray-800 font-medium">Sales</h3>
-            <div className="flex space-x-2">
+            <div className="flex space-x-1 sm:space-x-2">
               {['1Y', '3Y', '5Y', 'All'].map((period) => (
                 <button
                   key={period}
-                  className={`px-3 py-1 text-xs rounded-full ${period === '1Y' ? 'bg-gray-200 text-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
+                  className={`px-2 sm:px-3 py-1 text-xs rounded-full ${period === '1Y' ? 'bg-gray-200 text-gray-800' : 'text-gray-500 hover:bg-gray-100'}`}
                 >
                   {period}
                 </button>
@@ -30,7 +30,7 @@ export function Statistics() {
                 </span>
               </div>
             </div>
-            <div className="flex space-x-4 mb-4">
+            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0 mb-4">
               <div className="flex items-center">
                 <span className="h-3 w-3 rounded-full bg-blue-600 mr-2"></span>
                 <span className="text-xs text-gray-700">Direct Sales</span>
@@ -44,7 +44,7 @@ export function Statistics() {
                 <span className="text-gray-800 ml-2 text-xs font-medium">$19,235</span>
               </div>
             </div>
-            <div className="h-64 flex items-end space-x-2">
+            <div className="h-48 sm:h-64 flex items-end space-x-1 sm:space-x-2">
               {Array.from({
                 length: 12,
               }).map((_, i) => {
@@ -90,10 +90,10 @@ export function Statistics() {
           </div>
         </div>
         {/* Conversion Chart */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
+        <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-100">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
             <h3 className="text-gray-800 font-medium">Conversion</h3>
-            <div className="flex items-center border border-gray-200 rounded px-3 py-1.5">
+            <div className="flex items-center border border-gray-200 rounded px-3 py-1.5 self-start sm:self-auto">
               <span className="text-gray-800 text-sm">Dec 2024</span>
               <svg
                 className="w-4 h-4 ml-2"
@@ -107,7 +107,7 @@ export function Statistics() {
             </div>
           </div>
           <div className="flex flex-col items-center justify-center">
-            <div className="relative w-48 h-48 mb-4">
+            <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-4">
               <svg className="w-full h-full" viewBox="0 0 100 100">
                 <circle
                   cx="50"
@@ -142,13 +142,13 @@ export function Statistics() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-gray-800 text-3xl font-bold">85.8%</span>
-                <span className=" text-xs text-red-500 flex items-center">
+                <span className="text-gray-800 text-2xl sm:text-3xl font-bold">85.8%</span>
+                <span className="text-xs text-red-500 flex items-center">
                   -8% from last month
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-16 gap-y-2">
+            <div className="grid grid-cols-2 gap-x-8 sm:gap-x-16 gap-y-2">
               <div className="flex items-center">
                 <span className="h-3 w-3 rounded-full bg-indigo-600 mr-2"></span>
                 <span className="text-gray-800 text-xs">Purchased</span>

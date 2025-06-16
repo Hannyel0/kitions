@@ -11,12 +11,12 @@ interface QuickActionCardProps {
 
 const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, description, href = '#' }) => (
   <Link href={href} className="block h-full">
-    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 h-full hover:shadow-md transition-shadow">
-      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+    <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-100 h-full hover:shadow-md transition-shadow">
+      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mb-3 sm:mb-4">
         {icon}
       </div>
-      <h3 className="text-gray-800 font-medium mb-2">{title}</h3>
-      <p className="text-gray-700 text-sm">
+      <h3 className="text-gray-800 font-medium mb-2 text-sm sm:text-base">{title}</h3>
+      <p className="text-gray-700 text-xs sm:text-sm">
         {description}
       </p>
     </div>
@@ -25,9 +25,9 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, descript
 
 export function QuickActions() {
   return (
-    <section className="mb-8">
-      <h2 className="text-gray-800 text-xl font-semibold mb-4">Quick Actions</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <section className="mb-6 sm:mb-8">
+      <h2 className="text-gray-800 text-lg sm:text-xl font-semibold mb-4">Quick Actions</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <QuickActionCard
           icon={<ShoppingCart size={20} className="text-blue-600" />}
           title="Make Order"

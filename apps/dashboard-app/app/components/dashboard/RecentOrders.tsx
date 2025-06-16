@@ -242,52 +242,85 @@ export function RecentOrders({ userType = 'distributor' }: RecentOrdersProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile view */}
+      <div className="block sm:hidden">
+        <div className="divide-y divide-gray-200">
+          {orders.map((order) => (
+            <div key={order.id} className="p-4 hover:bg-gray-50">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-gray-900">{order.order_number}</div>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(order.status)}`}>
+                  {getStatusIcon(order.status)}
+                  <span className="ml-1 capitalize">{order.status}</span>
+                </span>
+              </div>
+              <div className="text-sm text-gray-600 mb-1">
+                {userType === 'retailer' ? order.distributor_name : order.retailer_name}
+              </div>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                <div className="flex items-center space-x-2">
+                  <span className="font-medium text-gray-900">${order.total.toFixed(2)}</span>
+                  <Link
+                    href={`/${userType}/orders/${order.id}`}
+                    className="text-blue-600 hover:text-blue-900"
+                  >
+                    <EyeIcon size={16} />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop view */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+              <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {userType === 'retailer' ? 'Distributor' : 'Client'}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+              <th className="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {order.order_number}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                   {userType === 'retailer' ? (
                     <>
                       <div className="text-sm font-medium text-gray-900">{order.distributor_name}</div>
-                      <div className="text-sm text-gray-500">{order.distributor_email}</div>
+                      <div className="text-sm text-gray-500 hidden lg:block">{order.distributor_email}</div>
                     </>
                   ) : (
                     <>
                       <div className="text-sm font-medium text-gray-900">{order.retailer_name}</div>
-                      <div className="text-sm text-gray-500">{order.retailer_email}</div>
+                      <div className="text-sm text-gray-500 hidden lg:block">{order.retailer_email}</div>
                     </>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(order.created_at).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(order.status)}`}>
                     {getStatusIcon(order.status)}
                     <span className="ml-1 capitalize">{order.status}</span>
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   ${order.total.toFixed(2)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={`/${userType}/orders/${order.id}`}
                     className="text-blue-600 hover:text-blue-900"
@@ -300,13 +333,15 @@ export function RecentOrders({ userType = 'distributor' }: RecentOrdersProps) {
           </tbody>
         </table>
       </div>
-      <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
-        <div className="text-sm text-gray-500">
+      
+      {/* Footer */}
+      <div className="bg-gray-50 px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-200 gap-2">
+        <div className="text-sm text-gray-500 text-center sm:text-left">
           Showing <span className="font-medium">{orders.length}</span> of <span className="font-medium">{orders.length}</span> recent orders
         </div>
         <Link
           href={`/${userType}/orders`}
-          className="text-sm font-medium text-blue-600 hover:text-blue-900"
+          className="text-sm font-medium text-blue-600 hover:text-blue-900 text-center sm:text-right"
         >
           View all orders
         </Link>
