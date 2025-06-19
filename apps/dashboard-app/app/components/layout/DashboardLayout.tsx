@@ -36,10 +36,10 @@ function BottomNavigation({ userType }: { userType: 'retailer' | 'distributor' |
           active: pathname === `/${userType}/products`,
         },
         {
-          icon: Boxes,
-          label: 'Inventory',
-          path: `/${userType}/inventory`,
-          active: pathname === `/${userType}/inventory`,
+          icon: ShoppingCart,
+          label: 'Orders',
+          path: `/${userType}/orders`,
+          active: pathname === `/${userType}/orders`,
         },
         {
           icon: Users,
