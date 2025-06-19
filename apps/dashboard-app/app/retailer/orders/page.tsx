@@ -32,6 +32,150 @@ import {
 import { createBrowserClient } from '@supabase/ssr';
 import { DashboardLayout } from '@/app/components/layout';
 
+// Loading Skeleton Component
+function RetailerOrdersSkeleton() {
+  return (
+    <DashboardLayout userType="retailer">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50/30 to-fuchsia-50/40 -m-6 p-6">
+        {/* Header Skeleton */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#8982cf] via-purple-600 to-fuchsia-600 px-6 py-8 rounded-3xl mb-8">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10 max-w-7xl mx-auto">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
+                    <Package className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="h-8 bg-white/20 rounded-lg w-80 mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-white/10 rounded w-64 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="h-10 bg-white/20 rounded-xl w-32 animate-pulse"></div>
+              </div>
+            </div>
+            
+            {/* Stats Cards Skeleton */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+              {[...Array(4)].map((_, index) => (
+                <div 
+                  key={index}
+                  className="bg-white/20 backdrop-blur-sm rounded-2xl p-5 border border-white/30"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="h-3 bg-white/20 rounded w-20 mb-2 animate-pulse"></div>
+                      <div className="h-6 bg-white/30 rounded w-12 animate-pulse"></div>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <div className="h-5 w-5 bg-white/30 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto">
+          {/* Tabs Skeleton */}
+          <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden">
+            <div className="p-2">
+              <div className="flex space-x-1">
+                <div className="flex-1 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl animate-pulse"></div>
+                <div className="flex-1 h-16 bg-gray-100 rounded-2xl animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Filter Skeleton */}
+          <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden">
+            <div className="p-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                  <div className="h-12 bg-gray-200 rounded-2xl w-72 animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 rounded-2xl w-36 animate-pulse"></div>
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                  <div className="h-8 bg-gray-200 rounded-full w-24 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded-xl w-32 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded-xl w-10 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden"
+              >
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-100 rounded w-24 animate-pulse"></div>
+                    </div>
+                    <div className="h-8 w-8 bg-gray-200 rounded-lg animate-pulse"></div>
+                  </div>
+
+                  {/* Distributor Info Skeleton */}
+                  <div className="bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl p-4 mb-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-gray-200 rounded-xl">
+                        <div className="h-4 w-4 bg-gray-300 rounded animate-pulse"></div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                        <div className="h-3 bg-gray-100 rounded w-40 mb-2 animate-pulse"></div>
+                        <div className="h-3 bg-gray-100 rounded w-36 animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status and Total Skeleton */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-8 bg-gray-200 rounded-xl w-20 animate-pulse"></div>
+                    <div className="text-right">
+                      <div className="h-6 bg-gray-200 rounded w-16 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-100 rounded w-20 animate-pulse"></div>
+                    </div>
+                  </div>
+
+                  {/* Order Items Skeleton */}
+                  <div className="bg-white/40 backdrop-blur-sm rounded-xl p-4 mb-4">
+                    <div className="h-4 bg-gray-200 rounded w-32 mb-3 animate-pulse"></div>
+                    <div className="space-y-2">
+                      {[...Array(2)].map((_, itemIndex) => (
+                        <div key={itemIndex} className="flex justify-between items-center">
+                          <div className="h-3 bg-gray-100 rounded w-24 animate-pulse"></div>
+                          <div className="h-3 bg-gray-100 rounded w-16 animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Button Skeleton */}
+                  <div className="h-12 bg-gray-200 rounded-2xl w-full animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
+
 interface PartnershipRequest {
   id: string;
   distributor_id: string;
@@ -356,19 +500,9 @@ export default function RetailerOrdersPage() {
   console.log('statusFilter:', statusFilter);
   console.log('viewMode:', viewMode);
 
+  // Show loading skeleton while data is loading
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50/30 to-fuchsia-50/40 flex items-center justify-center">
-        <div className="text-center">
-          <motion.div 
-            className="w-16 h-16 border-4 border-[#8982cf]/30 border-t-[#8982cf] rounded-full mx-auto mb-4"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-          <p className="text-gray-600 font-medium">Loading your orders...</p>
-        </div>
-      </div>
-    );
+    return <RetailerOrdersSkeleton />;
   }
 
   return (

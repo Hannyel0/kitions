@@ -1,5 +1,5 @@
 import React from 'react'
-import { ShoppingCart, BarChart2, FileText } from 'lucide-react'
+import { ShoppingCart, BarChart2, FileText, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
 
 interface QuickActionCardProps {
@@ -23,29 +23,73 @@ const QuickActionCard: React.FC<QuickActionCardProps> = ({ icon, title, descript
   </Link>
 )
 
-export function QuickActions() {
+interface QuickActionsProps {
+  userType?: 'retailer' | 'distributor' | 'admin'
+}
+
+export function QuickActions({ userType = 'distributor' }: QuickActionsProps) {
+  const getQuickActions = () => {
+    if (userType === 'retailer') {
+      return [
+        {
+          icon: <ShoppingCart size={20} className="text-blue-600" />,
+          title: "Create Order",
+          description: "Place a new order with your distributors",
+          href: "/retailer/orders/create"
+        },
+        {
+          icon: <BarChart2 size={20} className="text-blue-600" />,
+          title: "View Reports",
+          description: "Check your ordering history and analytics",
+          href: "/retailer/reports"
+        },
+        {
+          icon: <Settings size={20} className="text-blue-600" />,
+          title: "Account Settings",
+          description: "Update your profile and preferences",
+          href: "/retailer/settings"
+        }
+      ]
+    } else {
+      // Distributor actions (existing)
+      return [
+        {
+          icon: <ShoppingCart size={20} className="text-blue-600" />,
+          title: "Make Order",
+          description: "Create a new order for your retailers",
+          href: "/distributor/orders/create"
+        },
+        {
+          icon: <BarChart2 size={20} className="text-blue-600" />,
+          title: "Generate Sales Report",
+          description: "View and download detailed sales reports",
+          href: "/distributor/reports"
+        },
+        {
+          icon: <FileText size={20} className="text-blue-600" />,
+          title: "Make Invoice",
+          description: "Create and send professional invoices",
+          href: "/distributor/invoices/create"
+        }
+      ]
+    }
+  }
+
+  const actions = getQuickActions()
+
   return (
     <section className="mb-6 sm:mb-8">
       <h2 className="text-gray-800 text-lg sm:text-xl font-semibold mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <QuickActionCard
-          icon={<ShoppingCart size={20} className="text-blue-600" />}
-          title="Make Order"
-          description="Create a new order for your retailers"
-          href="/distributor/orders/create"
-        />
-        <QuickActionCard
-          icon={<BarChart2 size={20} className="text-blue-600" />}
-          title="Generate Sales Report"
-          description="View and download detailed sales reports"
-          href="/distributor/reports"
-        />
-        <QuickActionCard
-          icon={<FileText size={20} className="text-blue-600" />}
-          title="Make Invoice"
-          description="Create and send professional invoices"
-          href="/distributor/invoices/create"
-        />
+        {actions.map((action, index) => (
+          <QuickActionCard
+            key={index}
+            icon={action.icon}
+            title={action.title}
+            description={action.description}
+            href={action.href}
+          />
+        ))}
       </div>
     </section>
   )

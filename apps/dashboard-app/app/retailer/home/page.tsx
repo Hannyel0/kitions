@@ -71,14 +71,14 @@ export default function RetailerHomeContent() {
             </div>
           </div>
           <div className="flex space-x-2">
-            <button className="px-4 py-2 bg-[#8982cf] text-white rounded-md hover:bg-[#7a73c0] transition-colors">
-              View Products
-            </button>
+            <a href="/retailer/orders/create" className="px-4 py-2 bg-[#8982cf] text-white rounded-md hover:bg-[#7a73c0] transition-colors">
+              Create Order
+            </a>
           </div>
         </div>
         
         {/* Quick Actions Section */}
-        <QuickActions />
+        <QuickActions userType="retailer" />
         
         {/* Statistics Section */}
         <Statistics />

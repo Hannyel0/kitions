@@ -83,20 +83,23 @@ export function Sidebar({ userType = 'distributor', isCollapsed: externalCollaps
               active: pathname === `/${userType}/home`,
               color: 'from-blue-500 to-blue-600',
             },
-            {
-              icon: <Package size={20} />,
-              label: 'Products',
-              path: `/${userType}/products`,
-              active: pathname === `/${userType}/products`,
-              color: 'from-emerald-500 to-emerald-600',
-            },
-            {
-              icon: <Boxes size={20} />,
-              label: 'Inventory',
-              path: `/${userType}/inventory`,
-              active: pathname === `/${userType}/inventory`,
-              color: 'from-amber-500 to-amber-600',
-            },
+            // Only show Products and Inventory for distributors and admins, not retailers
+            ...(userType !== 'retailer' ? [
+              {
+                icon: <Package size={20} />,
+                label: 'Products',
+                path: `/${userType}/products`,
+                active: pathname === `/${userType}/products`,
+                color: 'from-emerald-500 to-emerald-600',
+              },
+              {
+                icon: <Boxes size={20} />,
+                label: 'Inventory',
+                path: `/${userType}/inventory`,
+                active: pathname === `/${userType}/inventory`,
+                color: 'from-amber-500 to-amber-600',
+              },
+            ] : []),
             {
               icon: <ShoppingCart size={20} />,
               label: 'Orders',
