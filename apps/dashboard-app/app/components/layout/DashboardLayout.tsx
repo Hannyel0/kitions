@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
-import { Header } from './Header';
-import { Sidebar } from './Sidebar';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/app-sidebar';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -12,7 +12,6 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children, userType }: DashboardLayoutProps) {
   const { user, loading } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   if (loading) {
     return (
@@ -23,41 +22,26 @@ export default function DashboardLayout({ children, userType }: DashboardLayoutP
   }
   
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <Sidebar 
-          userType={userType} 
-          isCollapsed={false}
-          onClose={() => setSidebarOpen(false)}
-        />
-      </div>
-      
-      <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-        {/* Header */}
-        <div className="sticky top-0 z-30">
-          <Header 
-            userType={userType} 
-            onMenuClick={() => setSidebarOpen(true)}
-          />
-        </div>
-        
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto py-4 px-4 sm:py-6 sm:px-6 bg-gray-50">
+    <SidebarProvider>
+      <AppSidebar userType={userType} />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg">
+              <span className="text-white text-sm font-bold">K</span>
+            </div>
+            <span className="text-gray-800 text-sm font-medium">
+              {userType === 'retailer' ? 'Retailer Dashboard' : 
+               userType === 'admin' ? 'Admin Dashboard' : 
+               'Distributor Dashboard'}
+            </span>
+          </div>
+        </header>
+        <main className="flex-1 overflow-auto p-6">
           {user ? children : null}
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 } 
