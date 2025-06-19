@@ -400,13 +400,6 @@ export default function RetailerOrdersPage() {
       setPartnershipRequests(transformedRequests);
       setOrders(transformedOrders);
 
-      // Debug logging
-      console.log('=== DEBUG RENDERING ===');
-      console.log('transformedRequests:', transformedRequests);
-      console.log('transformedOrders:', transformedOrders);
-      console.log('partnershipRequests state will be:', transformedRequests.length);
-      console.log('orders state will be:', transformedOrders.length);
-
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
       console.error('Error fetching data:', err);
@@ -486,19 +479,6 @@ export default function RetailerOrdersPage() {
   const totalOrders = orders.length;
   const totalValue = orders.reduce((sum, order) => sum + order.total, 0);
   const pendingRequests = partnershipRequests.filter(req => req.status === 'pending').length;
-
-  // Debug logging for render conditions
-  console.log('=== RENDER CONDITIONS DEBUG ===');
-  console.log('isLoading:', isLoading);
-  console.log('error:', error);
-  console.log('activeTab:', activeTab);
-  console.log('orders.length:', orders.length);
-  console.log('filteredOrders.length:', filteredOrders.length);
-  console.log('partnershipRequests.length:', partnershipRequests.length);
-  console.log('filteredRequests.length:', filteredRequests.length);
-  console.log('searchTerm:', searchTerm);
-  console.log('statusFilter:', statusFilter);
-  console.log('viewMode:', viewMode);
 
   // Show loading skeleton while data is loading
   if (isLoading) {
