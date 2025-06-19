@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DashboardLayout } from '@/app/components/layout'
-import { AddProductModal } from '@/app/components/products/AddProductModal'
+
 import { Product } from '@/app/components/products/types'
 import { createBrowserClient } from '@supabase/ssr'
 import Image from 'next/image'
@@ -577,16 +577,7 @@ export default function RetailerInventory() {
         )}
       
       {/* Modals */}
-        <AddProductModal
-          isOpen={isAddModalOpen}
-          onClose={() => {
-            setIsAddModalOpen(false)
-            setScannedUpcForNewProduct('')
-            setRefreshTrigger(prev => prev + 1)
-          }}
-          categories={categories.filter((c) => c !== 'all')}
-          initialUpc={scannedUpcForNewProduct}
-        />
+
         
         {/* Low Stock Modal */}
         <AnimatePresence>

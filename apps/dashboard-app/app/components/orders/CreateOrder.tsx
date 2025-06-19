@@ -466,6 +466,8 @@ export function CreateOrder() {
           discount: discountAmount,
           total: total,
           notes: orderForm.notes,
+          placed_by_type: 'distributor',
+          placed_by_user_id: userId,
         })
         .select()
         .single();
@@ -623,6 +625,9 @@ export function CreateOrder() {
                     <div>
                       <h2 className="text-lg font-bold text-gray-900">Customer Information</h2>
                       <p className="text-gray-600 text-sm">Select an existing customer or discover new partners</p>
+                      <p className="text-amber-600 text-xs mt-1 font-medium">
+                        📝 Orders placed here will be marked as "Placed by Distributor on behalf of Retailer"
+                      </p>
                     </div>
                   </div>
                   <motion.button

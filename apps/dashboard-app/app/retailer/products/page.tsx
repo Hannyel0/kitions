@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/app/components/layout'
-import { SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart, Package, Plus, Sparkles, TrendingUp, Eye } from 'lucide-react'
+import { SearchIcon, FilterIcon, LayoutGrid as LayoutGridIcon, List as ListIcon, ShoppingCart, Package, Plus, Sparkles, TrendingUp, Eye, Users } from 'lucide-react'
 import Link from 'next/link'
 import { ProductCard } from '@/app/components/products/ProductCard'
 import { ProductList } from '@/app/components/products/ProductList'
-import { AddProductModal } from '@/app/components/products/AddProductModal'
+
 import { EditProductModal } from '@/app/components/products/EditProductModal'
 import { ProductsSkeleton } from '@/app/components/products/ProductsSkeleton'
 import { useCallback } from 'react'
@@ -19,7 +19,7 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -37,13 +37,43 @@ export default function ProductsPage() {
       try {
         setIsLoading(true)
         
-        // Fetch products from Supabase with joined category information
+        // First get the current user session
+        const { data: { session } } = await supabase.auth.getSession()
+        const userId = session?.user.id
+
+        if (!userId) {
+          throw new Error('User not authenticated')
+        }
+
+        // Get retailer record
+        const { data: retailerData, error: retailerError } = await supabase
+          .from('retailers')
+          .select('id')
+          .eq('user_id', userId)
+          .single()
+
+        if (retailerError) {
+          throw new Error('Could not find retailer record for this user')
+        }
+
+        const retailerId = retailerData.id
+
+        // Fetch products from accepted distributor partnerships only
         const { data: productsData, error: productsError } = await supabase
           .from('distributor_products')
           .select(`
             *,
-            product_categories(name)
+            product_categories(name),
+            distributors!inner(
+              id,
+              relationships!inner(
+                retailer_id,
+                status
+              )
+            )
           `)
+          .eq('distributors.relationships.retailer_id', retailerId)
+          .eq('distributors.relationships.status', 'accepted')
         
         if (productsError) throw productsError
         
@@ -216,26 +246,15 @@ export default function ProductsPage() {
                       <Package className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold text-white mb-1">Product Catalog</h1>
-                      <p className="text-indigo-100 text-sm">Manage and showcase your product inventory</p>
+                      <h1 className="text-2xl font-bold text-white mb-1">Available Products</h1>
+                      <p className="text-indigo-100 text-sm">Browse products from your distributor partners</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <motion.button
-                    onClick={() => setIsAddModalOpen(true)}
-                    className="group relative px-4 py-2 bg-white/20 backdrop-blur-sm text-white font-medium rounded-lg border border-white/30 hover:bg-white/30 transition-all duration-300 flex items-center space-x-2 text-sm"
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Plus size={16} />
-                    <span>Add Product</span>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </motion.button>
-                  
                   <Link
-                    href="/distributor/orders/create"
+                    href="/retailer/orders/create"
                     className="group relative px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl text-sm"
                   >
                     <ShoppingCart size={16} />
@@ -426,17 +445,15 @@ export default function ProductsPage() {
                         <Package className="h-10 w-10 text-indigo-500" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">No products found</h3>
-                    <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">You haven&apos;t added any products yet. Start building your catalog to showcase your inventory!</p>
-                    <motion.button
-                      onClick={() => setIsAddModalOpen(true)}
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">No products available</h3>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto text-sm">No products available from your distributor partnerships. Connect with distributors to see their products here!</p>
+                    <Link
+                      href="/retailer/orders"
                       className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 space-x-2"
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
                     >
-                      <Plus size={16} />
-                      <span>Add your first product</span>
-                    </motion.button>
+                      <Users size={16} />
+                      <span>View Partnerships</span>
+                    </Link>
                   </motion.div>
                 ) : filteredProducts.length === 0 ? (
                   <motion.div 
@@ -505,15 +522,6 @@ export default function ProductsPage() {
       )}
       
       {/* Modals */}
-      <AddProductModal
-        isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false)
-          setRefreshTrigger(prev => prev + 1)
-        }}
-        categories={displayCategories.filter((c) => c !== 'all')}
-      />
-      
       <EditProductModal
         isOpen={isEditModalOpen}
         onClose={() => {
