@@ -13,8 +13,11 @@ import {
   Zap,
   ChevronUp,
   User2,
+  LogOut,
+  CreditCard,
+  HelpCircle,
 } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -37,7 +40,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
+import { useAuth } from '@/app/providers/auth-provider'
+import useUserProfile from '@/app/hooks/useUserProfile'
+import ProfileAvatar from '@/app/components/user/ProfileAvatar'
 
 interface AppSidebarProps {
   userType?: 'retailer' | 'distributor' | 'admin'
@@ -45,7 +52,10 @@ interface AppSidebarProps {
 
 export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const { state } = useSidebar()
+  const { signOut } = useAuth()
+  const { firstName, lastName, email, businessName, profilePictureUrl, loading: profileLoading } = useUserProfile()
 
   // Define navigation items based on user type
   const getNavigationItems = () => {
@@ -111,6 +121,23 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
 
   const navigationItems = getNavigationItems()
 
+  // Handle sign out
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  // Get display name
+  const displayName = firstName && lastName 
+    ? `${firstName} ${lastName}` 
+    : firstName || lastName || email || 'User'
+
+  // Get business name or fallback
+  const displayBusiness = businessName || (userType === 'retailer' ? 'Retail Business' : 'Distribution Business')
+
   return (
     <Sidebar collapsible="icon" className="border-r">
       <SidebarHeader>
@@ -146,9 +173,9 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1">
               {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
+                <SidebarMenuItem key={item.path} className="mb-1">
                   <SidebarMenuButton asChild isActive={item.active}>
                     <Link href={item.path}>
                       <item.icon />
@@ -201,12 +228,26 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <User2 className="size-4" />
-                  </div>
+                  {profileLoading ? (
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                      <User2 className="size-4" />
+                    </div>
+                  ) : (
+                    <ProfileAvatar 
+                      profilePictureUrl={profilePictureUrl}
+                      firstName={firstName}
+                      lastName={lastName}
+                      size="sm"
+                      className="size-8"
+                    />
+                  )}
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">User Account</span>
-                    <span className="truncate text-xs">Manage your account</span>
+                    <span className="truncate font-semibold">
+                      {profileLoading ? 'Loading...' : displayName}
+                    </span>
+                    <span className="truncate text-xs">
+                      {profileLoading ? 'Please wait...' : displayBusiness}
+                    </span>
                   </div>
                   <ChevronUp className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -217,16 +258,37 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
-                  <span>Account Settings</span>
+                <DropdownMenuItem asChild>
+                  <Link href={`/${userType}/settings`} className="flex items-center cursor-pointer">
+                    <User2 className="mr-2 size-4" />
+                    <span>Account Settings</span>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/${userType}/settings/personal`} className="flex items-center cursor-pointer">
+                    <Settings className="mr-2 size-4" />
+                    <span>Personal Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem disabled className="flex items-center cursor-not-allowed">
+                  <CreditCard className="mr-2 size-4" />
                   <span>Billing</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem disabled className="flex items-center cursor-not-allowed">
+                  <HelpCircle className="mr-2 size-4" />
                   <span>Support</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="flex items-center cursor-pointer focus:bg-purple-50">
+                  <Zap className="mr-2 size-4" />
+                  <span>Upgrade to Pro</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleSignOut}
+                  className="flex items-center cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                >
+                  <LogOut className="mr-2 size-4" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
