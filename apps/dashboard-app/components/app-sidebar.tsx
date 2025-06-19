@@ -145,13 +145,13 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href={`/${userType}/home`}>
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="flex w-10 h-8 items-center justify-center rounded-lg">
                   <Image 
                     src="/black-logo-kitions.svg"
                     alt="Kitions Logo" 
-                    width={24}
+                    width={32}
                     height={24}
-                    className="size-6"
+                    className="w-8 h-6"
                     priority
                   />
                 </div>
