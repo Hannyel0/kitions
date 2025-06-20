@@ -78,7 +78,7 @@ export default function DistributorHomeContent() {
         </div>
         
         {/* Quick Actions Section */}
-        <QuickActions />
+        <QuickActions userType="distributor" />
         
         {/* Statistics Section */}
         <Statistics />

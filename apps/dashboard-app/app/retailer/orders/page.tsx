@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search as SearchIcon,
@@ -25,10 +26,155 @@ import {
   Building,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Plus as PlusIcon
 } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
 import { DashboardLayout } from '@/app/components/layout';
+
+// Loading Skeleton Component
+function RetailerOrdersSkeleton() {
+  return (
+    <DashboardLayout userType="retailer">
+      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50/30 to-fuchsia-50/40 -m-6 p-6">
+        {/* Header Skeleton */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-[#8982cf] via-purple-600 to-fuchsia-600 px-6 py-8 rounded-3xl mb-8">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10 max-w-7xl mx-auto">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-6 lg:space-y-0">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4">
+                  <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
+                    <Package className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="h-8 bg-white/20 rounded-lg w-80 mb-2 animate-pulse"></div>
+                    <div className="h-4 bg-white/10 rounded w-64 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="h-10 bg-white/20 rounded-xl w-32 animate-pulse"></div>
+              </div>
+            </div>
+            
+            {/* Stats Cards Skeleton */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+              {[...Array(4)].map((_, index) => (
+                <div 
+                  key={index}
+                  className="bg-white/20 backdrop-blur-sm rounded-2xl p-5 border border-white/30"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="h-3 bg-white/20 rounded w-20 mb-2 animate-pulse"></div>
+                      <div className="h-6 bg-white/30 rounded w-12 animate-pulse"></div>
+                    </div>
+                    <div className="p-3 bg-white/20 rounded-xl">
+                      <div className="h-5 w-5 bg-white/30 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto">
+          {/* Tabs Skeleton */}
+          <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden">
+            <div className="p-2">
+              <div className="flex space-x-1">
+                <div className="flex-1 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl animate-pulse"></div>
+                <div className="flex-1 h-16 bg-gray-100 rounded-2xl animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Filter Skeleton */}
+          <div className="mb-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden">
+            <div className="p-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                  <div className="h-12 bg-gray-200 rounded-2xl w-72 animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 rounded-2xl w-36 animate-pulse"></div>
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                  <div className="h-8 bg-gray-200 rounded-full w-24 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded-xl w-32 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded-xl w-10 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, index) => (
+              <div
+                key={index}
+                className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden"
+              >
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                      <div className="h-4 bg-gray-100 rounded w-24 animate-pulse"></div>
+                    </div>
+                    <div className="h-8 w-8 bg-gray-200 rounded-lg animate-pulse"></div>
+                  </div>
+
+                  {/* Distributor Info Skeleton */}
+                  <div className="bg-gradient-to-r from-gray-100 to-gray-50 rounded-2xl p-4 mb-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="p-2 bg-gray-200 rounded-xl">
+                        <div className="h-4 w-4 bg-gray-300 rounded animate-pulse"></div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse"></div>
+                        <div className="h-3 bg-gray-100 rounded w-40 mb-2 animate-pulse"></div>
+                        <div className="h-3 bg-gray-100 rounded w-36 animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status and Total Skeleton */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="h-8 bg-gray-200 rounded-xl w-20 animate-pulse"></div>
+                    <div className="text-right">
+                      <div className="h-6 bg-gray-200 rounded w-16 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-100 rounded w-20 animate-pulse"></div>
+                    </div>
+                  </div>
+
+                  {/* Order Items Skeleton */}
+                  <div className="bg-white/40 backdrop-blur-sm rounded-xl p-4 mb-4">
+                    <div className="h-4 bg-gray-200 rounded w-32 mb-3 animate-pulse"></div>
+                    <div className="space-y-2">
+                      {[...Array(2)].map((_, itemIndex) => (
+                        <div key={itemIndex} className="flex justify-between items-center">
+                          <div className="h-3 bg-gray-100 rounded w-24 animate-pulse"></div>
+                          <div className="h-3 bg-gray-100 rounded w-16 animate-pulse"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Button Skeleton */}
+                  <div className="h-12 bg-gray-200 rounded-2xl w-full animate-pulse"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
+}
 
 interface PartnershipRequest {
   id: string;
@@ -52,6 +198,8 @@ interface Order {
   status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   notes: string;
   created_at: string;
+  placed_by_type: 'retailer' | 'distributor';
+  placed_by_user_name?: string;
   distributor: {
     business_name: string;
     email: string;
@@ -66,7 +214,7 @@ interface Order {
 }
 
 export default function RetailerOrdersPage() {
-  const [activeTab, setActiveTab] = useState<'requests' | 'orders'>('orders');
+  const [activeTab, setActiveTab] = useState<'requests' | 'orders'>('orders'); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -94,52 +242,61 @@ export default function RetailerOrdersPage() {
         throw new Error('User not authenticated');
       }
 
-      // Get retailer record
-      const { data: retailerData, error: retailerError } = await supabase
-        .from('retailers')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
+              // Get retailer record
+        const { data: retailerData, error: retailerError } = await supabase
+          .from('retailers')
+          .select('id')
+          .eq('user_id', userId)
+          .single();
 
-      if (retailerError) {
-        throw new Error('Could not find retailer record for this user');
-      }
-
-      const retailerId = retailerData.id;
-
-      // Fetch partnership requests
-      const { data: requestsData, error: requestsError } = await supabase
-        .from('relationships')
-        .select(`
-          id,
-          distributor_id,
-          status,
-          created_at,
-          distributors!inner(
-            id,
-            users!inner(business_name, email, phone, address)
-          )
-        `)
-        .eq('retailer_id', retailerId)
-        .order('created_at', { ascending: false });
-
-      if (requestsError) throw requestsError;
-
-      // Transform partnership requests
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const transformedRequests = requestsData?.map((request: any) => ({
-        id: request.id,
-        distributor_id: request.distributor_id,
-        status: request.status,
-        created_at: request.created_at,
-        distributor: {
-          id: request.distributors.id,
-          business_name: request.distributors.users.business_name || 'Unknown Business',
-          email: request.distributors.users.email || '',
-          phone: request.distributors.users.phone || '',
-          address: request.distributors.users.address || '',
+        if (retailerError) {
+          console.error('Retailer query error:', retailerError);
+          throw new Error(`Could not find retailer record for this user: ${retailerError.message}`);
         }
-      })) || [];
+
+        if (!retailerData?.id) {
+          throw new Error('No retailer record found for this user');
+        }
+
+                const retailerId = retailerData.id;
+        console.log('Found retailer ID:', retailerId, 'for user:', userId);
+
+        // Fetch partnership requests
+        const { data: requestsData, error: requestsError } = await supabase
+          .from('relationships')
+          .select(`
+            id,
+            distributor_id,
+            status,
+            created_at,
+            distributors!inner(
+              id,
+              users(business_name, email, phone, business_address)
+            )
+          `)
+          .eq('retailer_id', retailerId)
+          .order('created_at', { ascending: false });
+
+        if (requestsError) {
+          console.error('Partnership requests query error:', requestsError);
+          throw new Error(`Failed to fetch partnership requests: ${requestsError.message}`);
+        }
+
+              // Transform partnership requests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedRequests = requestsData?.map((request: any) => ({
+          id: request.id,
+          distributor_id: request.distributor_id,
+          status: request.status,
+          created_at: request.created_at,
+          distributor: {
+            id: request.distributors.id,
+            business_name: request.distributors.users?.business_name || 'Unknown Business',
+            email: request.distributors.users?.email || '',
+            phone: request.distributors.users?.phone || '',
+            address: request.distributors.users?.business_address || '',
+          }
+        })) || [];
 
       // Fetch orders
       const { data: ordersData, error: ordersError } = await supabase
@@ -152,14 +309,18 @@ export default function RetailerOrdersPage() {
           status,
           notes,
           created_at,
-          distributors!inner(
+          placed_by_type,
+          placed_by_user_id,
+          distributors (
+            id,
+            user_id,
             users!inner(business_name, email, phone)
           ),
           order_items(
             id,
             quantity,
             price,
-            distributor_products!inner(
+            distributor_products(
               name
             )
           )
@@ -167,31 +328,74 @@ export default function RetailerOrdersPage() {
         .eq('retailer_id', retailerId)
         .order('created_at', { ascending: false });
 
-      if (ordersError) throw ordersError;
+      if (ordersError) {
+        console.error('Orders query error:', ordersError);
+        throw new Error(`Failed to fetch orders: ${ordersError.message}`);
+      }
+
+      console.log('Raw orders data:', ordersData);
+      console.log('Orders count:', ordersData?.length || 0);
+
+      // Get unique user IDs from orders to fetch user details
+      const userIds = [...new Set(ordersData?.map(order => order.placed_by_user_id) || [])];
+      
+      let usersData: Array<{id: string, business_name: string | null, first_name: string | null, last_name: string | null}> = [];
+      if (userIds.length > 0) {
+        // Fetch user details for all placed_by_user_ids
+        const { data: fetchedUsersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, business_name, first_name, last_name')
+          .in('id', userIds);
+
+        if (usersError) {
+          console.warn('Error fetching user details:', usersError);
+        } else {
+          usersData = fetchedUsersData || [];
+        }
+      }
+
+      // Create a map of user details for quick lookup
+      const usersMap = new Map();
+      usersData?.forEach(user => {
+        usersMap.set(user.id, user);
+      });
 
       // Transform orders
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const transformedOrders = ordersData?.map((order: any) => ({
-        id: order.id,
-        distributor_id: order.distributor_id,
-        total: order.total,
-        discount: order.discount,
-        status: order.status,
-        notes: order.notes,
-        created_at: order.created_at,
-        distributor: {
-          business_name: order.distributors.users.business_name || 'Unknown Business',
-          email: order.distributors.users.email || '',
-          phone: order.distributors.users.phone || '',
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        order_items: order.order_items?.map((item: any) => ({
-          id: item.id,
-          product_name: item.distributor_products.name,
-          quantity: item.quantity,
-          price: item.price
-        })) || []
-      })) || [];
+      const transformedOrders = ordersData?.map((order: any) => {
+        const placedByUser = usersMap.get(order.placed_by_user_id);
+        const placedByUserName = placedByUser?.business_name || 
+                                `${placedByUser?.first_name || ''} ${placedByUser?.last_name || ''}`.trim() ||
+                                'Unknown User';
+
+        // Handle distributors array - get the first distributor
+        const distributor = Array.isArray(order.distributors) ? order.distributors[0] : order.distributors;
+        const distributorUser = distributor?.users;
+
+        return {
+          id: order.id,
+          distributor_id: order.distributor_id,
+          total: order.total,
+          discount: order.discount,
+          status: order.status,
+          notes: order.notes,
+          created_at: order.created_at,
+          placed_by_type: order.placed_by_type || 'distributor',
+          placed_by_user_name: placedByUserName,
+          distributor: {
+            business_name: distributorUser?.business_name || 'Unknown Business',
+            email: distributorUser?.email || '',
+            phone: distributorUser?.phone || '',
+          },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          order_items: order.order_items?.map((item: any) => ({
+            id: item.id,
+            product_name: item.distributor_products?.name || 'Unknown Product',
+            quantity: item.quantity,
+            price: item.price
+          })) || []
+        };
+      }) || [];
 
       setPartnershipRequests(transformedRequests);
       setOrders(transformedOrders);
@@ -276,24 +480,29 @@ export default function RetailerOrdersPage() {
   const totalValue = orders.reduce((sum, order) => sum + order.total, 0);
   const pendingRequests = partnershipRequests.filter(req => req.status === 'pending').length;
 
+  // Show loading skeleton while data is loading
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50/30 to-fuchsia-50/40 flex items-center justify-center">
-        <div className="text-center">
-          <motion.div 
-            className="w-16 h-16 border-4 border-[#8982cf]/30 border-t-[#8982cf] rounded-full mx-auto mb-4"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-          <p className="text-gray-600 font-medium">Loading your orders...</p>
-        </div>
-      </div>
-    );
+    return <RetailerOrdersSkeleton />;
   }
 
   return (
     <DashboardLayout userType="retailer">
       <div className="bg-gradient-to-br from-violet-50 via-purple-50/30 to-fuchsia-50/40 -m-6 p-6 min-h-full">
+        
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 font-semibold">Error: {error}</p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-green-800 font-semibold">{successMessage}</p>
+          </div>
+        )}
+
               {/* Hero Header Section */}
         <div className="relative overflow-hidden bg-gradient-to-r from-violet-600 via-[#8982cf] to-purple-600 px-6 py-8 rounded-3xl mb-6">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -409,32 +618,6 @@ export default function RetailerOrdersPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto">
-        {/* Success/Error Messages */}
-        <AnimatePresence>
-          {successMessage && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center space-x-3 shadow-lg"
-            >
-              <CheckIcon className="h-5 w-5 text-emerald-600" />
-              <p className="text-emerald-800 font-medium">{successMessage}</p>
-            </motion.div>
-          )}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center space-x-3 shadow-lg"
-            >
-              <AlertCircleIcon className="h-5 w-5 text-red-600" />
-              <p className="text-red-800 font-medium">{error}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Tabs */}
         <motion.div 
           className="mb-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/60 overflow-hidden"
@@ -548,6 +731,20 @@ export default function RetailerOrdersPage() {
                   </span> of {activeTab === 'orders' ? totalOrders : partnershipRequests.length} {activeTab}
                 </div>
                 
+                {activeTab === 'orders' && (
+                  <Link href="/retailer/orders/create">
+                    <motion.button
+                      className="inline-flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-[#8982cf] to-purple-600 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
+                      whileHover={{ scale: 1.05, y: -1 }}
+                      whileTap={{ scale: 0.95 }}
+                      title="Create new order"
+                    >
+                      <PlusIcon size={16} />
+                      <span>Create Order</span>
+                    </motion.button>
+                  </Link>
+                )}
+                
                 <motion.button
                   className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors duration-300"
                   whileHover={{ scale: 1.05 }}
@@ -619,6 +816,9 @@ export default function RetailerOrdersPage() {
                                 <p className="text-xs text-gray-600 flex items-center mt-1">
                                   <Mail size={12} className="mr-1" />
                                   {order.distributor.email}
+                                </p>
+                                <p className="text-xs text-blue-600 font-medium mt-1">
+                                  📝 Placed by {order.placed_by_type === 'distributor' ? 'Distributor' : 'Retailer'}: {order.placed_by_user_name}
                                 </p>
                               </div>
                             </div>
@@ -704,6 +904,9 @@ export default function RetailerOrdersPage() {
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm font-medium text-gray-900">{order.distributor.business_name}</div>
                                 <div className="text-xs text-gray-500">{order.distributor.email}</div>
+                                <div className="text-xs text-blue-600 font-medium mt-1">
+                                  📝 Placed by {order.placed_by_type === 'distributor' ? 'Distributor' : 'Retailer'}
+                                </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {new Date(order.created_at).toLocaleDateString()}

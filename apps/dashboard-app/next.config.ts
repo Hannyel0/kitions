@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  devIndicators: false,
   // Add CORS headers to allow cross-origin requests to/from public app
   async headers() {
     return [

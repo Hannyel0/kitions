@@ -87,9 +87,9 @@ export function AddProductModal({
     }
   }, [isOpen, initialUpc])
   
-  // Fetch distributor ID and user info when component mounts
+  // Fetch user data when component mounts
   useEffect(() => {
-    async function fetchDistributorId() {
+    async function fetchUserData() {
       if (!user) return
       
       const supabase = createBrowserClient(
@@ -98,44 +98,47 @@ export function AddProductModal({
       )
       
       try {
-        // First get the distributor ID
-        const { data: distributorData, error: distributorError } = await supabase
-          .from('distributors')
-          .select('id')
-          .eq('user_id', user.id)
+        // First get the user details including unique_identifier, business_name, and role
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('unique_identifier, business_name, role')
+          .eq('id', user.id)
           .single()
         
-        if (distributorError) {
-          console.error('Error fetching distributor ID:', distributorError)
+        if (userError) {
+          console.error('Error fetching user details:', userError)
           return
         }
         
-        if (distributorData) {
-          setDistributorId(distributorData.id)
+        if (userData) {
+          setUserUniqueId(userData.unique_identifier || '')
+          setBusinessName(userData.business_name || '')
           
-          // Now get the user details including unique_identifier and business_name
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('unique_identifier, business_name')
-            .eq('id', user.id)
-            .single()
-          
-          if (userError) {
-            console.error('Error fetching user details:', userError)
-            return
+          // Only try to get distributor ID if user is a distributor
+          if (userData.role === 'distributor') {
+            const { data: distributorData, error: distributorError } = await supabase
+              .from('distributors')
+              .select('id')
+              .eq('user_id', user.id)
+              .single()
+            
+            if (distributorError) {
+              console.error('Error fetching distributor ID:', distributorError)
+              return
+            }
+            
+            if (distributorData) {
+              setDistributorId(distributorData.id)
+            }
           }
-          
-          if (userData) {
-            setUserUniqueId(userData.unique_identifier || '')
-            setBusinessName(userData.business_name || '')
-          }
+          // For retailers, we don't need a distributor ID - they manage their own inventory
         }
       } catch (err) {
-        console.error('Error in fetchDistributorId:', err)
+        console.error('Error in fetchUserData:', err)
       }
     }
     
-    fetchDistributorId()
+    fetchUserData()
   }, [user])
   
   // Handle image change via file input

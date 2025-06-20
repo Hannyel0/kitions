@@ -37,6 +37,8 @@ interface Order {
   retailer_id: string;
   retailer_name: string;
   retailer_email: string;
+  placed_by_type: 'retailer' | 'distributor';
+  placed_by_user_name?: string;
 }
 
 export default function Orders() {
@@ -87,6 +89,8 @@ export default function Orders() {
             payment_status,
             total,
             retailer_id,
+            placed_by_type,
+            placed_by_user_id,
             retailers (
               id,
               user_id,
@@ -94,6 +98,11 @@ export default function Orders() {
                 email,
                 business_name
               )
+            ),
+            placed_by_user:users!placed_by_user_id (
+              business_name,
+              first_name,
+              last_name
             )
           `)
           .eq('distributor_id', distributorId)
@@ -112,6 +121,10 @@ export default function Orders() {
           retailer_id: order.retailer_id,
           retailer_name: order.retailers?.users?.business_name || 'Unknown Business',
           retailer_email: order.retailers?.users?.email || '',
+          placed_by_type: order.placed_by_type || 'distributor',
+          placed_by_user_name: order.placed_by_user?.business_name || 
+                               `${order.placed_by_user?.first_name || ''} ${order.placed_by_user?.last_name || ''}`.trim() ||
+                               'Unknown User',
         }));
         
         setOrders(transformedOrders);
@@ -500,6 +513,9 @@ export default function Orders() {
                                 <Mail size={12} className="mr-1" />
                                 {order.retailer_email}
                               </p>
+                              <p className="text-xs text-blue-600 font-medium mt-1">
+                                📝 Placed by {order.placed_by_type === 'distributor' ? 'Distributor' : 'Retailer'}: {order.placed_by_user_name}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -573,6 +589,9 @@ export default function Orders() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">{order.retailer_name}</div>
                               <div className="text-xs text-gray-500">{order.retailer_email}</div>
+                              <div className="text-xs text-blue-600 font-medium mt-1">
+                                📝 Placed by {order.placed_by_type === 'distributor' ? 'Distributor' : 'Retailer'}
+                              </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {new Date(order.created_at).toLocaleDateString()}

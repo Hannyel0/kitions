@@ -3,15 +3,24 @@ import { motion } from 'framer-motion';
 import { ArrowRight, TrendingUp, Package, Zap, ShoppingCart, Store } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import DotGrid from './DotGrid';
 
 export default function Hero() {
   return (
-    <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 py-8 sm:py-12 lg:py-16 bg-white relative overflow-hidden">
-      {/* Subtle grid lines background */}
-      <div className="absolute inset-0 grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 w-full h-full" aria-hidden="true">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="border-r border-gray-100 opacity-30" />
-        ))}
+    <section className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 py-8 sm:py-12 lg:py-16 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+      {/* Reactive Dots Background */}
+      <div className="absolute inset-0 w-full h-full" aria-hidden="true">
+        <DotGrid
+          dotSize={3}
+          gap={25}
+          baseColor="#e2e8f0"
+          activeColor="#8982cf"
+          proximity={50}
+          speedTrigger={1}
+          shockRadius={500}
+          shockStrength={20}
+          className="opacity-60"
+        />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 xl:gap-20 items-center min-h-[70vh] sm:min-h-[80vh]">
