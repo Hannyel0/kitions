@@ -1,5 +1,5 @@
 import React from 'react'
-import { ShoppingCart, BarChart2, FileText, Settings, Users } from 'lucide-react'
+import { ShoppingCart, BarChart2, FileText, Settings } from 'lucide-react'
 import Link from 'next/link'
 
 interface QuickActionCardProps {

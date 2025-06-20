@@ -17,7 +17,7 @@ import {
   CreditCard,
   HelpCircle,
 } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -33,7 +33,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  useSidebar,
 } from '@/components/ui/sidebar'
 import {
   DropdownMenu,
@@ -52,8 +51,6 @@ interface AppSidebarProps {
 
 export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
   const pathname = usePathname()
-  const router = useRouter()
-  const { state } = useSidebar()
   const { signOut } = useAuth()
   const { firstName, lastName, email, businessName, profilePictureUrl, loading: profileLoading } = useUserProfile()
 

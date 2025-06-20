@@ -626,7 +626,7 @@ export function CreateOrder() {
                       <h2 className="text-lg font-bold text-gray-900">Customer Information</h2>
                       <p className="text-gray-600 text-sm">Select an existing customer or discover new partners</p>
                       <p className="text-amber-600 text-xs mt-1 font-medium">
-                        📝 Orders placed here will be marked as "Placed by Distributor on behalf of Retailer"
+                        📝 Orders placed here will be marked as &quot;Placed by Distributor on behalf of Retailer&quot;
                       </p>
                     </div>
                   </div>

@@ -2,29 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft as ArrowLeftIcon,
-  Plus as PlusIcon,
-  Search as SearchIcon,
-  Trash2 as Trash2Icon,
-  PackageX as PackageXIcon,
-  ShoppingCart,
-  Users,
-  Package,
-  Calculator,
   CheckCircle,
   AlertCircle,
-  Percent,
-  DollarSign,
-  Phone,
-  MapPin,
   Building,
-  Save,
 } from 'lucide-react';
-import { ProductSelectionModal } from '@/app/components/orders/ProductSelectionModal';
 import { CreateOrderSkeleton } from '@/app/components/orders/CreateOrderSkeleton';
 import { createBrowserClient } from '@supabase/ssr';
 
@@ -65,7 +50,9 @@ interface Distributor {
 
 export function CreateOrderForRetailer() {
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,6 +146,7 @@ export function CreateOrderForRetailer() {
     notes: '',
   });
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleDistributorSelect = async (distributorId: string) => {
     const selectedDistributor = distributors.find((d) => d.id === distributorId);
     if (selectedDistributor) {
@@ -211,6 +199,7 @@ export function CreateOrderForRetailer() {
     }
   };
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleProductsSelect = (selectedProducts: OrderProduct[]) => {
     setOrderForm((prev) => ({
       ...prev,
@@ -236,6 +225,7 @@ export function CreateOrderForRetailer() {
     return subtotal - discount;
   };
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -349,6 +339,7 @@ export function CreateOrderForRetailer() {
     }
   };
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderErrorMessage = () => {
     if (!error && !formError) return null;
     const message = error || formError;
@@ -369,6 +360,7 @@ export function CreateOrderForRetailer() {
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const renderSuccessMessage = () => {
     if (!successMessage) return null;
     return (
@@ -412,7 +404,7 @@ export function CreateOrderForRetailer() {
               <h1 className="text-3xl font-bold text-white mb-2">Create New Order</h1>
               <p className="text-violet-100 text-sm">Place an order with one of your distributor partners</p>
               <p className="text-amber-200 text-xs mt-1 font-medium">
-                📝 This order will be marked as "Placed by Retailer"
+                📝 This order will be marked as &quot;Placed by Retailer&quot;
               </p>
             </div>
           </div>
@@ -429,7 +421,7 @@ export function CreateOrderForRetailer() {
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-4">Order Creation Coming Soon</h3>
           <p className="text-gray-600 mb-8 max-w-md mx-auto text-center">
-            This feature is currently being developed. You'll be able to place orders directly with your distributor partners soon.
+            This feature is currently being developed. You&apos;ll be able to place orders directly with your distributor partners soon.
           </p>
           <Link href="/retailer/orders">
             <motion.button

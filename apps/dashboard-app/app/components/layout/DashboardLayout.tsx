@@ -4,7 +4,7 @@ import React from 'react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Menu, Home, Package, Boxes, Users, Settings, ShoppingCart, BarChart3 } from 'lucide-react';
+import { Menu, Home, Package, Users, Settings, ShoppingCart, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -81,7 +81,7 @@ function BottomNavigation({ userType }: { userType: 'retailer' | 'distributor' |
     <div className="fixed bottom-4 left-6 right-6 z-50 lg:hidden">
       <nav className="bg-gray-50 rounded-xl shadow-md border border-gray-100 px-1 py-2 relative overflow-visible">
         <div className="flex items-center justify-around">
-          {navigationItems.map((item, index) => {
+          {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.active;
 
