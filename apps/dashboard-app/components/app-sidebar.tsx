@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Home,
   ShoppingCart,
@@ -12,15 +12,17 @@ import {
   Settings,
   Zap,
   ChevronUp,
+  ChevronDown,
   User2,
   LogOut,
   CreditCard,
   HelpCircle,
+  MessageCircle,
 } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +34,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
 import {
@@ -53,6 +58,17 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
   const pathname = usePathname()
   const { signOut } = useAuth()
   const { firstName, lastName, email, businessName, profilePictureUrl, loading: profileLoading } = useUserProfile()
+  
+  // State for managing which sub-menus are open
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({})
+
+  // Toggle sub-menu open/closed
+  const toggleSubMenu = (itemLabel: string) => {
+    setOpenSubMenus(prev => ({
+      ...prev,
+      [itemLabel]: !prev[itemLabel]
+    }))
+  }
 
   // Define navigation items based on user type
   const getNavigationItems = () => {
@@ -79,7 +95,15 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
         icon: Users,
         label: 'Customers',
         path: `/${userType}/customers`,
-        active: pathname === `/${userType}/customers`,
+        active: pathname === `/${userType}/customers` || pathname.startsWith(`/${userType}/customers/`),
+        subItems: [
+          {
+            icon: MessageCircle,
+            label: 'Chats',
+            path: `/${userType}/customers/chats`,
+            active: pathname === `/${userType}/customers/chats` || pathname.startsWith(`/${userType}/customers/chats/`),
+          }
+        ]
       },
       {
         icon: FileText,
@@ -171,16 +195,67 @@ export function AppSidebar({ userType = 'distributor' }: AppSidebarProps) {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.path} className="mb-1">
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <Link href={item.path}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigationItems.map((item) => {
+                const isSubMenuOpen = openSubMenus[item.label] || false
+                
+                return (
+                  <SidebarMenuItem key={item.path} className="mb-1">
+                    {item.subItems ? (
+                      // Menu item with sub-items
+                      <>
+                        <SidebarMenuButton 
+                          isActive={item.active}
+                          onClick={() => toggleSubMenu(item.label)}
+                          className="cursor-pointer"
+                        >
+                          <item.icon />
+                          <span>{item.label}</span>
+                          <motion.div
+                            animate={{ rotate: isSubMenuOpen ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="ml-auto"
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </motion.div>
+                        </SidebarMenuButton>
+                        
+                        <AnimatePresence>
+                          {isSubMenuOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              style={{ overflow: "hidden" }}
+                            >
+                              <SidebarMenuSub>
+                                {item.subItems.map((subItem) => (
+                                  <SidebarMenuSubItem key={subItem.path}>
+                                    <SidebarMenuSubButton asChild isActive={subItem.active}>
+                                      <Link href={subItem.path}>
+                                        <subItem.icon />
+                                        <span>{subItem.label}</span>
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                ))}
+                              </SidebarMenuSub>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </>
+                    ) : (
+                      // Regular menu item
+                      <SidebarMenuButton asChild isActive={item.active}>
+                        <Link href={item.path}>
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    )}
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

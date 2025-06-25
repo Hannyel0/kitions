@@ -242,61 +242,47 @@ export default function RetailerOrdersPage() {
         throw new Error('User not authenticated');
       }
 
-              // Get retailer record
-        const { data: retailerData, error: retailerError } = await supabase
-          .from('retailers')
-          .select('id')
-          .eq('user_id', userId)
-          .single();
+      // Get retailer record
+      const { data: retailerData, error: retailerError } = await supabase
+        .from('retailers')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
 
-        if (retailerError) {
-          console.error('Retailer query error:', retailerError);
-          throw new Error(`Could not find retailer record for this user: ${retailerError.message}`);
+      if (retailerError) {
+        throw new Error(`Could not find retailer record for this user: ${retailerError.message}`);
+      }
+
+      if (!retailerData?.id) {
+        throw new Error('No retailer record found for this user');
+      }
+
+      const retailerId = retailerData.id;
+
+      // Fetch partnership requests using database function to avoid RLS recursion
+      const { data: requestsData, error: requestsError } = await supabase
+        .rpc('get_partnership_requests_for_retailer', { 
+          retailer_user_id: userId 
+        });
+
+      if (requestsError) {
+        throw new Error(`Failed to fetch partnership requests: ${requestsError.message}`);
+      }
+
+      // Transform the function results into our expected format
+      const transformedRequests: PartnershipRequest[] = requestsData?.map((request: any) => ({
+        id: request.relationship_id,
+        distributor_id: request.distributor_id,
+        status: request.status,
+        created_at: request.created_at,
+        distributor: {
+          id: request.distributor_id,
+          business_name: request.business_name || 'Unknown Business',
+          email: request.email || 'No Email',
+          phone: request.phone || 'No Phone',
+          address: request.business_address || 'No Address',
         }
-
-        if (!retailerData?.id) {
-          throw new Error('No retailer record found for this user');
-        }
-
-                const retailerId = retailerData.id;
-        console.log('Found retailer ID:', retailerId, 'for user:', userId);
-
-        // Fetch partnership requests
-        const { data: requestsData, error: requestsError } = await supabase
-          .from('relationships')
-          .select(`
-            id,
-            distributor_id,
-            status,
-            created_at,
-            distributors!inner(
-              id,
-              users(business_name, email, phone, business_address)
-            )
-          `)
-          .eq('retailer_id', retailerId)
-          .order('created_at', { ascending: false });
-
-        if (requestsError) {
-          console.error('Partnership requests query error:', requestsError);
-          throw new Error(`Failed to fetch partnership requests: ${requestsError.message}`);
-        }
-
-              // Transform partnership requests
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const transformedRequests = requestsData?.map((request: any) => ({
-          id: request.id,
-          distributor_id: request.distributor_id,
-          status: request.status,
-          created_at: request.created_at,
-          distributor: {
-            id: request.distributors.id,
-            business_name: request.distributors.users?.business_name || 'Unknown Business',
-            email: request.distributors.users?.email || '',
-            phone: request.distributors.users?.phone || '',
-            address: request.distributors.users?.business_address || '',
-          }
-        })) || [];
+      })) || [];
 
       // Fetch orders
       const { data: ordersData, error: ordersError } = await supabase
@@ -329,12 +315,8 @@ export default function RetailerOrdersPage() {
         .order('created_at', { ascending: false });
 
       if (ordersError) {
-        console.error('Orders query error:', ordersError);
         throw new Error(`Failed to fetch orders: ${ordersError.message}`);
       }
-
-      console.log('Raw orders data:', ordersData);
-      console.log('Orders count:', ordersData?.length || 0);
 
       // Get unique user IDs from orders to fetch user details
       const userIds = [...new Set(ordersData?.map(order => order.placed_by_user_id) || [])];
@@ -402,7 +384,7 @@ export default function RetailerOrdersPage() {
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
-      console.error('Error fetching data:', err);
+      console.error('❌ Error fetching data:', err);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -479,6 +461,8 @@ export default function RetailerOrdersPage() {
   const totalOrders = orders.length;
   const totalValue = orders.reduce((sum, order) => sum + order.total, 0);
   const pendingRequests = partnershipRequests.filter(req => req.status === 'pending').length;
+
+
 
   // Show loading skeleton while data is loading
   if (isLoading) {
