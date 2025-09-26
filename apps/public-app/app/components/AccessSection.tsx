@@ -37,7 +37,7 @@ export default function AccessSection() {
   ];
 
   return (
-    <section className="w-full py-20 px-4 sm:px-8 md:px-12 lg:px-20 bg-white relative">
+    <section className="w-full py-12 sm:py-16 md:py-20 px-3 sm:px-6 md:px-8 lg:px-12 xl:px-20 bg-white relative">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -45,7 +45,7 @@ export default function AccessSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-14 md:mb-16"
         >
           {/* Badge */}
           <motion.div
@@ -53,9 +53,9 @@ export default function AccessSection() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3ff] border border-[#8982cf]/20 rounded-full text-[#8982cf] font-medium text-sm mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#f5f3ff] border border-[#8982cf]/20 rounded-full text-[#8982cf] font-medium text-xs sm:text-sm mb-4 sm:mb-6"
           >
-            <Package className="w-4 h-4" />
+            <Package className="w-3 h-3 sm:w-4 sm:h-4" />
             Why Choose Kitions
           </motion.div>
 
@@ -64,7 +64,7 @@ export default function AccessSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight"
           >
             Everything You Need to
             <br />
@@ -78,14 +78,14 @@ export default function AccessSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0"
           >
             Join thousands of retailers and suppliers who trust Kitions to streamline their food distribution business
           </motion.p>
         </motion.div>
 
         {/* Benefits Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-14 md:mb-16">
           {benefits.map((benefit, index) => {
             // Alternate between purple and sage green for some variety
             const isAccentCard = index === 1 || index === 4; // "Instant Order Processing" and "Secure Payment Processing"
@@ -103,17 +103,17 @@ export default function AccessSection() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -5, scale: 1.02 }}
-                className={`group p-8 bg-white rounded-2xl border border-gray-100 ${hoverBorderColor} hover:shadow-xl transition-all duration-300 cursor-pointer`}
+                className={`group p-6 sm:p-8 bg-white rounded-2xl border border-gray-100 ${hoverBorderColor} hover:shadow-xl transition-all duration-300 cursor-pointer`}
               >
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 bg-gradient-to-br ${bgColor} ${hoverBorderColor} rounded-xl ${hoverBgColor} transition-all duration-300`}>
-                    <benefit.icon className="w-6 h-6" style={{ color: iconColor }} />
+                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                  <div className={`p-2.5 sm:p-3 bg-gradient-to-br ${bgColor} ${hoverBorderColor} rounded-xl ${hoverBgColor} transition-all duration-300 flex-shrink-0`}>
+                    <benefit.icon className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: iconColor }} />
                   </div>
-                  <div className="flex-1">
-                    <h3 className={`text-xl font-bold text-gray-900 mb-2 ${hoverTextColor} transition-colors duration-300`}>
+                  <div className="flex-1 text-center sm:text-left">
+                    <h3 className={`text-lg sm:text-xl font-bold text-gray-900 mb-2 ${hoverTextColor} transition-colors duration-300`}>
                       {benefit.title}
                     </h3>
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                       {benefit.description}
                     </p>
                   </div>
@@ -129,29 +129,29 @@ export default function AccessSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center bg-gradient-to-br from-[#f5f3ff] to-white rounded-3xl p-12 border border-[#8982cf]/10"
+          className="text-center bg-gradient-to-br from-[#f5f3ff] to-white rounded-2xl sm:rounded-3xl p-8 sm:p-10 md:p-12 border border-[#8982cf]/10"
         >
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
               Join the Marketplace Revolution
             </h3>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 sm:px-0">
               Over 10,000+ retailers and 1,000+ suppliers trust Kitions for their daily operations
             </p>
             
             {/* Trust Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#8982cf] mb-2">10,000+</div>
-                <div className="text-gray-600">Active Retailers</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[#8982cf] mb-1 sm:mb-2">10,000+</div>
+                <div className="text-sm sm:text-base text-gray-600">Active Retailers</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#ABD4AB] mb-2">1,000+</div>
-                <div className="text-gray-600">Verified Suppliers</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[#ABD4AB] mb-1 sm:mb-2">1,000+</div>
+                <div className="text-sm sm:text-base text-gray-600">Verified Suppliers</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-[#8982cf] mb-2">$50M+</div>
-                <div className="text-gray-600">Monthly Transactions</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[#8982cf] mb-1 sm:mb-2">$50M+</div>
+                <div className="text-sm sm:text-base text-gray-600">Monthly Transactions</div>
               </div>
             </div>
 
@@ -162,7 +162,7 @@ export default function AccessSection() {
             >
               <a
                 href="/signup"
-                className="group bg-gradient-to-r from-[#ABD4AB] to-[#9BC49B] hover:from-[#95C295] hover:to-[#ABD4AB] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                className="group bg-gradient-to-r from-[#ABD4AB] to-[#9BC49B] hover:from-[#95C295] hover:to-[#ABD4AB] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 Get Started Today
                 <motion.div

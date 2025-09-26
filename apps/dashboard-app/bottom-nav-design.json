@@ -1,0 +1,188 @@
+{
+    "designSystem": {
+      "name": "Mobile Navigation Design System",
+      "version": "1.0.0",
+      "description": "A clean, modern mobile navigation system with floating active states and consistent iconography"
+    },
+    "layout": {
+      "structure": {
+        "type": "horizontal_navigation_bar",
+        "positioning": "bottom_fixed_or_contained",
+        "alignment": "center",
+        "distribution": "space_evenly"
+      },
+      "container": {
+        "shape": "rounded_rectangle",
+        "padding": {
+          "horizontal": "16px",
+          "vertical": "12px"
+        },
+        "maxWidth": "400px",
+        "minWidth": "320px"
+      }
+    },
+    "visualStyle": {
+      "colorPalette": {
+        "background": {
+          "default": "#FFFFFF",
+          "surface": "#F5F5F5"
+        },
+        "text": {
+          "primary": "#1A1A1A",
+          "secondary": "#666666",
+          "muted": "#999999"
+        },
+        "accent": {
+          "primary": "#000000",
+          "highlight": "#FFFFFF"
+        }
+      },
+      "borderRadius": {
+        "container": "24px",
+        "activeState": "50%",
+        "small": "8px"
+      },
+      "shadows": {
+        "container": "0 2px 12px rgba(0, 0, 0, 0.1)",
+        "activeState": "0 2px 8px rgba(0, 0, 0, 0.15)"
+      }
+    },
+    "typography": {
+      "labels": {
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "1.2",
+        "letterSpacing": "0.5px",
+        "textAlign": "center"
+      },
+      "activeLabels": {
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "color": "inherit_from_state"
+      }
+    },
+    "navigation": {
+      "itemCount": 5,
+      "items": {
+        "structure": {
+          "icon": {
+            "size": "20px",
+            "strokeWidth": "1.5px",
+            "style": "outline"
+          },
+          "label": {
+            "position": "below_icon",
+            "spacing": "4px"
+          }
+        },
+        "spacing": {
+          "between_items": "auto_distributed",
+          "internal_padding": "8px"
+        }
+      }
+    },
+    "interactionStates": {
+      "default": {
+        "background": "transparent",
+        "iconColor": "text.secondary",
+        "labelColor": "text.secondary",
+        "scale": "1.0"
+      },
+      "active": {
+        "background": "accent.primary",
+        "iconColor": "accent.highlight",
+        "labelColor": "accent.primary",
+        "shape": "circle",
+        "elevation": "raised",
+        "scale": "1.1",
+        "positioning": "floated_above"
+      },
+      "hover": {
+        "background": "rgba(0, 0, 0, 0.05)",
+        "transition": "all 0.2s ease"
+      }
+    },
+    "animations": {
+      "stateTransition": {
+        "duration": "300ms",
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "properties": ["background-color", "transform", "box-shadow"]
+      },
+      "activeState": {
+        "type": "float_and_scale",
+        "transform": "translateY(-8px) scale(1.1)",
+        "shadow": "elevated"
+      }
+    },
+    "iconSystem": {
+      "style": "outline",
+      "weight": "regular",
+      "size": "20px",
+      "strokeWidth": "1.5px",
+      "commonIcons": {
+        "home": "house_outline",
+        "search": "magnifying_glass",
+        "explore": "compass",
+        "message": "paper_plane",
+        "profile": "user_circle"
+      }
+    },
+    "responsiveness": {
+      "breakpoints": {
+        "mobile": "320px - 480px",
+        "tablet": "481px - 768px"
+      },
+      "adaptations": {
+        "mobile": {
+          "container_padding": "12px",
+          "icon_size": "18px",
+          "label_size": "11px"
+        },
+        "tablet": {
+          "container_padding": "16px",
+          "icon_size": "22px",
+          "label_size": "13px"
+        }
+      }
+    },
+    "implementation": {
+      "css_approach": {
+        "layout": "flexbox",
+        "positioning": "relative_with_absolute_active",
+        "responsive": "media_queries"
+      },
+      "html_structure": {
+        "container": "nav",
+        "items": "ul > li > a",
+        "semantic": "role=navigation"
+      },
+      "key_css_properties": [
+        "display: flex",
+        "justify-content: space-around",
+        "align-items: center",
+        "position: relative",
+        "background: white",
+        "border-radius: 24px",
+        "box-shadow: shadow.container",
+        "padding: 12px 16px"
+      ]
+    },
+    "accessibility": {
+      "requirements": {
+        "keyboard_navigation": "tab_through_items",
+        "screen_reader": "aria_labels_required",
+        "touch_targets": "minimum_44px",
+        "color_contrast": "4.5:1_minimum"
+      },
+      "focus_states": {
+        "outline": "2px solid accent.primary",
+        "outline_offset": "2px"
+      }
+    },
+    "usage_patterns": {
+      "primary_use": "mobile_app_navigation",
+      "placement": "bottom_of_screen",
+      "behavior": "sticky_or_fixed",
+      "content_relationship": "highlights_current_section"
+    }
+  }
